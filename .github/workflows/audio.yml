@@ -21,8 +21,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install edge-tts==7.0.2
+      - run: pip install --upgrade edge-tts
+      - name: Test one voice (fails fast if the service is unreachable)
+        timeout-minutes: 2
+        run: |
+          timeout 45 edge-tts --voice es-ES-ElviraNeural --text "Hola, esto es una prueba." --write-media /tmp/t.mp3
+          ls -l /tmp/t.mp3 && test -s /tmp/t.mp3
       - name: Generate missing MP3s
+        timeout-minutes: 40
         run: |
           node tools/sentences.js > /tmp/list.tsv
           echo "$(wc -l < /tmp/list.tsv) sentence files listed"
@@ -31,13 +37,15 @@ jobs:
             [ -s "$path" ] && continue
             mkdir -p "$(dirname "$path")"
             for try in 1 2 3; do
-              edge-tts --voice "$ms" --rate=-5% --text "$text" --write-media "$path" && [ -s "$path" ] && break
+              timeout 40 edge-tts --voice "$ms" --rate=-5% --text "$text" --write-media "$path" < /dev/null && [ -s "$path" ] && break
+              rm -f "$path"
               sleep 3
             done
             made=$((made+1))
           done < /tmp/list.tsv
           echo "generated $made new files"
       - name: Commit audio
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
