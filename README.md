@@ -2,7 +2,7 @@
 
 Spanish listening practice from A1 to C1. Each lesson has a text read aloud, a transcript you can hide, a 5-question comprehension quiz and a short vocabulary list.
 
-Live site: https://museo-am.github.io/verba-listenting/
+Live site: https://museo-am.github.io/Verba-Listenting/
 
 ## How it works
 - Everything is in `index.html`. Lessons are in the `LESSONS` array at the top of the script.

@@ -259,8 +259,8 @@ const synth = window.speechSynthesis;
 let voices = [];
 function vScore(v){let s=0;const n=v.name;if(/natural|neural/i.test(n))s+=50;if(/premium/i.test(n))s+=45;if(/enhanced|mejorad/i.test(n))s+=40;if(/google/i.test(n))s+=25;if(!v.localService)s+=5;if(v.lang==='es-ES')s+=3;if(/eloquence|compact|espeak/i.test(n))s-=30;return s;}
 function loadVoices(){ if(!synth) return; voices = synth.getVoices().filter(v=>/^es/i.test(v.lang)).sort((a,b)=>vScore(b)-vScore(a)); if(player.voice && !voices.some(v=>v.name===player.voice)) player.voice=''; fillVoiceSelect(); }
-if(synth){ loadVoices(); synth.onvoiceschanged = loadVoices; }
 let player = {sentences:[],idx:0,playing:false,rate:store.get("vs-rate",0.9),voice:store.get("vs-voice","")};
+if(synth){ loadVoices(); synth.onvoiceschanged = loadVoices; }
 
 function fillVoiceSelect(){
   const sel = document.getElementById("voice"); if(!sel) return;
