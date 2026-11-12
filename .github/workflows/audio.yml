@@ -1,0 +1,47 @@
+name: Generate natural voices
+
+on:
+  push:
+    branches: [main]
+    paths: [index.html, tools/sentences.js, .github/workflows/audio.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: audio
+  cancel-in-progress: false
+
+jobs:
+  audio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install edge-tts==7.0.2
+      - name: Generate missing MP3s
+        run: |
+          node tools/sentences.js > /tmp/list.tsv
+          echo "$(wc -l < /tmp/list.tsv) sentence files listed"
+          made=0
+          while IFS=$'\t' read -r id ms path text; do
+            [ -s "$path" ] && continue
+            mkdir -p "$(dirname "$path")"
+            for try in 1 2 3; do
+              edge-tts --voice "$ms" --rate=-5% --text "$text" --write-media "$path" && [ -s "$path" ] && break
+              sleep 3
+            done
+            made=$((made+1))
+          done < /tmp/list.tsv
+          echo "generated $made new files"
+      - name: Commit audio
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add audio
+          git diff --cached --quiet && echo "nothing new" && exit 0
+          git commit -m "Add natural-voice audio"
+          git push

@@ -242,6 +242,8 @@ const LESSONS = [
     ["¿Cuál es la idea final del texto?",["El lujo es tener más cosas","Estar en silencio es aprender a escucharse","El ruido es inevitable","La tecnología es mala"],1]]}
 ];
 
+const splitSentences = p => (p.match(/[^.!?¿¡]*[¿¡]?[^.!?]*[.!?]+/g) || [p]).map(t=>t.trim()).filter(Boolean);
+
 const LEVELS = ["A1","A2","B1","B2","C1"];
 const $app = document.getElementById("app");
 const store = {
@@ -255,66 +257,125 @@ const words = l => l.text.join(" ").split(/\s+/).length;
 const mins = l => Math.max(1,Math.round(words(l)/ (l.level[0]==="A"?110:140)));
 
 /* ---------- speech ---------- */
+// Natural voices: MP3s generated per sentence by .github/workflows/audio.yml into audio/<voice>/<sha1-12>.mp3
+const NEURAL = [
+  {id:"elvira", label:"Elvira · España"},
+  {id:"alvaro", label:"Álvaro · España"},
+  {id:"dalia",  label:"Dalia · México"}
+];
 const synth = window.speechSynthesis;
 let voices = [];
 function vScore(v){let s=0;const n=v.name;if(/natural|neural/i.test(n))s+=50;if(/premium/i.test(n))s+=45;if(/enhanced|mejorad/i.test(n))s+=40;if(/google/i.test(n))s+=25;if(!v.localService)s+=5;if(v.lang==='es-ES')s+=3;if(/eloquence|compact|espeak/i.test(n))s-=30;return s;}
-function loadVoices(){ if(!synth) return; voices = synth.getVoices().filter(v=>/^es/i.test(v.lang)).sort((a,b)=>vScore(b)-vScore(a)); if(player.voice && !voices.some(v=>v.name===player.voice)) player.voice=''; fillVoiceSelect(); }
-let player = {sentences:[],idx:0,playing:false,rate:store.get("vs-rate",0.9),voice:store.get("vs-voice","")};
+let player = {sentences:[],idx:0,playing:false,paused:false,rate:store.get("vs-rate",0.9),voice:store.get("vs-voice2","n:elvira")};
+function loadVoices(){ if(!synth) return; voices = synth.getVoices().filter(v=>/^es/i.test(v.lang)).sort((a,b)=>vScore(b)-vScore(a)); fillVoiceSelect(); }
 if(synth){ loadVoices(); synth.onvoiceschanged = loadVoices; }
 
 function fillVoiceSelect(){
   const sel = document.getElementById("voice"); if(!sel) return;
-  if(!voices.length){ sel.innerHTML='<option value="">Voz española del sistema</option>'; return; }
-  const cur = player.voice || voices[0].name;
-  sel.innerHTML = voices.map(v=>`<option value="${esc(v.name)}" ${v.name===cur?"selected":""}>${vScore(v)>=25?"★ ":""}${esc(v.name)} · ${esc(v.lang)}</option>`).join("");
+  const opt = (val,label)=>`<option value="${esc(val)}" ${val===player.voice?"selected":""}>${esc(label)}</option>`;
+  sel.innerHTML = `<optgroup label="Voces naturales">${NEURAL.map(n=>opt("n:"+n.id,"★ "+n.label)).join("")}</optgroup>`
+    + (voices.length?`<optgroup label="Voces del dispositivo">${voices.map(v=>opt(v.name,v.name+" · "+v.lang)).join("")}</optgroup>`:"");
 }
+async function sha12(t){
+  try{ const b=await crypto.subtle.digest("SHA-1",new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("").slice(0,12); }
+  catch(e){ return null; }
+}
+function hashSentences(){ player.sentences.forEach(async s=>{ s.hash = await sha12(s.text); }); }
+
+const audio = new Audio(); audio.preload = "auto";
+try{ audio.preservesPitch = true; }catch(e){}
+const pre = new Audio(); pre.preload = "auto";
+let mode = null;          // "mp3" | "tts" for the sentence now playing
+let warnedMissing = false;
+const isNeural = () => player.voice.startsWith("n:");
+const mp3Url = (i) => { const s=player.sentences[i]; return s&&s.hash ? `audio/${player.voice.slice(2)}/${s.hash}.mp3` : null; };
+const mp3Rate = () => player.rate/0.9;
+
+function note(html,warn){ const n=document.getElementById("anote"); if(n){ n.className="note"+(warn?" warn":""); n.innerHTML=html; } }
+
+function speakFrom(i){
+  halt();
+  player.idx = i; player.playing = true; player.paused = false; updatePlayerUI();
+  if(!player.sentences[i]){ stop(true); return; }
+  const url = isNeural() && mp3Url(i);
+  if(url) playMp3(i,url); else doSpeak(i);
+}
+function playMp3(i,url){
+  mode = "mp3";
+  audio.src = url; audio.playbackRate = mp3Rate();
+  audio.onended = () => { if(player.playing && player.idx===i) speakFrom(i+1); };
+  audio.onerror = () => { if(player.playing && player.idx===i){
+    if(!warnedMissing){ warnedMissing=true; note("Las voces naturales de este texto aún se están generando. Mientras tanto se usa la voz del dispositivo."); }
+    doSpeak(i); } };
+  audio.play().catch(e=>{ if(e.name==="NotAllowedError"){ player.playing=false; updatePlayerUI(); } });
+  const nx = mp3Url(i+1); if(nx){ pre.src = nx; }
+}
+
 let audioOK=false, watchdog=null;
 function noAudio(){
   player.playing=false; updatePlayerUI();
-  const n=document.getElementById('anote');
-  if(n){n.className='note warn';n.innerHTML='⚠️ El audio no funciona dentro de esta vista. Abre la página en <b>Chrome</b>, <b>Safari</b> o <b>Edge</b> (menú ⋯ → Abrir en el navegador). Audio doesn\'t work in this in-app view — open the page in your browser.';}
+  note('⚠️ El audio no funciona dentro de esta vista. Abre la página en <b>Chrome</b>, <b>Safari</b> o <b>Edge</b>.',true);
 }
-function speakFrom(i){
+function doSpeak(i){
+  mode = "tts";
   if(!synth){ noAudio(); return; }
   const busy = synth.speaking || synth.pending;
   if(busy) synth.cancel();
   try{ synth.resume(); }catch(e){}
-  player.idx = i; player.playing = true; updatePlayerUI();
-  const s = player.sentences[i]; if(!s){ stop(true); return; }
-  if(busy){ setTimeout(()=>{ if(player.playing && player.idx===i) doSpeak(i); },80); } else doSpeak(i);
+  const go = () => {
+    if(!(player.playing && player.idx===i)) return;
+    const u = new SpeechSynthesisUtterance(player.sentences[i].text);
+    u.lang = "es-ES"; u.rate = player.rate;
+    const v = voices.find(v=>v.name===player.voice) || voices[0];
+    if(v){ u.voice = v; u.lang = v.lang; }
+    u.onstart = () => { audioOK=true; clearTimeout(watchdog); };
+    u.onend = () => { if(player.playing && player.idx===i) speakFrom(i+1); };
+    u.onerror = (e) => { if(!audioOK && e.error!=='interrupted' && e.error!=='canceled') noAudio(); };
+    clearTimeout(watchdog);
+    if(!audioOK) watchdog=setTimeout(()=>{ if(!audioOK && player.playing){ synth.cancel(); noAudio(); } },2500);
+    synth.speak(u);
+  };
+  if(busy) setTimeout(go,80); else go();
 }
-function doSpeak(i){
-  const s = player.sentences[i];
-  const u = new SpeechSynthesisUtterance(s.text);
-  u.lang = "es-ES"; u.rate = player.rate;
-  const v = voices.find(v=>v.name===player.voice) || voices[0];
-  if(v){ u.voice = v; u.lang = v.lang; }
-  u.onstart = () => { audioOK=true; clearTimeout(watchdog); };
-  u.onend = () => { if(player.playing && player.idx===i) speakFrom(i+1); };
-  u.onerror = (e) => { if(!audioOK && e.error!=='interrupted' && e.error!=='canceled') noAudio(); };
-  clearTimeout(watchdog);
-  if(!audioOK) watchdog=setTimeout(()=>{ if(!audioOK && player.playing){ synth.cancel(); noAudio(); } },2500);
-  synth.speak(u);
+function halt(){
+  audio.onended = audio.onerror = null; audio.pause();
+  if(synth && (synth.speaking||synth.pending)) synth.cancel();
+}
+function pause(){
+  if(mode==="mp3" && !audio.ended){ audio.pause(); player.playing=false; player.paused=true; updatePlayerUI(); }
+  else stop(false);
+}
+function resume(){
+  if(player.paused && mode==="mp3" && audio.src){
+    player.playing=true; player.paused=false; updatePlayerUI();
+    const i=player.idx;
+    audio.onended = () => { if(player.playing && player.idx===i) speakFrom(i+1); };
+    audio.play().catch(()=>speakFrom(i));
+  } else speakFrom(player.idx>=player.sentences.length?0:player.idx);
+}
+function applyRate(){
+  if(mode==="mp3"){ audio.playbackRate = mp3Rate(); }
+  else if(player.playing) speakFrom(player.idx);
 }
 function stop(finished){
-  if(synth) synth.cancel();
-  player.playing = false;
+  halt();
+  player.playing = false; player.paused = false;
   if(finished) player.idx = 0;
   updatePlayerUI();
 }
 function updatePlayerUI(){
-  document.querySelectorAll(".s").forEach(el=>el.classList.toggle("now", player.playing && +el.dataset.i===player.idx));
+  const active = player.playing || player.paused;
+  document.querySelectorAll(".s").forEach(el=>el.classList.toggle("now", active && +el.dataset.i===player.idx));
   const btn = document.getElementById("playbtn"); if(!btn) return;
   btn.innerHTML = player.playing
     ? '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>'
     : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>';
   btn.setAttribute("aria-label", player.playing?"Pausar":"Reproducir");
   const n = player.sentences.length;
-  const pct = n? Math.round((player.playing?player.idx:player.idx)/n*100):0;
-  document.getElementById("barfill").style.width = pct+"%";
+  document.getElementById("barfill").style.width = (n? Math.round(player.idx/n*100):0)+"%";
   document.getElementById("progtxt").textContent = `Frase ${Math.min(player.idx+1,n)} / ${n}`;
   const cur = document.querySelector(".s.now");
-  if(cur && !document.querySelector(".blur")) cur.scrollIntoView({block:"nearest",behavior:"smooth"});
+  if(cur && player.playing && !document.querySelector(".blur")) cur.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
 
 /* ---------- views ---------- */
@@ -348,9 +409,10 @@ function renderLesson(l){
   let si=0;
   player.sentences=[];
   const paras = l.text.map(p=>{
-    const parts = p.match(/[^.!?¿¡]*[¿¡]?[^.!?]*[.!?]+/g) || [p];
-    return "<p>"+parts.map(t=>{t=t.trim(); player.sentences.push({text:t}); return `<span class="s" data-i="${si++}">${esc(t)}</span>`}).join(" ")+"</p>";
+    const parts = splitSentences(p);
+    return "<p>"+parts.map(t=>{player.sentences.push({text:t}); return `<span class="s" data-i="${si++}">${esc(t)}</span>`}).join(" ")+"</p>";
   }).join("");
+  hashSentences();
   const blurred = store.get("vs-blur",true);
   $app.innerHTML = `
   <a class="back" href="#">← Todos los textos</a>
@@ -371,7 +433,7 @@ function renderLesson(l){
           <button type="button" class="ctl" id="restart">↺ Desde el inicio</button>
         </div>
         <div class="row"><label for="voice">Voz</label><select id="voice"></select></div>
-        ${synth?`<p class="note" id="anote">El audio usa la mejor voz española de tu dispositivo (★ = voz de alta calidad). Toca cualquier frase para escucharla desde ahí.</p>`:`<p class="note warn" id="anote">⚠️ El audio no funciona dentro de esta vista. Abre la página en <b>Chrome</b>, <b>Safari</b> o <b>Edge</b>.</p>`}
+        ${synth?`<p class="note" id="anote">★ Voces naturales de España y México. Toca cualquier frase para escucharla desde ahí.</p>`:`<p class="note warn" id="anote">⚠️ El audio no funciona dentro de esta vista. Abre la página en <b>Chrome</b>, <b>Safari</b> o <b>Edge</b>.</p>`}
       </section>
       <section class="panel ${blurred?"blur":""}" id="tpanel">
         <div class="tbar"><h2>Transcripción</h2><button type="button" class="tog" id="tog">${blurred?"Mostrar texto":"Ocultar texto"}</button></div>
@@ -396,14 +458,14 @@ function renderLesson(l){
   </div>`;
   fillVoiceSelect(); updatePlayerUI();
 
-  document.getElementById("playbtn").onclick=()=>{ player.playing? stop(false) : speakFrom(player.idx>=player.sentences.length?0:player.idx); };
+  document.getElementById("playbtn").onclick=()=>{ player.playing? pause() : resume(); };
   document.getElementById("restart").onclick=()=>speakFrom(0);
   $app.querySelectorAll("[data-rate]").forEach(b=>b.onclick=()=>{
     player.rate=+b.dataset.rate; store.set("vs-rate",player.rate);
     $app.querySelectorAll("[data-rate]").forEach(x=>x.classList.toggle("on",x===b));
-    if(player.playing) speakFrom(player.idx);
+    applyRate();
   });
-  document.getElementById("voice").onchange=e=>{player.voice=e.target.value;store.set("vs-voice",player.voice);if(player.playing)speakFrom(player.idx);};
+  document.getElementById("voice").onchange=e=>{player.voice=e.target.value;store.set("vs-voice2",player.voice);warnedMissing=false;if(player.playing||player.paused)speakFrom(player.idx);};
   $app.querySelectorAll(".s").forEach(s=>s.onclick=()=>speakFrom(+s.dataset.i));
   document.getElementById("tog").onclick=()=>{
     const p=document.getElementById("tpanel"); const b=p.classList.toggle("blur");
