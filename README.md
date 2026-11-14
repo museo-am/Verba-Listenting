@@ -1,20 +1,33 @@
 # Verba School Listenings
 
-Spanish listening practice from A1 to C1. Each lesson has a text read aloud, a transcript you can hide, a 5-question comprehension quiz and a short vocabulary list.
+Spanish listening practice from A1 to C1: a recording or device voice, a transcript you can hide, a comprehension quiz and vocabulary.
 
-Live site: https://museo-am.github.io/Verba-Listenting/
+- **Students:** https://museo-am.github.io/Verba-Listenting/ opens nothing on its own. Each listening opens only from a link the tutor sends.
+- **Tutor panel:** https://museo-am.github.io/Verba-Listenting/admin.html (password protected). Lists every listening with a **Copy link** button.
 
-## How it works
-- **Recordings (main voice):** one file per text in `audio/full/<lesson-id>.mp3` plus a `.json` with each sentence's start time. Upload a `.wav` or `.mp3` named after the lesson id into `audio/full/` and the **Prepare recordings** workflow converts it and syncs the highlighting to the pauses.
-- Everything is in `index.html`. Lessons are in the `LESSONS` array at the top of the script.
-- **Gemini voices (best):** Kore and Charon, one MP3 per paragraph in `audio/g-*/`, read slower and clearer for A1–A2 and at native pace for B2–C1. Made by the **Generate Gemini voices** workflow using the `GEMINI_API_KEY` repository secret. It runs on every change to `index.html` and once a day, so if the free quota runs out it continues the next day.
-- **Neural voices (backup):** Elvira, Álvaro and Dalia, one MP3 per sentence in `audio/<voice>/`, made by **Generate natural voices**.
-- If no MP3 exists yet, the page uses the next available voice, ending with the device's own Spanish voice.
+## How access works
+Every listening is encrypted (AES-256-GCM) with its own key. A student link ends in `#<lesson-id>~<key>`, and that key opens only that one listening. The part after `#` never reaches the server.
 
-### Turning on Gemini voices
-1. Get a free key at https://aistudio.google.com/apikey
-2. Repo **Settings → Secrets and variables → Actions → New repository secret**. Name: `GEMINI_API_KEY`, value: your key.
-3. **Actions → Generate Gemini voices → Run workflow.**
+The tutor panel holds the master secret that creates those keys, encrypted with the admin password in `admin.json`. Without the password the panel shows nothing.
 
-## Adding a lesson
-Copy one object in `LESSONS` and change `id`, `level`, `title`, `topic`, `summary`, `text` (paragraphs), `gloss` (word, translation) and `q` (question, 4 options, index of the correct option).
+Limits of a site with no server:
+- Anyone who has a link can open that listening, so links should go only to the student.
+- A sent link can't be switched off on its own. To cancel all links for a listening, raise its `v` in `private/lessons.json` and rebuild. The tutor then sends new links.
+
+## Files
+- `index.html`: student player. `admin.html`: tutor panel. `style.css`: shared styles.
+- `content/<id>.bin`: encrypted lesson text, questions and sentence timings.
+- `audio/<id>.bin`: encrypted recording.
+- `admin.json`: encrypted master secret and lesson list.
+- `tools/align.py`: finds where each sentence starts in a recording.
+- `tools/build.mjs`: encrypts everything in `private/` into the files above.
+
+The lesson texts and original recordings live in `private/`, which is never committed. Keep a backup of it.
+
+## Adding a recording or lesson
+```
+python3 tools/align.py <lesson-id> <recording.wav>          # → private/audio/<id>.mp3 + .json
+VERBA_ADMIN_PASSWORD='…' node tools/build.mjs               # encrypt
+git add -A && git commit -m "Update lessons" && git push
+```
+New lessons go in `private/lessons.json` with the same fields as the others (`id`, `v`, `level`, `title`, `topic`, `summary`, `narrator` "f" or "m", `text` paragraphs, `gloss`, `q`).

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Verba School Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <span class="brand"><b>Verba<span>.</span>School</b><small>Panel del profesor</small></span>
+    <button type="button" class="tog" id="lock" hidden>Cerrar sesión</button>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+/* The lesson list and the master secret live in admin.json, encrypted with the admin
+   password (PBKDF2-SHA256 → AES-256-GCM). Without the password this page shows nothing.
+   A student link holds only HMAC(master, "<id>:<v>"), which opens that one lesson. */
+const $app = document.getElementById("app");
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const lvClass = l => l[0]==="A"?"":l[0]==="B"?"b":"c";
+const unb64 = s => Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const b64u = u8 => btoa(String.fromCharCode(...u8)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const SITE = new URL("./", location.href).href;
+let session = null;   // {master: Uint8Array, lessons: [...]}
+
+async function unlock(pw){
+  const r = await fetch("admin.json",{cache:"no-cache"});
+  if(!r.ok) throw new Error("nofile");
+  const a = await r.json();
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveKey"]);
+  const k = await crypto.subtle.deriveKey({name:"PBKDF2", salt:unb64(a.salt), iterations:a.iter, hash:"SHA-256"}, base,
+    {name:"AES-GCM", length:256}, false, ["decrypt"]);
+  const plain = await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(a.iv)}, k, unb64(a.ct));
+  const inner = JSON.parse(new TextDecoder().decode(plain));
+  return {master: unb64(inner.master), lessons: inner.lessons};
+}
+async function linkFor(l){
+  const k = await crypto.subtle.importKey("raw", session.master, {name:"HMAC", hash:"SHA-256"}, false, ["sign"]);
+  const key = new Uint8Array(await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(`${l.id}:${l.v}`)));
+  return `${SITE}#${l.id}~${b64u(key)}`;
+}
+
+function renderLogin(err){
+  document.getElementById("lock").hidden = true;
+  $app.innerHTML = `
+  <form class="login" id="login" autocomplete="off">
+    <h1>Panel del profesor</h1>
+    <p>Introduce la contraseña para crear enlaces a las audiciones.</p>
+    <div class="field">
+      <label for="pw">Contraseña</label>
+      <input class="input" id="pw" type="password" autocomplete="current-password" required>
+    </div>
+    ${err?`<p class="err" role="alert">${err}</p>`:""}
+    <button class="btn" type="submit" id="go">Entrar</button>
+  </form>`;
+  const pw = document.getElementById("pw"); pw.focus();
+  document.getElementById("login").onsubmit = async e => {
+    e.preventDefault();
+    const btn = document.getElementById("go"); btn.disabled = true; btn.textContent = "Comprobando…";
+    try{ session = await unlock(pw.value); renderPanel(); }
+    catch(x){ renderLogin(x.message==="nofile" ? "No se encontró la configuración del panel." : "Contraseña incorrecta. Inténtalo de nuevo."); }
+  };
+}
+
+const LEVELS = ["A1","A2","B1","B2","C1","C2"];
+function renderPanel(){
+  document.getElementById("lock").hidden = false;
+  const byLevel = LEVELS.map(lv=>[lv, session.lessons.filter(l=>l.level===lv)]).filter(([,ls])=>ls.length);
+  const recs = session.lessons.filter(l=>l.audio).length;
+  $app.innerHTML = `
+  <div class="toolbar">
+    <h1>Audiciones</h1>
+    <p class="hint">${session.lessons.length} audiciones · ${recs} con grabación</p>
+  </div>
+  <p class="hint">Cada enlace abre solo esa audición. Quien tenga el enlace puede abrirla, así que envíalo solo a tu alumno.</p>
+  ${byLevel.map(([lv,ls])=>`
+    <h2 class="section-title">${lv}</h2>
+    <div class="rows">${ls.map(l=>`
+      <div class="row-l" data-id="${esc(l.id)}">
+        <span class="lv ${lvClass(l.level)}">${esc(l.level)}</span>
+        <div style="min-width:0">
+          <h3>${esc(l.title)}</h3>
+          <div class="meta"><span>${esc(l.topic)}</span><span>· ${l.narrator==="f"?"Narradora":"Narrador"}</span>
+            <span class="chip ${l.audio?"rec":""}">${l.audio?"Grabación":"Voz del dispositivo"}</span></div>
+        </div>
+        <div class="acts">
+          <button type="button" class="btn sm" data-copy>Copiar enlace</button>
+          <a class="btn sm ghost" data-open target="_blank" rel="noopener noreferrer" href="#">Abrir</a>
+        </div>
+      </div>`).join("")}</div>`).join("")}`;
+
+  $app.querySelectorAll(".row-l").forEach(async row=>{
+    const l = session.lessons.find(x=>x.id===row.dataset.id);
+    const url = await linkFor(l);
+    row.querySelector("[data-open]").href = url;
+    row.querySelector("[data-copy]").onclick = async (e)=>{
+      const btn = e.currentTarget;
+      try{
+        await navigator.clipboard.writeText(url);
+        btn.textContent = "Copiado ✓"; btn.classList.add("ok");
+        setTimeout(()=>{ btn.textContent="Copiar enlace"; btn.classList.remove("ok"); }, 1800);
+      }catch(err){
+        let box = row.querySelector(".linkbox");
+        if(!box){ box = document.createElement("div"); box.className="linkbox"; box.innerHTML=`<input readonly aria-label="Enlace">`; row.appendChild(box); }
+        const inp = box.querySelector("input"); inp.value = url; inp.focus(); inp.select();
+        btn.textContent = "Selecciona y copia";
+      }
+    };
+  });
+}
+
+document.getElementById("lock").onclick = ()=>{ session = null; renderLogin(); };
+renderLogin();
+</script>
+</body>
+</html>

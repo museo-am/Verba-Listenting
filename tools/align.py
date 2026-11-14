@@ -1,23 +1,27 @@
-"""Prepare full-text recordings: audio/full/<lesson-id>.(wav|mp3) -> <id>.mp3 + <id>.json
+"""Prepare a recording: any audio file -> private/audio/<lesson-id>.mp3 + <id>.json
 
 The JSON holds the start time of every sentence so the page can highlight along.
 Sentence boundaries are found by matching the recording's pauses to the text:
 dynamic programming picks the pauses that make each sentence's length closest
 to its share of the characters, preferring longer pauses.
 
-Usage: python3 tools/align.py            # every recording without an up-to-date JSON
-       python3 tools/align.py ID FILE    # one recording from any path
+Usage: python3 tools/align.py LESSON_ID RECORDING_FILE
+Then run tools/build.mjs to encrypt it for the site.
 """
 import json, os, re, subprocess, sys
 
+LESSONS_FILE = "private/lessons.json"
+AUDIO_DIR = "private/audio"
+
+def split(p):
+    # must match splitSentences in tools/build.mjs
+    parts = [t.strip() for t in re.findall(r"[^.!?¿¡]*[¿¡]?[^.!?]*[.!?]+", p)]
+    parts = [t for t in parts if t]
+    return parts or [p.strip()]
+
 def lessons():
-    out = subprocess.run(["node", "-e", r'''
-const fs=require("fs");const h=fs.readFileSync("index.html","utf8");
-const src=h.slice(h.indexOf("const LESSONS"),h.indexOf("const LEVELS"));
-const {LESSONS,splitSentences}=new Function(src+";return {LESSONS,splitSentences};")();
-console.log(JSON.stringify(Object.fromEntries(LESSONS.map(l=>[l.id,l.text.map(p=>splitSentences(p))])))) '''],
-        capture_output=True, text=True, check=True).stdout
-    return json.loads(out)
+    with open(LESSONS_FILE) as f:
+        return {l["id"]: [split(p) for p in l["text"]] for l in json.load(f)}
 
 def duration(path):
     return float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path],
@@ -85,30 +89,24 @@ def align(path, paras):
     return [round(max(0, s), 3) for s in starts], total, fit
 
 def process(lid, src, all_lessons):
-    os.makedirs("audio/full", exist_ok=True)
-    mp3 = f"audio/full/{lid}.mp3"
+    os.makedirs(AUDIO_DIR, exist_ok=True)
+    mp3 = f"{AUDIO_DIR}/{lid}.mp3"
     if os.path.abspath(src) != os.path.abspath(mp3):
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", src, "-ac", "1", "-codec:a", "libmp3lame", "-b:a", "96k", mp3], check=True)
     starts, total, fit = align(mp3, all_lessons[lid])
-    with open(f"audio/full/{lid}.json", "w") as f:
+    with open(f"{AUDIO_DIR}/{lid}.json", "w") as f:
         json.dump({"duration": round(total, 3), "starts": starts}, f)
     print(f"{lid}: {len(starts)} sentences, {total:.1f}s, fit {fit:.2f}")
     return starts, fit
 
 def main():
+    if len(sys.argv) != 3:
+        raise SystemExit("usage: python3 tools/align.py LESSON_ID RECORDING_FILE")
     all_lessons = lessons()
-    if len(sys.argv) == 3:
-        lid, src = sys.argv[1], sys.argv[2]
-        if lid not in all_lessons: raise SystemExit(f"unknown lesson id {lid}; known: {', '.join(all_lessons)}")
-        process(lid, src, all_lessons); return
-    for lid in all_lessons:
-        srcs = [f"audio/full/{lid}.{ext}" for ext in ("wav", "m4a", "ogg", "flac")]
-        src = next((s for s in srcs if os.path.exists(s)), None)
-        mp3, js = f"audio/full/{lid}.mp3", f"audio/full/{lid}.json"
-        if src:
-            process(lid, src, all_lessons); os.remove(src)
-        elif os.path.exists(mp3) and (not os.path.exists(js) or os.path.getmtime(js) < os.path.getmtime(mp3)):
-            process(lid, mp3, all_lessons)
+    lid, src = sys.argv[1], sys.argv[2]
+    if lid not in all_lessons:
+        raise SystemExit(f"unknown lesson id {lid}; known: {', '.join(all_lessons)}")
+    process(lid, src, all_lessons)
 
 if __name__ == "__main__":
     main()

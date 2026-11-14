@@ -3,346 +3,90 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
 <title>Verba School Listenings</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
-<style>
-/* Layout: library of lesson cards filtered by CEFR level → lesson view with player, transcript, quiz */
-:root{
-  --bg:#F5F6FA; --surface:#FFFFFF; --ink:#151a2e; --muted:#5b6280; --line:#e2e5ef;
-  --accent:#2747d0; --accent-soft:#e6ebff; --sun:#e9a51c; --sun-soft:#fff3d6;
-  --good:#1d8a55; --good-soft:#dff4e9; --bad:#c23b3b; --bad-soft:#fbe4e4;
-  --hl:#fff0b8;
-  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
-  --f-body:"Inter",ui-sans-serif,system-ui,-apple-system,sans-serif;
-  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
-}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0e1120; --surface:#171b2e; --ink:#eef0f8; --muted:#9aa1bf; --line:#272c45;
-  --accent:#8ea3ff; --accent-soft:#232b55; --sun:#f3c04f; --sun-soft:#3a3018;
-  --good:#5ad49a; --good-soft:#163a2a; --bad:#ff8a8a; --bad-soft:#401e22; --hl:#4a3f12; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0e1120; --surface:#171b2e; --ink:#eef0f8; --muted:#9aa1bf; --line:#272c45;
-  --accent:#8ea3ff; --accent-soft:#232b55; --sun:#f3c04f; --sun-soft:#3a3018;
-  --good:#5ad49a; --good-soft:#163a2a; --bad:#ff8a8a; --bad-soft:#401e22; --hl:#4a3f12; color-scheme:dark}
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6}
-.wrap{max-width:980px;margin:0 auto;padding-block:20px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-bottom:18px;border-bottom:1px solid var(--line)}
-.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;color:var(--ink)}
-.brand b{font-family:var(--f-display);font-weight:800;font-size:1.5rem;letter-spacing:-.02em}
-.brand b span{color:var(--accent)}
-.brand small{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.langtabs{display:flex;gap:6px}
-.langtabs button{font:600 .85rem var(--f-body);border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:6px 12px;border-radius:999px;cursor:pointer}
-.langtabs button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.langtabs button:disabled{opacity:.5;cursor:not-allowed}
-h1,h2,h3{font-family:var(--f-display);text-wrap:balance;letter-spacing:-.02em;margin:0}
-.hero{padding-block:36px 24px;display:grid;gap:14px}
-.hero h1{font-size:clamp(2rem,6vw,3.4rem);font-weight:800;line-height:1.02}
-.hero h1 em{font-style:normal;color:var(--accent)}
-.hero p{max-width:60ch;color:var(--muted);margin:0}
-.levels{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 22px}
-.levels button{font:700 .9rem var(--f-mono);border:1.5px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 14px;border-radius:10px;cursor:pointer;display:flex;gap:8px;align-items:center}
-.levels button .n{font-weight:500;color:var(--muted);font-size:.75rem}
-.levels button.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
-.card{display:grid;gap:10px;align-content:start;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;text-decoration:none;color:var(--ink);transition:transform .15s,border-color .15s}
-.card:hover,.card:focus-visible{border-color:var(--accent);transform:translateY(-2px)}
-.card h3{font-size:1.2rem;font-weight:700}
-.card p{margin:0;color:var(--muted);font-size:.92rem}
-.meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
-.lv{font:700 .75rem var(--f-mono);background:var(--sun-soft);color:var(--ink);padding:3px 8px;border-radius:6px;letter-spacing:.04em}
-.lv.b{background:var(--accent-soft);color:var(--accent)}
-.lv.c{background:var(--ink);color:var(--bg)}
-.done{font-weight:600;color:var(--good)}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-
-/* lesson */
-.back{display:inline-flex;gap:6px;align-items:center;margin-top:20px;color:var(--muted);text-decoration:none;font-weight:600;font-size:.9rem}
-.back:hover{color:var(--accent)}
-.lhead{padding-block:14px 20px;display:grid;gap:10px}
-.lhead h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:800;line-height:1.05}
-.cols{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:18px;align-items:start}
-@media (max-width:760px){.cols{grid-template-columns:minmax(0,1fr)}}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;gap:14px;min-width:0}
-.panel h2{font-size:1.15rem;font-weight:700}
-.player{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.player .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.play{width:58px;height:58px;border-radius:50%;border:0;background:var(--sun);color:#151a2e;cursor:pointer;display:grid;place-items:center;flex:none}
-.play svg{width:24px;height:24px}
-.ctl{font:600 .82rem var(--f-body);background:transparent;color:var(--bg);border:1px solid color-mix(in srgb,var(--bg) 30%,transparent);border-radius:8px;padding:6px 10px;cursor:pointer}
-.ctl.on{background:var(--bg);color:var(--ink)}
-.prog{flex:1;min-width:120px;display:grid;gap:4px}
-.bar{height:6px;border-radius:3px;background:color-mix(in srgb,var(--bg) 20%,transparent);overflow:hidden}
-.bar i{display:block;height:100%;background:var(--sun);width:0;transition:width .3s}
-.prog small{font-family:var(--f-mono);font-size:.72rem;opacity:.75}
-.player label{font-size:.8rem;opacity:.8}
-.player select{font:500 .85rem var(--f-body);background:transparent;color:var(--bg);border:1px solid color-mix(in srgb,var(--bg) 30%,transparent);border-radius:8px;padding:6px 8px;max-width:100%}
-.player select option{color:#151a2e}
-.note{font-size:.8rem;opacity:.75;margin:0}
-.note.warn{opacity:1;background:var(--sun);color:#151a2e;padding:10px 12px;border-radius:8px;line-height:1.45}
-.transcript{font-size:1.08rem;line-height:1.85}
-.transcript p{margin:0 0 .9em}
-.s{border-radius:4px;padding:1px 2px;cursor:pointer;transition:background .2s}
-.s:hover{background:var(--accent-soft)}
-.s.now{background:var(--hl)}
-.blur .transcript{filter:blur(6px);user-select:none;pointer-events:none}
-.tbar{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
-.tog{font:600 .82rem var(--f-body);border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:6px 12px;border-radius:8px;cursor:pointer}
-.gloss{display:grid;gap:6px;margin:0;padding:0;list-style:none}
-.gloss li{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed var(--line);padding-bottom:6px;font-size:.92rem}
-.gloss b{font-weight:600}
-.gloss span{color:var(--muted);text-align:right}
-.q{display:grid;gap:8px;padding-bottom:14px;border-bottom:1px solid var(--line)}
-.q:last-of-type{border-bottom:0}
-.q p{margin:0;font-weight:600}
-.q p small{font-family:var(--f-mono);color:var(--accent);margin-right:6px}
-.opt{display:flex;gap:10px;align-items:center;text-align:left;font:400 .95rem var(--f-body);background:var(--bg);color:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer;width:100%}
-.opt i{font:700 .75rem var(--f-mono);font-style:normal;color:var(--muted);width:1.2em}
-.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
-.opt.ok{border-color:var(--good);background:var(--good-soft)}
-.opt.no{border-color:var(--bad);background:var(--bad-soft)}
-.qfoot{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.btn{font:700 .95rem var(--f-body);background:var(--accent);color:var(--surface);border:0;border-radius:10px;padding:10px 18px;cursor:pointer}
-.btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
-.score{font-family:var(--f-mono);font-weight:700}
-footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:.82rem}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="wrap">
   <header class="top">
     <a class="brand" href="#"><b>Verba<span>.</span>School</b><small>Listenings</small></a>
-    <nav class="langtabs" aria-label="Language">
-      <button class="on" type="button">Español</button>
-      <button type="button" disabled title="Coming soon">English</button>
-      <button type="button" disabled title="Coming soon">Français</button>
-    </nav>
   </header>
   <main id="app"></main>
   <footer>Verba School · Comprensión auditiva en español, niveles A1–C1 según el MCER.</footer>
 </div>
 
 <script>
-const LESSONS = [
-{id:"me-llamo-lucia",narrator:"f",level:"A1",title:"Me llamo Lucía",topic:"Presentarse",
- summary:"Lucía habla de su familia, su ciudad y lo que le gusta hacer.",
- text:[
- "Hola, me llamo Lucía y tengo veintidós años. Soy de Valencia, una ciudad grande en el este de España. Vivo en un piso pequeño con mi hermana Marta.",
- "Soy estudiante. Estudio Medicina en la universidad. Las clases empiezan a las nueve de la mañana y terminan a las dos de la tarde.",
- "Mi padre se llama Antonio y es profesor. Mi madre se llama Carmen y trabaja en un banco. Tengo también un perro. Se llama Toby y es muy simpático.",
- "Los fines de semana me gusta ir a la playa con mis amigos. También me gusta leer y escuchar música. No me gusta mucho ver la televisión."],
- gloss:[["el piso","apartment"],["la hermana","sister"],["simpático","friendly, nice"],["el fin de semana","weekend"]],
- q:[["¿Cuántos años tiene Lucía?",["Veinte","Veintidós","Doce","Treinta y dos"],1],
-    ["¿Con quién vive Lucía?",["Con sus padres","Sola","Con su hermana","Con una amiga"],2],
-    ["¿Qué estudia Lucía?",["Medicina","Derecho","Música","Historia"],0],
-    ["¿Dónde trabaja su madre?",["En una escuela","En un hospital","En un banco","En una tienda"],2],
-    ["¿Qué no le gusta mucho a Lucía?",["Leer","Ir a la playa","Escuchar música","Ver la televisión"],3]]},
-
-{id:"en-el-mercado",narrator:"m",level:"A1",title:"En el mercado",topic:"Comida y compras",
- summary:"Un sábado por la mañana, Diego compra fruta y verdura para la semana.",
- text:[
- "Todos los sábados, Diego va al mercado de su barrio. El mercado abre a las ocho y hay mucha gente.",
- "Primero, Diego compra fruta: un kilo de naranjas y seis plátanos. Las naranjas cuestan dos euros el kilo.",
- "Después va a la verdulería. Compra tomates, una lechuga y dos cebollas. La vendedora es muy amable y siempre le da un poco de perejil gratis.",
- "Al final, Diego toma un café con leche en el bar del mercado. Luego vuelve a casa con dos bolsas grandes. En total, paga quince euros."],
- gloss:[["el barrio","neighbourhood"],["cuestan","they cost"],["la vendedora","seller (f.)"],["gratis","free of charge"]],
- q:[["¿Qué día va Diego al mercado?",["El lunes","El viernes","El sábado","El domingo"],2],
-    ["¿Cuánto cuesta un kilo de naranjas?",["Un euro","Dos euros","Tres euros","Seis euros"],1],
-    ["¿Qué le regala la vendedora?",["Perejil","Una lechuga","Un tomate","Una cebolla"],0],
-    ["¿Qué toma Diego en el bar?",["Un zumo","Un té","Un café con leche","Agua"],2],
-    ["¿Cuánto paga en total?",["Cinco euros","Doce euros","Quince euros","Cincuenta euros"],2]]},
-
-{id:"fin-de-semana-pablo",narrator:"m",level:"A2",title:"El fin de semana de Pablo",topic:"Tiempo libre",
- summary:"Pablo cuenta lo que hizo el sábado y el domingo pasados.",
- text:[
- "El fin de semana pasado fue muy divertido. El sábado por la mañana me levanté tarde, a las once, porque el viernes salí con mis compañeros de trabajo.",
- "Por la tarde fui al cine con mi novia, Elena. Vimos una película de aventuras, pero a ella no le gustó mucho. Después cenamos en un restaurante mexicano cerca de la plaza.",
- "El domingo hizo muy buen tiempo, así que fuimos en bicicleta al parque grande de la ciudad. Allí comimos unos bocadillos y jugamos al fútbol con unos amigos.",
- "Por la noche estaba muy cansado. Preparé la ropa para el lunes y me acosté pronto, a las diez y media."],
- gloss:[["me levanté","I got up"],["la novia","girlfriend"],["el bocadillo","sandwich (baguette)"],["me acosté","I went to bed"]],
- q:[["¿Por qué se levantó tarde Pablo el sábado?",["Estaba enfermo","Salió el viernes","Trabajó de noche","No tenía despertador"],1],
-    ["¿Qué opinó Elena de la película?",["Le encantó","No le gustó mucho","Se durmió","No la vio"],1],
-    ["¿Dónde cenaron el sábado?",["En casa","En un restaurante italiano","En un restaurante mexicano","En el cine"],2],
-    ["¿Cómo fueron al parque el domingo?",["En coche","A pie","En autobús","En bicicleta"],3],
-    ["¿A qué hora se acostó el domingo?",["A las diez y media","A las once","A las doce","A las nueve"],0]]},
-
-{id:"viaje-a-sevilla",narrator:"f",level:"A2",title:"Un viaje a Sevilla",topic:"Viajes",
- summary:"Ana y su madre pasan tres días en Sevilla durante la primavera.",
- text:[
- "En abril, Ana y su madre viajaron a Sevilla en tren. El viaje desde Madrid duró dos horas y media. Llegaron un jueves por la tarde.",
- "Se alojaron en un hotel pequeño en el barrio de Santa Cruz, con calles estrechas y muchas flores en los balcones.",
- "El viernes visitaron la catedral y subieron a la Giralda. Desde arriba se ve toda la ciudad. A Ana le encantaron las vistas, pero su madre se cansó mucho con las escaleras.",
- "El sábado pasearon por el parque de María Luisa y probaron el gazpacho y las tapas típicas. Volvieron a Madrid el domingo, muy contentas, y con muchas fotos."],
- gloss:[["se alojaron","they stayed (lodging)"],["estrecho","narrow"],["subir","to go up, climb"],["probar","to try, taste"]],
- q:[["¿Cómo viajaron a Sevilla?",["En avión","En coche","En tren","En autobús"],2],
-    ["¿Cuánto duró el viaje?",["Una hora","Dos horas y media","Cinco horas","Un día"],1],
-    ["¿Cómo son las calles de Santa Cruz?",["Anchas y modernas","Estrechas y con flores","Muy ruidosas","Sin árboles"],1],
-    ["¿Qué problema tuvo la madre en la Giralda?",["Tuvo miedo","Se perdió","Se cansó con las escaleras","Perdió el móvil"],2],
-    ["¿Qué día volvieron a Madrid?",["El viernes","El sábado","El domingo","El lunes"],2]]},
-
-{id:"trabajar-desde-casa",narrator:"f",level:"B1",title:"Trabajar desde casa",topic:"Trabajo",
- summary:"Una diseñadora explica ventajas y desventajas del teletrabajo.",
- text:[
- "Desde hace dos años trabajo desde casa como diseñadora gráfica. Al principio me parecía un sueño: no tenía que coger el metro a las siete ni gastar dinero en comidas fuera.",
- "Sin embargo, con el tiempo me di cuenta de que también tiene sus inconvenientes. Como la oficina está en el salón, a veces me cuesta separar la vida personal del trabajo. Hay días en que sigo contestando correos a las once de la noche.",
- "Para solucionarlo, he creado algunas rutinas. Empiezo siempre a la misma hora, me visto como si fuera a salir y, cuando termino, guardo el portátil en un cajón.",
- "Además, dos veces por semana voy a un espacio de coworking. Allí conozco a otras personas y me siento menos sola. Creo que el secreto está en encontrar un equilibrio."],
- gloss:[["el inconveniente","drawback"],["me di cuenta","I realised"],["me cuesta","it's hard for me"],["el equilibrio","balance"]],
- q:[["¿Cuánto tiempo lleva trabajando desde casa?",["Seis meses","Un año","Dos años","Cinco años"],2],
-    ["¿Qué le parecía al principio el teletrabajo?",["Aburrido","Un sueño","Muy difícil","Caro"],1],
-    ["¿Cuál es el principal problema que menciona?",["El ruido de los vecinos","La conexión a internet","Separar trabajo y vida personal","El sueldo bajo"],2],
-    ["¿Qué hace cuando termina de trabajar?",["Sale a correr","Guarda el portátil en un cajón","Llama a su madre","Ve una serie"],1],
-    ["¿Por qué va a un espacio de coworking?",["Porque en casa hay obras","Para sentirse menos sola","Porque su jefe la obliga","Porque es gratis"],1]]},
-
-{id:"el-huerto-de-la-abuela",narrator:"m",level:"B1",title:"El huerto de la abuela",topic:"Familia y naturaleza",
- summary:"Un nieto recuerda los veranos en el pueblo ayudando a su abuela.",
- text:[
- "Cuando era niño, pasaba los veranos en el pueblo de mi abuela, en Asturias. Lo que más recuerdo es su huerto, detrás de la casa, donde cultivaba de todo: patatas, judías, lechugas y unos tomates enormes.",
- "Mi abuela se levantaba antes de que saliera el sol para regar, porque decía que al mediodía el agua se pierde. Yo la acompañaba medio dormido, con una regadera casi más grande que yo.",
- "Me enseñó a reconocer cuándo una fruta estaba madura y a no arrancar las plantas jóvenes. Si algo salía mal, nunca se enfadaba; simplemente decía que la tierra también tiene sus días.",
- "Hoy vivo en la ciudad, pero en mi terraza tengo unas macetas con tomates y albahaca. Cada vez que los riego, me acuerdo de ella."],
- gloss:[["el huerto","vegetable garden"],["regar","to water"],["maduro","ripe"],["la maceta","flowerpot"]],
- q:[["¿Dónde estaba el pueblo de la abuela?",["En Galicia","En Asturias","En Andalucía","En Cataluña"],1],
-    ["¿Por qué regaba temprano la abuela?",["Para no pasar calor","Porque al mediodía el agua se pierde","Porque tenía que trabajar","Porque llovía por la tarde"],1],
-    ["¿Cómo reaccionaba la abuela cuando algo salía mal?",["Se enfadaba mucho","Lloraba","No se enfadaba","Culpaba al nieto"],2],
-    ["¿Qué le enseñó la abuela?",["A cocinar","A reconocer la fruta madura","A pescar","A conducir"],1],
-    ["¿Qué cultiva el narrador hoy?",["Patatas y judías","Lechugas","Tomates y albahaca","Nada"],2]]},
-
-{id:"ciudades-y-bicicleta",narrator:"m",level:"B2",title:"Las ciudades y la bicicleta",topic:"Sociedad y medio ambiente",
- summary:"Un breve reportaje sobre el auge de la bici en las ciudades españolas.",
- text:[
- "En la última década, muchas ciudades españolas han apostado por la bicicleta como alternativa al coche. Sevilla suele citarse como ejemplo: en pocos años construyó una red de carriles bici que transformó la manera de moverse de sus habitantes.",
- "Los defensores de esta política señalan que reduce la contaminación y el ruido, y que mejora la salud de la población. Además, argumentan que el espacio que antes ocupaban los coches puede destinarse a zonas peatonales y parques.",
- "No obstante, el cambio no ha estado exento de polémica. Algunos comerciantes temían que, al limitar el tráfico, sus ventas bajaran. Otros vecinos se quejan de que los ciclistas no siempre respetan a los peatones.",
- "Los expertos coinciden en que la clave no es solo pintar carriles, sino ofrecer una red continua y segura, y acompañarla de transporte público eficaz. Si la bicicleta se percibe como peligrosa, por muchos carriles que haya, la gente seguirá usando el coche."],
- gloss:[["apostar por","to bet on, commit to"],["el carril bici","bike lane"],["exento de","free from"],["la polémica","controversy"]],
- q:[["¿Qué ciudad se menciona como ejemplo?",["Madrid","Bilbao","Sevilla","Valencia"],2],
-    ["Según los defensores, ¿qué ventaja NO se menciona?",["Menos contaminación","Menos ruido","Mejor salud","Viviendas más baratas"],3],
-    ["¿Qué temían algunos comerciantes?",["Que subieran los alquileres","Que bajaran sus ventas","Que hubiera más robos","Que cerraran las calles para siempre"],1],
-    ["¿De qué se quejan algunos vecinos?",["De que los ciclistas no respetan a los peatones","Del precio de las bicis","Del ruido de las obras","De la falta de parques"],0],
-    ["Según los expertos, ¿qué es la clave?",["Prohibir los coches","Pintar más carriles","Una red continua y segura con buen transporte público","Bajar el precio de la gasolina"],2]]},
-
-{id:"el-valor-del-silencio",narrator:"f",level:"C1",title:"El valor del silencio",topic:"Reflexión",
- summary:"Un ensayo breve sobre el ruido constante y la necesidad de pausas.",
- text:[
- "Vivimos rodeados de estímulos: notificaciones, música de fondo, conversaciones que se superponen. Hasta tal punto nos hemos acostumbrado al ruido que el silencio, lejos de reconfortarnos, a menudo nos incomoda.",
- "Hay quien rellena cualquier pausa en una conversación por miedo a parecer descortés, o quien enciende la radio nada más entrar en casa. Sin embargo, diversos estudios sugieren que los momentos de calma favorecen la concentración y la memoria, y permiten que el cerebro procese lo vivido.",
- "No se trata de idealizar el aislamiento ni de huir al monte, sino de recuperar pequeños espacios sin interrupciones: un paseo sin auriculares, una comida sin pantallas, unos minutos antes de dormir sin mirar el móvil.",
- "Quizá el verdadero lujo de nuestra época no sea tener más, sino poder desconectar. Aprender a estar en silencio, en definitiva, es también aprender a escucharse a uno mismo."],
- gloss:[["superponerse","to overlap"],["descortés","impolite"],["procesar lo vivido","to process experiences"],["en definitiva","ultimately"]],
- q:[["Según el texto, ¿cómo reaccionamos a menudo ante el silencio?",["Nos relaja","Nos incomoda","Nos duerme","Nos da hambre"],1],
-    ["¿Por qué algunas personas rellenan las pausas en una conversación?",["Por aburrimiento","Por miedo a parecer descorteses","Porque hablan rápido","Para impresionar"],1],
-    ["¿Qué beneficios del silencio mencionan los estudios?",["Mejor sueño y apetito","Concentración y memoria","Más creatividad musical","Menos estrés laboral"],1],
-    ["¿Qué propone el autor?",["Vivir aislado en el monte","Prohibir los móviles","Recuperar pequeños espacios sin interrupciones","Dejar de escuchar música"],2],
-    ["¿Cuál es la idea final del texto?",["El lujo es tener más cosas","Estar en silencio es aprender a escucharse","El ruido es inevitable","La tecnología es mala"],1]]}
-];
-
-const splitSentences = p => (p.match(/[^.!?¿¡]*[¿¡]?[^.!?]*[.!?]+/g) || [p]).map(t=>t.trim()).filter(Boolean);
-
-const LEVELS = ["A1","A2","B1","B2","C1"];
+/* Each listening is encrypted. A student link looks like  #<lesson-id>~<key>
+   and the key opens that one lesson only. Keys never leave the browser
+   (the part after # is not sent to the server). */
 const $app = document.getElementById("app");
 const store = {
   get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 };
-let filter = store.get("vs-filter","all");
-const esc = s => s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const lvClass = l => l[0]==="A"?"":l[0]==="B"?"b":"c";
-const words = l => l.text.join(" ").split(/\s+/).length;
-const mins = l => Math.max(1,Math.round(words(l)/ (l.level[0]==="A"?110:140)));
+const ICON_HEAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z"/></svg>';
+const ICON_LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+
+/* ---------- crypto ---------- */
+function unb64u(s){ s=s.replace(/-/g,"+").replace(/_/g,"/"); while(s.length%4) s+="="; return Uint8Array.from(atob(s),c=>c.charCodeAt(0)); }
+async function openFile(keyB64u, url){
+  const r = await fetch(url,{cache:"no-cache"});
+  if(!r.ok) throw new Error("missing");
+  const buf = new Uint8Array(await r.arrayBuffer());
+  const k = await crypto.subtle.importKey("raw", unb64u(keyB64u), "AES-GCM", false, ["decrypt"]);
+  return new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM", iv:buf.slice(0,12)}, k, buf.slice(12)));
+}
+// lessons this browser has opened: {id: {k, title, level}}
+let vault = store.get("vs-vault",{});
+const saveVault = () => store.set("vs-vault",vault);
 
 /* ---------- speech ---------- */
-// Gemini voices: one MP3 per paragraph, made by .github/workflows/gemini.yml → audio/g-<id>/<sha1-12 of paragraph>.mp3
-// Edge voices: one MP3 per sentence, made by .github/workflows/audio.yml → audio/<id>/<sha1-12 of sentence>.mp3
-const GEMINI = [
-  {id:"kore",   label:"Gemini · Kore (mujer)"},
-  {id:"charon", label:"Gemini · Charon (hombre)"}
-];
-const NEURAL = [
-  {id:"elvira", label:"Elvira · España"},
-  {id:"alvaro", label:"Álvaro · España"},
-  {id:"dalia",  label:"Dalia · México"}
-];
 const synth = window.speechSynthesis;
 let voices = [];
 function vScore(v){let s=0;const n=v.name;if(/natural|neural/i.test(n))s+=50;if(/premium/i.test(n))s+=45;if(/enhanced|mejorad/i.test(n))s+=40;if(/google/i.test(n))s+=25;if(!v.localService)s+=5;if(v.lang==='es-ES')s+=3;if(/eloquence|compact|espeak/i.test(n))s-=30;return s;}
-let player = {sentences:[],paras:[],idx:0,playing:false,paused:false,rate:store.get("vs-rate",0.9),voice:store.get("vs-voice4","r:main"),lesson:null};
-let geminiReady = null;   // null = unknown, true/false after checking this lesson
-let rec = null;           // full-text recording for this lesson: {duration, starts[]} from audio/full/<id>.json
+let player = {sentences:[],idx:0,playing:false,paused:false,rate:store.get("vs-rate",0.9),voice:store.get("vs-voice5","r:main")};
+let rec = null;      // {duration, starts[]} when the lesson has a recording
+let recUrl = null;   // blob: URL of the decrypted recording
 function loadVoices(){ if(!synth) return; voices = synth.getVoices().filter(v=>/^es/i.test(v.lang)).sort((a,b)=>vScore(b)-vScore(a)); fillVoiceSelect(); }
 if(synth){ loadVoices(); synth.onvoiceschanged = loadVoices; }
 
-function effectiveVoice(){
-  const v = player.voice;
-  if(v.startsWith("r:") && !rec) return geminiReady ? "g:kore" : "n:elvira";
-  if(v.startsWith("g:") && geminiReady===false) return rec ? "r:main" : "n:elvira";
-  return v;
-}
-
+function effectiveVoice(){ return (player.voice.startsWith("r:") && !recUrl) ? (voices[0]?voices[0].name:"") : player.voice; }
 function fillVoiceSelect(){
   const sel = document.getElementById("voice"); if(!sel) return;
   const cur = effectiveVoice();
   const opt = (val,label)=>`<option value="${esc(val)}" ${val===cur?"selected":""}>${esc(label)}</option>`;
-  sel.innerHTML =
-      (rec ? `<optgroup label="Grabación">${opt("r:main","★ Voz principal")}</optgroup>` : "")
-    + (geminiReady!==false ? `<optgroup label="Voces Gemini">${GEMINI.map(g=>opt("g:"+g.id,"★ "+g.label)).join("")}</optgroup>` : "")
-    + `<optgroup label="Voces neuronales">${NEURAL.map(n=>opt("n:"+n.id,n.label)).join("")}</optgroup>`
-    + (voices.length?`<optgroup label="Voces del dispositivo">${voices.map(v=>opt(v.name,v.name+" · "+v.lang)).join("")}</optgroup>`:"");
+  sel.innerHTML = (recUrl ? `<optgroup label="Grabación">${opt("r:main","★ Voz principal")}</optgroup>` : "")
+    + (voices.length ? `<optgroup label="Voces del dispositivo">${voices.map(v=>opt(v.name,v.name+" · "+v.lang)).join("")}</optgroup>`
+                     : (recUrl ? "" : `<option value="">Voz española del dispositivo</option>`));
 }
-async function sha12(t){
-  try{ const b=await crypto.subtle.digest("SHA-1",new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("").slice(0,12); }
-  catch(e){ return null; }
-}
-async function prepareAudio(){
-  const lid = player.lesson;
-  try{ const r = await fetch(`audio/full/${lid}.json`,{cache:"no-cache"}); if(r.ok){ const j = await r.json(); if(lid===player.lesson && j.starts && j.starts.length===player.sentences.length) rec = j; } }catch(e){}
-  await Promise.all([...player.sentences,...player.paras].map(async o=>{ o.hash = await sha12(o.text); }));
-  const first = player.paras[0];
-  geminiReady = false;
-  if(first && first.hash){
-    try{ const r = await fetch(`audio/g-${GEMINI[0].id}/${first.hash}.mp3`,{method:"HEAD",cache:"no-store"}); geminiReady = r.ok; }catch(e){}
-  }
-  fillVoiceSelect();
-  if(rec) note("★ Voz principal: lectura natural. Toca cualquier frase para escucharla desde ahí.");
-  else if(geminiReady) note("★ Voces Gemini: lectura natural adaptada a tu nivel. Toca cualquier frase para escucharla desde ahí.");
-}
+function note(html,warn){ const n=document.getElementById("anote"); if(n){ n.className="note"+(warn?" warn":""); n.innerHTML=html; } }
 
 const audio = new Audio(); audio.preload = "auto";
 try{ audio.preservesPitch = true; }catch(e){}
-let mode = null;          // "gem" | "mp3" | "tts"
-let warnedMissing = false;
-const mp3Rate = () => player.rate/0.9;
-function note(html,warn){ const n=document.getElementById("anote"); if(n){ n.className="note"+(warn?" warn":""); n.innerHTML=html; } }
+let mode = null;   // "rec" | "tts"
+const recRate = () => player.rate/0.9;
 
 function speakFrom(i){
   halt();
   player.idx = i; player.playing = true; player.paused = false; updatePlayerUI();
-  const s = player.sentences[i];
-  if(!s){ stop(true); return; }
-  const v = effectiveVoice();
-  if(v.startsWith("r:") && rec) playRec(i);
-  else if(v.startsWith("g:") && player.paras[s.p] && player.paras[s.p].hash) playGem(i, v.slice(2));
-  else if(v.startsWith("n:") && s.hash) playMp3(i, `audio/${v.slice(2)}/${s.hash}.mp3`);
-  else doSpeak(i);
+  if(!player.sentences[i]){ stop(true); return; }
+  if(effectiveVoice().startsWith("r:")) playRec(i); else doSpeak(i);
 }
-
-/* Full recording: one file per lesson, sentence starts from audio/full/<id>.json */
 function recIndex(t){ let k=0; for(let j=0;j<rec.starts.length;j++){ if(t>=rec.starts[j]-0.02) k=j; else break; } return k; }
 function recHandlers(){
   audio.ontimeupdate = () => { if(!player.playing || !rec) return; const k=recIndex(audio.currentTime); if(k!==player.idx){ player.idx=k; updatePlayerUI(); } };
   audio.onended = () => { if(player.playing) stop(true); };
-  audio.onerror = () => { if(player.playing){ rec=null; fillVoiceSelect(); speakFrom(player.idx); } };
 }
 function playRec(i){
   mode = "rec";
-  const url = `audio/full/${player.lesson}.mp3`;
-  if(audio.dataset.key !== url){ audio.src = url; audio.dataset.key = url; }
-  audio.playbackRate = mp3Rate();
+  if(audio.src !== recUrl) audio.src = recUrl;
+  audio.playbackRate = recRate();
   const t = Math.max(0, rec.starts[i]);
   const seek = () => { try{ audio.currentTime = t; }catch(e){} };
   if(audio.readyState >= 1) seek(); else audio.onloadedmetadata = () => { audio.onloadedmetadata = null; if(player.idx===i) seek(); };
@@ -350,48 +94,6 @@ function playRec(i){
   audio.play().catch(e=>{ if(e.name==="NotAllowedError"){ player.playing=false; updatePlayerUI(); } });
 }
 
-/* Gemini: one file per paragraph; sentence highlight follows position by character share */
-function sentenceAt(p, frac){
-  let best = null;
-  for(let k=0;k<player.sentences.length;k++){ const s=player.sentences[k]; if(s.p===p){ if(best===null || frac>=s.start) best=k; } }
-  return best;
-}
-function playGem(i, vid){
-  mode = "gem";
-  const s = player.sentences[i], para = player.paras[s.p];
-  const url = `audio/g-${vid}/${para.hash}.mp3`;
-  const same = audio.dataset.key === url;
-  if(!same){ audio.src = url; audio.dataset.key = url; }
-  audio.playbackRate = mp3Rate();
-  const seek = () => { if(isFinite(audio.duration) && audio.duration>0) audio.currentTime = Math.max(0, s.start*audio.duration - 0.15); };
-  if(audio.readyState >= 1) seek(); else audio.onloadedmetadata = () => { audio.onloadedmetadata = null; if(player.idx===i) seek(); };
-  audio.ontimeupdate = () => {
-    if(!player.playing || !isFinite(audio.duration) || !audio.duration) return;
-    const k = sentenceAt(s.p, audio.currentTime/audio.duration);
-    if(k!==null && k!==player.idx){ player.idx = k; updatePlayerUI(); }
-  };
-  audio.onended = () => {
-    if(!player.playing) return;
-    const next = player.sentences.findIndex(x=>x.p===s.p+1);
-    if(next<0) stop(true); else speakFrom(next);
-  };
-  audio.onerror = () => { if(player.playing){ geminiReady=false; fillVoiceSelect(); note("Las voces Gemini de este texto aún no están listas. Se usa otra voz mientras tanto."); speakFrom(player.idx); } };
-  audio.play().catch(e=>{ if(e.name==="NotAllowedError"){ player.playing=false; updatePlayerUI(); } });
-}
-
-/* Edge neural: one file per sentence */
-function playMp3(i,url){
-  mode = "mp3";
-  audio.src = url; audio.dataset.key = url; audio.playbackRate = mp3Rate();
-  audio.ontimeupdate = null; audio.onloadedmetadata = null;
-  audio.onended = () => { if(player.playing && player.idx===i) speakFrom(i+1); };
-  audio.onerror = () => { if(player.playing && player.idx===i){
-    if(!warnedMissing){ warnedMissing=true; note("Las voces naturales de este texto aún se están generando. Mientras tanto se usa la voz del dispositivo."); }
-    doSpeak(i); } };
-  audio.play().catch(e=>{ if(e.name==="NotAllowedError"){ player.playing=false; updatePlayerUI(); } });
-}
-
-/* Device voice */
 let audioOK=false, watchdog=null;
 function noAudio(){
   player.playing=false; updatePlayerUI();
@@ -407,7 +109,7 @@ function doSpeak(i){
     if(!(player.playing && player.idx===i)) return;
     const u = new SpeechSynthesisUtterance(player.sentences[i].text);
     u.lang = "es-ES"; u.rate = player.rate;
-    const v = voices.find(v=>v.name===player.voice) || voices[0];
+    const v = voices.find(v=>v.name===effectiveVoice()) || voices[0];
     if(v){ u.voice = v; u.lang = v.lang; }
     u.onstart = () => { audioOK=true; clearTimeout(watchdog); };
     u.onend = () => { if(player.playing && player.idx===i) speakFrom(i+1); };
@@ -418,31 +120,20 @@ function doSpeak(i){
   };
   if(busy) setTimeout(go,80); else go();
 }
-
 function halt(){
-  audio.onended = audio.onerror = audio.ontimeupdate = null; audio.pause();
+  audio.onended = audio.ontimeupdate = null; audio.pause();
   if(synth && (synth.speaking||synth.pending)) synth.cancel();
 }
 function pause(){
-  if((mode==="mp3"||mode==="gem"||mode==="rec") && !audio.ended){ audio.pause(); player.playing=false; player.paused=true; updatePlayerUI(); }
+  if(mode==="rec" && !audio.ended){ audio.pause(); player.playing=false; player.paused=true; updatePlayerUI(); }
   else stop(false);
 }
 function resume(){
   if(player.paused && mode==="rec"){ player.playing=true; player.paused=false; updatePlayerUI(); recHandlers(); audio.play().catch(()=>speakFrom(player.idx)); return; }
-  if(player.paused && mode==="gem"){ player.playing=true; player.paused=false; updatePlayerUI();
-    const i=player.idx, s=player.sentences[i];
-    audio.onended = () => { if(!player.playing) return; const next=player.sentences.findIndex(x=>x.p===s.p+1); if(next<0) stop(true); else speakFrom(next); };
-    audio.ontimeupdate = () => { if(!player.playing||!audio.duration) return; const k=sentenceAt(s.p,audio.currentTime/audio.duration); if(k!==null&&k!==player.idx){player.idx=k;updatePlayerUI();} };
-    audio.play().catch(()=>speakFrom(i)); return; }
-  if(player.paused && mode==="mp3" && audio.src){
-    player.playing=true; player.paused=false; updatePlayerUI();
-    const i=player.idx;
-    audio.onended = () => { if(player.playing && player.idx===i) speakFrom(i+1); };
-    audio.play().catch(()=>speakFrom(i));
-  } else speakFrom(player.idx>=player.sentences.length?0:player.idx);
+  speakFrom(player.idx>=player.sentences.length?0:player.idx);
 }
 function applyRate(){
-  if(mode==="mp3"||mode==="gem"||mode==="rec"){ audio.playbackRate = mp3Rate(); }
+  if(mode==="rec") audio.playbackRate = recRate();
   else if(player.playing) speakFrom(player.idx);
 }
 function stop(finished){
@@ -469,44 +160,77 @@ function updatePlayerUI(){
 /* ---------- views ---------- */
 function renderHome(){
   stop(true);
+  const items = Object.entries(vault);
+  if(!items.length){
+    $app.innerHTML = `
+    <section class="state">
+      <div class="ico">${ICON_HEAD}</div>
+      <h1>Escucha. Entiende. Responde.</h1>
+      <p>Tu profesor o profesora te enviará un enlace para cada audición. Ábrelo y la audición aparecerá aquí.</p>
+    </section>`;
+    return;
+  }
   const done = store.get("vs-done",{});
-  const counts = Object.fromEntries(LEVELS.map(l=>[l,LESSONS.filter(x=>x.level===l).length]));
-  const list = LESSONS.filter(l=>filter==="all"||l.level===filter);
   $app.innerHTML = `
-  <section class="hero">
-    <h1>Escucha. Entiende. <em>Responde.</em></h1>
-    <p>Textos en español con audio por niveles, del A1 al C1. Escucha primero sin leer, después abre la transcripción y comprueba lo que has entendido con las preguntas.</p>
-  </section>
-  <div class="levels" role="group" aria-label="Filtrar por nivel">
-    <button type="button" data-f="all" class="${filter==="all"?"on":""}">Todos <span class="n">${LESSONS.length}</span></button>
-    ${LEVELS.map(l=>`<button type="button" data-f="${l}" class="${filter===l?"on":""}">${l} <span class="n">${counts[l]}</span></button>`).join("")}
-  </div>
-  <div class="grid">
-    ${list.map(l=>`
-      <a class="card" href="#${l.id}">
-        <div class="meta"><span class="lv ${lvClass(l.level)}">${l.level}</span><span>${esc(l.topic)}</span><span>· ${mins(l)} min</span>${done[l.id]!=null?`<span class="done">✓ ${done[l.id]}/${l.q.length}</span>`:""}</div>
-        <h3>${esc(l.title)}</h3>
-        <p>${esc(l.summary)}</p>
-      </a>`).join("")}
-  </div>`;
-  $app.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{filter=b.dataset.f;store.set("vs-filter",filter);renderHome();});
+  <h2 class="section-title">Mis audiciones</h2>
+  <div class="grid">${items.map(([id,v])=>`
+    <a class="card" href="#${esc(id)}~${esc(v.k)}">
+      <div class="meta"><span class="lv ${lvClass(v.level)}">${esc(v.level)}</span>${done[id]!=null?`<span class="done">✓ ${done[id]}</span>`:""}</div>
+      <h3>${esc(v.title)}</h3>
+    </a>`).join("")}</div>`;
+}
+function renderState(kind, title, text){
+  stop(true);
+  $app.innerHTML = `
+  <section class="state ${kind==="bad"?"bad":""}">
+    ${kind==="load" ? '<div class="spin" role="status" aria-label="Cargando"></div>' : `<div class="ico">${kind==="bad"?ICON_LOCK:ICON_HEAD}</div>`}
+    <h1>${title}</h1>${text?`<p>${text}</p>`:""}
+    ${kind==="bad" && Object.keys(vault).length ? '<a class="btn ghost" href="#">Ver mis audiciones</a>' : ""}
+  </section>`;
+}
+
+let openToken = 0;
+async function openLesson(id, k){
+  const token = ++openToken;
+  renderState("load","Abriendo la audición…");
+  let l;
+  try{
+    l = JSON.parse(new TextDecoder().decode(await openFile(k, `content/${encodeURIComponent(id)}.bin`)));
+  }catch(e){
+    if(token!==openToken) return;
+    if(vault[id] && vault[id].k===k){ delete vault[id]; saveVault(); }
+    renderState("bad","Este enlace no funciona","Puede que esté incompleto o que tu profesor/a lo haya cambiado. Pídele un enlace nuevo.");
+    return;
+  }
+  if(token!==openToken) return;
+  vault[id] = {k, title:l.title, level:l.level}; saveVault();
+  if(recUrl){ URL.revokeObjectURL(recUrl); recUrl=null; }
+  rec = null; audio.removeAttribute("src");
+  renderLesson(l);
+  if(l.rec){
+    try{
+      const bytes = await openFile(k, `audio/${encodeURIComponent(id)}.bin`);
+      if(token!==openToken) return;
+      rec = l.rec; recUrl = URL.createObjectURL(new Blob([bytes],{type:"audio/mpeg"}));
+      fillVoiceSelect();
+      note("★ Voz principal: lectura natural. Toca cualquier frase para escucharla desde ahí.");
+    }catch(e){}
+  }
 }
 
 function renderLesson(l){
   stop(true);
   let si=0;
-  player.sentences=[]; player.paras=[]; geminiReady=null; rec=null; warnedMissing=false; player.lesson=l.id;
-  const paras = l.text.map((p,pi)=>{
-    const parts = splitSentences(p);
-    player.paras.push({text:p});
-    const total = parts.reduce((a,t)=>a+t.length,0) || 1; let acc = 0;
-    return "<p>"+parts.map(t=>{player.sentences.push({text:t,p:pi,start:acc/total}); acc+=t.length; return `<span class="s" data-i="${si++}">${esc(t)}</span>`}).join(" ")+"</p>";
-  }).join("");
+  player.sentences=[];
+  const words = l.sents.flat().join(" ").split(/\s+/).length;
+  const paras = l.sents.map(parts =>
+    "<p>"+parts.map(t=>{player.sentences.push({text:t}); return `<span class="s" data-i="${si++}">${esc(t)}</span>`}).join(" ")+"</p>"
+  ).join("");
   const blurred = store.get("vs-blur",true);
   $app.innerHTML = `
-  <a class="back" href="#">← Todos los textos</a>
+  ${Object.keys(vault).length>1 ? '<a class="back" href="#">← Mis audiciones</a>' : ""}
   <section class="lhead">
-    <div class="meta"><span class="lv ${lvClass(l.level)}">${l.level}</span><span>${esc(l.topic)}</span><span>· ${words(l)} palabras</span><span>· ${l.narrator==="f"?"Narradora":"Narrador"}</span></div>
+    <div class="meta"><span class="lv ${lvClass(l.level)}">${esc(l.level)}</span><span>${esc(l.topic)}</span><span>· ${words} palabras</span><span>· ${l.narrator==="f"?"Narradora":"Narrador"}</span></div>
     <h1>${esc(l.title)}</h1>
   </section>
   <div class="cols">
@@ -522,7 +246,9 @@ function renderLesson(l){
           <button type="button" class="ctl" id="restart">↺ Desde el inicio</button>
         </div>
         <div class="row"><label for="voice">Voz</label><select id="voice"></select></div>
-        ${synth?`<p class="note" id="anote">★ Voces naturales de España y México. Toca cualquier frase para escucharla desde ahí.</p>`:`<p class="note warn" id="anote">⚠️ El audio no funciona dentro de esta vista. Abre la página en <b>Chrome</b>, <b>Safari</b> o <b>Edge</b>.</p>`}
+        ${l.rec ? `<p class="note" id="anote">Cargando la grabación…</p>`
+          : synth ? `<p class="note" id="anote">Toca cualquier frase para escucharla desde ahí.</p>`
+          : `<p class="note warn" id="anote">⚠️ El audio no funciona dentro de esta vista. Abre la página en <b>Chrome</b>, <b>Safari</b> o <b>Edge</b>.</p>`}
       </section>
       <section class="panel ${blurred?"blur":""}" id="tpanel">
         <div class="tbar"><h2>Transcripción</h2><button type="button" class="tog" id="tog">${blurred?"Mostrar texto":"Ocultar texto"}</button></div>
@@ -545,7 +271,7 @@ function renderLesson(l){
       </section>
     </div>
   </div>`;
-  fillVoiceSelect(); updatePlayerUI(); prepareAudio();
+  fillVoiceSelect(); updatePlayerUI();
 
   document.getElementById("playbtn").onclick=()=>{ player.playing? pause() : resume(); };
   document.getElementById("restart").onclick=()=>speakFrom(0);
@@ -554,7 +280,7 @@ function renderLesson(l){
     $app.querySelectorAll("[data-rate]").forEach(x=>x.classList.toggle("on",x===b));
     applyRate();
   });
-  document.getElementById("voice").onchange=e=>{player.voice=e.target.value;store.set("vs-voice4",player.voice);warnedMissing=false;if(player.playing||player.paused)speakFrom(player.idx);};
+  document.getElementById("voice").onchange=e=>{player.voice=e.target.value;store.set("vs-voice5",player.voice);if(player.playing||player.paused)speakFrom(player.idx);};
   $app.querySelectorAll(".s").forEach(s=>s.onclick=()=>speakFrom(+s.dataset.i));
   document.getElementById("tog").onclick=()=>{
     const p=document.getElementById("tpanel"); const b=p.classList.toggle("blur");
@@ -573,7 +299,12 @@ function renderLesson(l){
     });
   });
   checkBtn.onclick=()=>{
-    if(checked){ renderLesson(l); return; }
+    if(checked){
+      checked=false; Object.keys(ans).forEach(k=>delete ans[k]);
+      $app.querySelectorAll(".opt").forEach(o=>o.classList.remove("sel","ok","no"));
+      scoreEl.textContent=`0 / ${l.q.length} respondidas`; checkBtn.textContent="Comprobar"; checkBtn.classList.remove("ghost");
+      return;
+    }
     if(Object.keys(ans).length<l.q.length){ scoreEl.textContent=`Responde todas las preguntas (${Object.keys(ans).length} / ${l.q.length})`; return; }
     checked=true; let ok=0;
     l.q.forEach((q,qi)=>{
@@ -582,15 +313,17 @@ function renderLesson(l){
       if(ans[qi]===q[2]) ok++; else opts[ans[qi]].classList.add("no");
     });
     scoreEl.textContent=`${ok} / ${l.q.length} correctas`;
-    const done=store.get("vs-done",{}); done[l.id]=Math.max(ok,done[l.id]||0); store.set("vs-done",done);
+    const done=store.get("vs-done",{}); done[l.id]=`${Math.max(ok,parseInt(done[l.id])||0)}/${l.q.length}`; store.set("vs-done",done);
     checkBtn.textContent="Intentar de nuevo"; checkBtn.classList.add("ghost");
   };
 }
 
 function route(){
-  const id = location.hash.slice(1);
-  const l = LESSONS.find(x=>x.id===id);
-  if(l) renderLesson(l); else renderHome();
+  const h = decodeURIComponent(location.hash.slice(1));
+  const m = h.match(/^([a-z0-9-]+)~([A-Za-z0-9_-]{43})$/);
+  if(m) openLesson(m[1], m[2]);
+  else if(vault[h]) openLesson(h, vault[h].k);
+  else { openToken++; renderHome(); }
   window.scrollTo(0,0);
 }
 window.addEventListener("hashchange",route);
