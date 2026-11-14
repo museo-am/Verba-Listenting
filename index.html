@@ -257,7 +257,12 @@ const words = l => l.text.join(" ").split(/\s+/).length;
 const mins = l => Math.max(1,Math.round(words(l)/ (l.level[0]==="A"?110:140)));
 
 /* ---------- speech ---------- */
-// Natural voices: MP3s generated per sentence by .github/workflows/audio.yml into audio/<voice>/<sha1-12>.mp3
+// Gemini voices: one MP3 per paragraph, made by .github/workflows/gemini.yml → audio/g-<id>/<sha1-12 of paragraph>.mp3
+// Edge voices: one MP3 per sentence, made by .github/workflows/audio.yml → audio/<id>/<sha1-12 of sentence>.mp3
+const GEMINI = [
+  {id:"kore",   label:"Gemini · Kore (mujer)"},
+  {id:"charon", label:"Gemini · Charon (hombre)"}
+];
 const NEURAL = [
   {id:"elvira", label:"Elvira · España"},
   {id:"alvaro", label:"Álvaro · España"},
@@ -266,51 +271,99 @@ const NEURAL = [
 const synth = window.speechSynthesis;
 let voices = [];
 function vScore(v){let s=0;const n=v.name;if(/natural|neural/i.test(n))s+=50;if(/premium/i.test(n))s+=45;if(/enhanced|mejorad/i.test(n))s+=40;if(/google/i.test(n))s+=25;if(!v.localService)s+=5;if(v.lang==='es-ES')s+=3;if(/eloquence|compact|espeak/i.test(n))s-=30;return s;}
-let player = {sentences:[],idx:0,playing:false,paused:false,rate:store.get("vs-rate",0.9),voice:store.get("vs-voice2","n:elvira")};
+let player = {sentences:[],paras:[],idx:0,playing:false,paused:false,rate:store.get("vs-rate",0.9),voice:store.get("vs-voice3","g:kore")};
+let geminiReady = null;   // null = unknown, true/false after checking this lesson
 function loadVoices(){ if(!synth) return; voices = synth.getVoices().filter(v=>/^es/i.test(v.lang)).sort((a,b)=>vScore(b)-vScore(a)); fillVoiceSelect(); }
 if(synth){ loadVoices(); synth.onvoiceschanged = loadVoices; }
 
+const isGem = () => player.voice.startsWith("g:");
+const isNeural = () => player.voice.startsWith("n:");
+function effectiveVoice(){ return (isGem() && geminiReady===false) ? "n:elvira" : player.voice; }
+
 function fillVoiceSelect(){
   const sel = document.getElementById("voice"); if(!sel) return;
-  const opt = (val,label)=>`<option value="${esc(val)}" ${val===player.voice?"selected":""}>${esc(label)}</option>`;
-  sel.innerHTML = `<optgroup label="Voces naturales">${NEURAL.map(n=>opt("n:"+n.id,"★ "+n.label)).join("")}</optgroup>`
+  const cur = effectiveVoice();
+  const opt = (val,label)=>`<option value="${esc(val)}" ${val===cur?"selected":""}>${esc(label)}</option>`;
+  sel.innerHTML =
+      (geminiReady!==false ? `<optgroup label="Voces Gemini">${GEMINI.map(g=>opt("g:"+g.id,"★ "+g.label)).join("")}</optgroup>` : "")
+    + `<optgroup label="Voces neuronales">${NEURAL.map(n=>opt("n:"+n.id,n.label)).join("")}</optgroup>`
     + (voices.length?`<optgroup label="Voces del dispositivo">${voices.map(v=>opt(v.name,v.name+" · "+v.lang)).join("")}</optgroup>`:"");
 }
 async function sha12(t){
   try{ const b=await crypto.subtle.digest("SHA-1",new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("").slice(0,12); }
   catch(e){ return null; }
 }
-function hashSentences(){ player.sentences.forEach(async s=>{ s.hash = await sha12(s.text); }); }
+async function prepareAudio(){
+  await Promise.all([...player.sentences,...player.paras].map(async o=>{ o.hash = await sha12(o.text); }));
+  const first = player.paras[0];
+  geminiReady = false;
+  if(first && first.hash){
+    try{ const r = await fetch(`audio/g-${GEMINI[0].id}/${first.hash}.mp3`,{method:"HEAD",cache:"no-store"}); geminiReady = r.ok; }catch(e){}
+  }
+  fillVoiceSelect();
+  if(geminiReady) note("★ Voces Gemini: lectura natural adaptada a tu nivel. Toca cualquier frase para escucharla desde ahí.");
+}
 
 const audio = new Audio(); audio.preload = "auto";
 try{ audio.preservesPitch = true; }catch(e){}
-const pre = new Audio(); pre.preload = "auto";
-let mode = null;          // "mp3" | "tts" for the sentence now playing
+let mode = null;          // "gem" | "mp3" | "tts"
 let warnedMissing = false;
-const isNeural = () => player.voice.startsWith("n:");
-const mp3Url = (i) => { const s=player.sentences[i]; return s&&s.hash ? `audio/${player.voice.slice(2)}/${s.hash}.mp3` : null; };
 const mp3Rate = () => player.rate/0.9;
-
 function note(html,warn){ const n=document.getElementById("anote"); if(n){ n.className="note"+(warn?" warn":""); n.innerHTML=html; } }
 
 function speakFrom(i){
   halt();
   player.idx = i; player.playing = true; player.paused = false; updatePlayerUI();
-  if(!player.sentences[i]){ stop(true); return; }
-  const url = isNeural() && mp3Url(i);
-  if(url) playMp3(i,url); else doSpeak(i);
+  const s = player.sentences[i];
+  if(!s){ stop(true); return; }
+  const v = effectiveVoice();
+  if(v.startsWith("g:") && player.paras[s.p] && player.paras[s.p].hash) playGem(i, v.slice(2));
+  else if(v.startsWith("n:") && s.hash) playMp3(i, `audio/${v.slice(2)}/${s.hash}.mp3`);
+  else doSpeak(i);
 }
+
+/* Gemini: one file per paragraph; sentence highlight follows position by character share */
+function sentenceAt(p, frac){
+  let best = null;
+  for(let k=0;k<player.sentences.length;k++){ const s=player.sentences[k]; if(s.p===p){ if(best===null || frac>=s.start) best=k; } }
+  return best;
+}
+function playGem(i, vid){
+  mode = "gem";
+  const s = player.sentences[i], para = player.paras[s.p];
+  const url = `audio/g-${vid}/${para.hash}.mp3`;
+  const same = audio.dataset.key === url;
+  if(!same){ audio.src = url; audio.dataset.key = url; }
+  audio.playbackRate = mp3Rate();
+  const seek = () => { if(isFinite(audio.duration) && audio.duration>0) audio.currentTime = Math.max(0, s.start*audio.duration - 0.15); };
+  if(audio.readyState >= 1) seek(); else audio.onloadedmetadata = () => { audio.onloadedmetadata = null; if(player.idx===i) seek(); };
+  audio.ontimeupdate = () => {
+    if(!player.playing || !isFinite(audio.duration) || !audio.duration) return;
+    const k = sentenceAt(s.p, audio.currentTime/audio.duration);
+    if(k!==null && k!==player.idx){ player.idx = k; updatePlayerUI(); }
+  };
+  audio.onended = () => {
+    if(!player.playing) return;
+    const next = player.sentences.findIndex(x=>x.p===s.p+1);
+    if(next<0) stop(true); else speakFrom(next);
+  };
+  audio.onerror = () => { if(player.playing){ geminiReady=false; fillVoiceSelect(); note("Las voces Gemini de este texto aún no están listas. Se usa otra voz mientras tanto."); speakFrom(player.idx); } };
+  audio.play().catch(e=>{ if(e.name==="NotAllowedError"){ player.playing=false; updatePlayerUI(); } });
+}
+
+/* Edge neural: one file per sentence */
 function playMp3(i,url){
   mode = "mp3";
-  audio.src = url; audio.playbackRate = mp3Rate();
+  audio.src = url; audio.dataset.key = url; audio.playbackRate = mp3Rate();
+  audio.ontimeupdate = null; audio.onloadedmetadata = null;
   audio.onended = () => { if(player.playing && player.idx===i) speakFrom(i+1); };
   audio.onerror = () => { if(player.playing && player.idx===i){
     if(!warnedMissing){ warnedMissing=true; note("Las voces naturales de este texto aún se están generando. Mientras tanto se usa la voz del dispositivo."); }
     doSpeak(i); } };
   audio.play().catch(e=>{ if(e.name==="NotAllowedError"){ player.playing=false; updatePlayerUI(); } });
-  const nx = mp3Url(i+1); if(nx){ pre.src = nx; }
 }
 
+/* Device voice */
 let audioOK=false, watchdog=null;
 function noAudio(){
   player.playing=false; updatePlayerUI();
@@ -337,15 +390,21 @@ function doSpeak(i){
   };
   if(busy) setTimeout(go,80); else go();
 }
+
 function halt(){
-  audio.onended = audio.onerror = null; audio.pause();
+  audio.onended = audio.onerror = audio.ontimeupdate = null; audio.pause();
   if(synth && (synth.speaking||synth.pending)) synth.cancel();
 }
 function pause(){
-  if(mode==="mp3" && !audio.ended){ audio.pause(); player.playing=false; player.paused=true; updatePlayerUI(); }
+  if((mode==="mp3"||mode==="gem") && !audio.ended){ audio.pause(); player.playing=false; player.paused=true; updatePlayerUI(); }
   else stop(false);
 }
 function resume(){
+  if(player.paused && mode==="gem"){ player.playing=true; player.paused=false; updatePlayerUI();
+    const i=player.idx, s=player.sentences[i];
+    audio.onended = () => { if(!player.playing) return; const next=player.sentences.findIndex(x=>x.p===s.p+1); if(next<0) stop(true); else speakFrom(next); };
+    audio.ontimeupdate = () => { if(!player.playing||!audio.duration) return; const k=sentenceAt(s.p,audio.currentTime/audio.duration); if(k!==null&&k!==player.idx){player.idx=k;updatePlayerUI();} };
+    audio.play().catch(()=>speakFrom(i)); return; }
   if(player.paused && mode==="mp3" && audio.src){
     player.playing=true; player.paused=false; updatePlayerUI();
     const i=player.idx;
@@ -354,7 +413,7 @@ function resume(){
   } else speakFrom(player.idx>=player.sentences.length?0:player.idx);
 }
 function applyRate(){
-  if(mode==="mp3"){ audio.playbackRate = mp3Rate(); }
+  if(mode==="mp3"||mode==="gem"){ audio.playbackRate = mp3Rate(); }
   else if(player.playing) speakFrom(player.idx);
 }
 function stop(finished){
@@ -407,12 +466,13 @@ function renderHome(){
 function renderLesson(l){
   stop(true);
   let si=0;
-  player.sentences=[];
-  const paras = l.text.map(p=>{
+  player.sentences=[]; player.paras=[]; geminiReady=null; warnedMissing=false;
+  const paras = l.text.map((p,pi)=>{
     const parts = splitSentences(p);
-    return "<p>"+parts.map(t=>{player.sentences.push({text:t}); return `<span class="s" data-i="${si++}">${esc(t)}</span>`}).join(" ")+"</p>";
+    player.paras.push({text:p});
+    const total = parts.reduce((a,t)=>a+t.length,0) || 1; let acc = 0;
+    return "<p>"+parts.map(t=>{player.sentences.push({text:t,p:pi,start:acc/total}); acc+=t.length; return `<span class="s" data-i="${si++}">${esc(t)}</span>`}).join(" ")+"</p>";
   }).join("");
-  hashSentences();
   const blurred = store.get("vs-blur",true);
   $app.innerHTML = `
   <a class="back" href="#">← Todos los textos</a>
@@ -456,7 +516,7 @@ function renderLesson(l){
       </section>
     </div>
   </div>`;
-  fillVoiceSelect(); updatePlayerUI();
+  fillVoiceSelect(); updatePlayerUI(); prepareAudio();
 
   document.getElementById("playbtn").onclick=()=>{ player.playing? pause() : resume(); };
   document.getElementById("restart").onclick=()=>speakFrom(0);
@@ -465,7 +525,7 @@ function renderLesson(l){
     $app.querySelectorAll("[data-rate]").forEach(x=>x.classList.toggle("on",x===b));
     applyRate();
   });
-  document.getElementById("voice").onchange=e=>{player.voice=e.target.value;store.set("vs-voice2",player.voice);warnedMissing=false;if(player.playing||player.paused)speakFrom(player.idx);};
+  document.getElementById("voice").onchange=e=>{player.voice=e.target.value;store.set("vs-voice3",player.voice);warnedMissing=false;if(player.playing||player.paused)speakFrom(player.idx);};
   $app.querySelectorAll(".s").forEach(s=>s.onclick=()=>speakFrom(+s.dataset.i));
   document.getElementById("tog").onclick=()=>{
     const p=document.getElementById("tpanel"); const b=p.classList.toggle("blur");

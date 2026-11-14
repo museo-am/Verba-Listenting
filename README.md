@@ -6,9 +6,14 @@ Live site: https://museo-am.github.io/Verba-Listenting/
 
 ## How it works
 - Everything is in `index.html`. Lessons are in the `LESSONS` array at the top of the script.
-- Audio uses natural neural voices (Elvira and Álvaro from Spain, Dalia from Mexico), one MP3 per sentence in `audio/`.
-- The **Generate natural voices** workflow creates them automatically whenever `index.html` changes. New lessons get audio a few minutes after you push.
-- If a file is missing, the page falls back to the device's own Spanish voice.
+- **Gemini voices (best):** Kore and Charon, one MP3 per paragraph in `audio/g-*/`, read slower and clearer for A1–A2 and at native pace for B2–C1. Made by the **Generate Gemini voices** workflow using the `GEMINI_API_KEY` repository secret. It runs on every change to `index.html` and once a day, so if the free quota runs out it continues the next day.
+- **Neural voices (backup):** Elvira, Álvaro and Dalia, one MP3 per sentence in `audio/<voice>/`, made by **Generate natural voices**.
+- If no MP3 exists yet, the page uses the next available voice, ending with the device's own Spanish voice.
+
+### Turning on Gemini voices
+1. Get a free key at https://aistudio.google.com/apikey
+2. Repo **Settings → Secrets and variables → Actions → New repository secret**. Name: `GEMINI_API_KEY`, value: your key.
+3. **Actions → Generate Gemini voices → Run workflow.**
 
 ## Adding a lesson
 Copy one object in `LESSONS` and change `id`, `level`, `title`, `topic`, `summary`, `text` (paragraphs), `gloss` (word, translation) and `q` (question, 4 options, index of the correct option).
