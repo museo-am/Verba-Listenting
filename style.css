@@ -16,6 +16,7 @@
   --accent:#8ea3ff; --accent-soft:#232b55; --sun:#f3c04f; --sun-soft:#3a3018;
   --good:#5ad49a; --good-soft:#163a2a; --bad:#ff8a8a; --bad-soft:#401e22; --hl:#4a3f12; color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6}
 .wrap{max-width:980px;margin:0 auto;padding-block:20px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-bottom:18px;border-bottom:1px solid var(--line)}
