@@ -23,32 +23,104 @@
 <script>
 /* The lesson list and the master secret live in admin.json, encrypted with the admin
    password (PBKDF2-SHA256 → AES-256-GCM). Without the password this page shows nothing.
-   A student link holds only HMAC(master, "<id>:<v>"), which opens that one lesson. */
+   A student link holds only HMAC(master, "<id>:<v>"), which opens that one lesson.
+   "Nuevo enlace" raises v, re-encrypts that lesson with the new key and commits it to
+   GitHub, so the old link stops working. */
+const REPO = "museo-am/Verba-Listenting";
 const $app = document.getElementById("app");
+const enc = s => new TextEncoder().encode(s);
 const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const lvClass = l => l[0]==="A"?"":l[0]==="B"?"b":"c";
 const unb64 = s => Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-const b64u = u8 => btoa(String.fromCharCode(...u8)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+function b64(u8){ let s=""; for(let i=0;i<u8.length;i+=0x8000) s+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000)); return btoa(s); }
+const b64u = u8 => b64(u8).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 const SITE = new URL("./", location.href).href;
-let session = null;   // {master: Uint8Array, lessons: [...]}
+let session = null;   // {master, lessons, gh, wrapKey, meta:{iter,salt}}
 
+/* ---------- crypto (same formats as tools/build.mjs) ---------- */
+async function hmac(keyBytes, data){
+  const k = await crypto.subtle.importKey("raw", keyBytes, {name:"HMAC", hash:"SHA-256"}, false, ["sign"]);
+  return new Uint8Array(await crypto.subtle.sign("HMAC", k, data));
+}
+const lessonKey = (l, v=l.v) => hmac(session.master, enc(`${l.id}:${v}`));
+async function seal(rawKey, plain){
+  const iv = (await hmac(rawKey, plain)).slice(0,12);
+  const k = await crypto.subtle.importKey("raw", rawKey, "AES-GCM", false, ["encrypt"]);
+  const ct = new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM", iv}, k, plain));
+  const out = new Uint8Array(12+ct.length); out.set(iv); out.set(ct,12); return out;
+}
+async function unseal(rawKey, buf){
+  const k = await crypto.subtle.importKey("raw", rawKey, "AES-GCM", false, ["decrypt"]);
+  return new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM", iv:buf.slice(0,12)}, k, buf.slice(12)));
+}
 async function unlock(pw){
   const r = await fetch("admin.json",{cache:"no-cache"});
   if(!r.ok) throw new Error("nofile");
   const a = await r.json();
-  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveKey"]);
-  const k = await crypto.subtle.deriveKey({name:"PBKDF2", salt:unb64(a.salt), iterations:a.iter, hash:"SHA-256"}, base,
-    {name:"AES-GCM", length:256}, false, ["decrypt"]);
-  const plain = await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(a.iv)}, k, unb64(a.ct));
+  const base = await crypto.subtle.importKey("raw", enc(pw), "PBKDF2", false, ["deriveKey"]);
+  const wrapKey = await crypto.subtle.deriveKey({name:"PBKDF2", salt:unb64(a.salt), iterations:a.iter, hash:"SHA-256"}, base,
+    {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
+  const plain = await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(a.iv)}, wrapKey, unb64(a.ct));
   const inner = JSON.parse(new TextDecoder().decode(plain));
-  return {master: unb64(inner.master), lessons: inner.lessons};
+  return {master: unb64(inner.master), lessons: inner.lessons, gh: inner.gh || null, wrapKey, meta:{iter:a.iter, salt:a.salt}};
 }
-async function linkFor(l){
-  const k = await crypto.subtle.importKey("raw", session.master, {name:"HMAC", hash:"SHA-256"}, false, ["sign"]);
-  const key = new Uint8Array(await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(`${l.id}:${l.v}`)));
-  return `${SITE}#${l.id}~${b64u(key)}`;
+async function adminJsonBytes(){
+  const inner = enc(JSON.stringify({master:b64(session.master), lessons:session.lessons, ...(session.gh?{gh:session.gh}:{})}));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM", iv}, session.wrapKey, inner));
+  return enc(JSON.stringify({v:1, iter:session.meta.iter, salt:session.meta.salt, iv:b64(iv), ct:b64(ct)}, null, 1)+"\n");
+}
+async function linkFor(l){ return `${SITE}#${l.id}~${b64u(await lessonKey(l))}`; }
+
+/* ---------- GitHub (reads fresh files and writes one commit) ---------- */
+async function gh(path, opts={}, token=session.gh){
+  const r = await fetch(`https://api.github.com/repos/${REPO}${path}`, {...opts, headers:{
+    Authorization:`Bearer ${token}`, Accept:"application/vnd.github+json", "X-GitHub-Api-Version":"2022-11-28", ...(opts.headers||{})}});
+  if(!r.ok){ const e = new Error(`GitHub ${r.status}`); e.status = r.status; throw e; }
+  return r.status===204 ? null : r.json();
+}
+async function ghRaw(path){
+  const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}?ref=main&t=${Date.now()}`, {headers:{
+    Authorization:`Bearer ${session.gh}`, Accept:"application/vnd.github.raw", "X-GitHub-Api-Version":"2022-11-28"}});
+  if(!r.ok){ const e = new Error(`GitHub ${r.status}`); e.status = r.status; throw e; }
+  return new Uint8Array(await r.arrayBuffer());
+}
+async function commitFiles(files, message){
+  const ref = await gh("/git/ref/heads/main");
+  const parent = await gh(`/git/commits/${ref.object.sha}`);
+  const tree = [];
+  for(const [path, bytes] of Object.entries(files)){
+    const blob = await gh("/git/blobs", {method:"POST", body:JSON.stringify({content:b64(bytes), encoding:"base64"})});
+    tree.push({path, mode:"100644", type:"blob", sha:blob.sha});
+  }
+  const t = await gh("/git/trees", {method:"POST", body:JSON.stringify({base_tree:parent.tree.sha, tree})});
+  const c = await gh("/git/commits", {method:"POST", body:JSON.stringify({message, tree:t.sha, parents:[ref.object.sha]})});
+  await gh("/git/refs/heads/main", {method:"PATCH", body:JSON.stringify({sha:c.sha})});
+}
+function ghError(e){
+  if(e.status===401) return "GitHub rechazó la clave. Puede que haya caducado: conecta GitHub de nuevo.";
+  if(e.status===403 || e.status===404) return "La clave de GitHub no tiene permiso para escribir en el repositorio.";
+  if(e.status===409 || e.status===422) return "Hubo otro cambio al mismo tiempo. Vuelve a intentarlo.";
+  return "No se pudo guardar el cambio. Comprueba tu conexión y vuelve a intentarlo.";
 }
 
+/* ---------- new link for one listening ---------- */
+async function newLink(l){
+  const oldKey = await lessonKey(l), newV = l.v + 1, newKey = await lessonKey(l, newV);
+  const paths = [`content/${l.id}.bin`, ...(l.audio ? [`audio/${l.id}.bin`] : [])];
+  const files = {};
+  for(const path of paths){
+    const plain = await unseal(oldKey, await ghRaw(path));
+    files[path] = await seal(newKey, plain);
+  }
+  l.v = newV;
+  try{
+    files["admin.json"] = await adminJsonBytes();
+    await commitFiles(files, `New link for ${l.id}`);
+  }catch(e){ l.v = newV - 1; throw e; }
+}
+
+/* ---------- views ---------- */
 function renderLogin(err){
   document.getElementById("lock").hidden = true;
   $app.innerHTML = `
@@ -71,6 +143,45 @@ function renderLogin(err){
   };
 }
 
+function connectBox(then){
+  const box = document.getElementById("connect");
+  box.hidden = false;
+  box.innerHTML = `
+    <h2>Conecta GitHub (solo una vez)</h2>
+    <p class="hint">Para cambiar un enlace, el panel guarda el cambio en tu repositorio. Crea una clave de acceso:</p>
+    <ol class="hint steps">
+      <li>Abre <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com → Fine-grained token</a>.</li>
+      <li>Repository access: <b>Only select repositories</b> → <b>${REPO.split("/")[1]}</b>.</li>
+      <li>Permissions → Repository → <b>Contents: Read and write</b>. Expiration: la que prefieras.</li>
+      <li>Pulsa <b>Generate token</b>, cópiala y pégala aquí.</li>
+    </ol>
+    <div class="field"><label for="tok">Clave de GitHub</label><input class="input" id="tok" type="password" autocomplete="off" placeholder="github_pat_…"></div>
+    <p class="err" id="tokerr" role="alert" hidden></p>
+    <div class="acts" style="justify-content:flex-start">
+      <button type="button" class="btn" id="toksave">Conectar</button>
+      <button type="button" class="btn ghost" id="tokcancel">Cancelar</button>
+    </div>
+    <p class="hint">La clave se guarda cifrada con tu contraseña del panel.</p>`;
+  box.scrollIntoView({block:"start", behavior:"smooth"});
+  document.getElementById("tokcancel").onclick = () => { box.hidden = true; };
+  document.getElementById("toksave").onclick = async e => {
+    const btn = e.currentTarget, err = document.getElementById("tokerr"), tok = document.getElementById("tok").value.trim();
+    if(!tok){ err.hidden=false; err.textContent="Pega la clave de GitHub."; return; }
+    btn.disabled = true; btn.textContent = "Comprobando…"; err.hidden = true;
+    try{
+      const repo = await gh("", {}, tok);
+      if(!repo.permissions || !repo.permissions.push){ const x = new Error("perm"); x.status = 403; throw x; }
+      const prev = session.gh; session.gh = tok;
+      try{ await commitFiles({"admin.json": await adminJsonBytes()}, "Connect tutor panel to GitHub"); }
+      catch(x){ session.gh = prev; throw x; }
+      box.hidden = true; then && then();
+    }catch(x){
+      err.hidden = false; err.textContent = x.status===401 ? "Esa clave no es válida. Cópiala de nuevo desde GitHub." : ghError(x);
+      btn.disabled = false; btn.textContent = "Conectar";
+    }
+  };
+}
+
 const LEVELS = ["A1","A2","B1","B2","C1","C2"];
 function renderPanel(){
   document.getElementById("lock").hidden = false;
@@ -81,7 +192,8 @@ function renderPanel(){
     <h1>Audiciones</h1>
     <p class="hint">${session.lessons.length} audiciones · ${recs} con grabación</p>
   </div>
-  <p class="hint">Cada enlace abre solo esa audición. Quien tenga el enlace puede abrirla, así que envíalo solo a tu alumno.</p>
+  <p class="hint">Cada enlace abre solo esa audición. <b>Nuevo enlace</b> anula el enlace actual para todos los que lo tengan y crea otro.</p>
+  <section class="panel connect" id="connect" hidden></section>
   ${byLevel.map(([lv,ls])=>`
     <h2 class="section-title">${lv}</h2>
     <div class="rows">${ls.map(l=>`
@@ -92,30 +204,61 @@ function renderPanel(){
           <div class="meta"><span>${esc(l.topic)}</span><span>· ${l.narrator==="f"?"Narradora":"Narrador"}</span>
             <span class="chip ${l.audio?"rec":""}">${l.audio?"Grabación":"Voz del dispositivo"}</span></div>
         </div>
-        <div class="acts">
-          <button type="button" class="btn sm" data-copy>Copiar enlace</button>
-          <a class="btn sm ghost" data-open target="_blank" rel="noopener noreferrer" href="#">Abrir</a>
-        </div>
+        <div class="acts"></div>
+        <p class="rowmsg" hidden></p>
       </div>`).join("")}</div>`).join("")}`;
+  $app.querySelectorAll(".row-l").forEach(row => renderActs(row));
+}
 
-  $app.querySelectorAll(".row-l").forEach(async row=>{
-    const l = session.lessons.find(x=>x.id===row.dataset.id);
-    const url = await linkFor(l);
-    row.querySelector("[data-open]").href = url;
-    row.querySelector("[data-copy]").onclick = async (e)=>{
-      const btn = e.currentTarget;
-      try{
-        await navigator.clipboard.writeText(url);
-        btn.textContent = "Copiado ✓"; btn.classList.add("ok");
-        setTimeout(()=>{ btn.textContent="Copiar enlace"; btn.classList.remove("ok"); }, 1800);
-      }catch(err){
-        let box = row.querySelector(".linkbox");
-        if(!box){ box = document.createElement("div"); box.className="linkbox"; box.innerHTML=`<input readonly aria-label="Enlace">`; row.appendChild(box); }
-        const inp = box.querySelector("input"); inp.value = url; inp.focus(); inp.select();
-        btn.textContent = "Selecciona y copia";
-      }
-    };
-  });
+function rowMsg(row, text, kind){
+  const m = row.querySelector(".rowmsg");
+  m.hidden = !text; m.textContent = text || ""; m.className = "rowmsg" + (kind ? " "+kind : "");
+}
+async function renderActs(row){
+  const l = session.lessons.find(x=>x.id===row.dataset.id);
+  const acts = row.querySelector(".acts");
+  const url = await linkFor(l);
+  acts.innerHTML = `
+    <button type="button" class="btn sm" data-copy>Copiar enlace</button>
+    <a class="btn sm ghost" target="_blank" rel="noopener noreferrer" href="${esc(url)}">Abrir</a>
+    <button type="button" class="btn sm ghost" data-new>Nuevo enlace</button>`;
+  acts.querySelector("[data-copy]").onclick = async (e)=>{
+    const btn = e.currentTarget;
+    try{
+      await navigator.clipboard.writeText(url);
+      btn.textContent = "Copiado ✓"; btn.classList.add("ok");
+      setTimeout(()=>{ btn.textContent="Copiar enlace"; btn.classList.remove("ok"); }, 1800);
+    }catch(err){
+      let box = row.querySelector(".linkbox");
+      if(!box){ box = document.createElement("div"); box.className="linkbox"; box.innerHTML=`<input readonly aria-label="Enlace">`; row.appendChild(box); }
+      const inp = box.querySelector("input"); inp.value = url; inp.focus(); inp.select();
+      btn.textContent = "Selecciona y copia";
+    }
+  };
+  acts.querySelector("[data-new]").onclick = () => confirmNew(row, l);
+}
+function confirmNew(row, l){
+  const acts = row.querySelector(".acts");
+  rowMsg(row, "");
+  acts.innerHTML = `
+    <span class="hint">El enlace actual dejará de funcionar para todos.</span>
+    <button type="button" class="btn sm danger" data-yes>Crear nuevo enlace</button>
+    <button type="button" class="btn sm ghost" data-no>Cancelar</button>`;
+  acts.querySelector("[data-no]").onclick = () => renderActs(row);
+  acts.querySelector("[data-yes]").onclick = async (e) => {
+    if(!session.gh){ renderActs(row); connectBox(() => confirmNew(row, l)); return; }
+    const btn = e.currentTarget; btn.disabled = true; btn.textContent = "Creando…";
+    acts.querySelector("[data-no]").disabled = true;
+    try{
+      await newLink(l);
+      await renderActs(row);
+      rowMsg(row, "Nuevo enlace creado. El anterior ya no sirve. El nuevo funcionará en 1–2 minutos, cuando GitHub publique el cambio.", "good");
+    }catch(x){
+      await renderActs(row);
+      if(x.status===401){ session.gh = null; connectBox(() => confirmNew(row, l)); }
+      rowMsg(row, x.name==="OperationError" ? "Este enlace ya se cambió desde otro dispositivo. Cierra sesión y vuelve a entrar." : ghError(x), "bad");
+    }
+  };
 }
 
 document.getElementById("lock").onclick = ()=>{ session = null; renderLogin(); };

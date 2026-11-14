@@ -135,3 +135,12 @@ footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);color:v
 .linkbox input{font:500 .8rem var(--f-mono);flex:1;min-width:0;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
 .hint{color:var(--muted);font-size:.85rem;margin:0}
 @media (max-width:620px){.row-l{grid-template-columns:auto minmax(0,1fr)}.acts{grid-column:1/-1;justify-content:flex-start}}
+.btn.danger{background:var(--bad)}
+.btn:disabled{opacity:.6;cursor:wait}
+.rowmsg{grid-column:1/-1;margin:0;font-size:.85rem;font-weight:600}
+.rowmsg.good{color:var(--good)}
+.rowmsg.bad{color:var(--bad)}
+.connect{margin-top:16px}
+.connect h2{font-size:1.15rem;font-weight:700}
+.connect a{color:var(--accent)}
+.steps{margin:0;padding-left:1.2em;display:grid;gap:4px}

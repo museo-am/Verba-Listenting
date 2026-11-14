@@ -12,7 +12,9 @@ The tutor panel holds the master secret that creates those keys, encrypted with 
 
 Limits of a site with no server:
 - Anyone who has a link can open that listening, so links should go only to the student.
-- A sent link can't be switched off on its own. To cancel all links for a listening, raise its `v` in `private/lessons.json` and rebuild. The tutor then sends new links.
+- There is one link per listening. **Nuevo enlace** in the tutor panel cancels it for everyone who has it and creates a new one: it raises the lesson's version, re-encrypts that lesson and commits the change through the GitHub API. The new link works once GitHub Pages publishes (1–2 minutes).
+- The first time, the panel asks for a GitHub fine-grained token with **Contents: Read and write** on this repository only. It is stored inside `admin.json`, encrypted with the admin password.
+- `tools/build.mjs` keeps the higher version and the saved token, so a rebuild never brings back an old link.
 
 ## Files
 - `index.html`: student player. `admin.html`: tutor panel. `style.css`: shared styles.

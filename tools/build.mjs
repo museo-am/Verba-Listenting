@@ -9,7 +9,8 @@
 //
 // Each lesson's key is HMAC-SHA256(master, "<id>:<v>"). A student link carries only that
 // one key, so it opens one lesson. Raising a lesson's "v" in lessons.json and rebuilding
-// makes every old link for that lesson stop working.
+// makes every old link for that lesson stop working. The tutor panel does the same with
+// its "Nuevo enlace" button; this build keeps the higher version, so it never undoes that.
 // Nothing in private/ is ever committed (.gitignore).
 
 import fs from "node:fs";
@@ -69,12 +70,14 @@ async function main() {
   const lessons = JSON.parse(fs.readFileSync(P("private/lessons.json"), "utf8"));
 
   // master secret: reuse the one inside admin.json so existing links keep working
-  let master, salt;
+  let master, salt, gh = null, adminV = {};
   if (fs.existsSync(P("admin.json"))) {
     const a = JSON.parse(fs.readFileSync(P("admin.json"), "utf8"));
     let inner;
     try { inner = await openAdmin(a, pw); } catch { throw new Error("Wrong password for the existing admin.json."); }
     master = unb64(inner.master); salt = unb64(a.salt);
+    gh = inner.gh || null;                                   // GitHub key saved from the tutor panel
+    for (const c of inner.lessons || []) adminV[c.id] = c.v; // link versions changed from the panel
   } else {
     master = crypto.getRandomValues(new Uint8Array(32));
     salt = crypto.getRandomValues(new Uint8Array(16));
@@ -82,10 +85,12 @@ async function main() {
   }
 
   const catalog = [];
+  let lessonsChanged = false;
   const keep = new Set();
   let changed = 0;
   for (const l of lessons) {
-    const v = l.v || 1;
+    const v = Math.max(l.v || 1, adminV[l.id] || 1);
+    if (v !== l.v) { l.v = v; lessonsChanged = true; }
     const key = await lessonKey(master, l.id, v);
     const sents = l.text.map(splitSentences);
     const count = sents.flat().length;
@@ -111,7 +116,8 @@ async function main() {
   }
 
   // admin.json (deterministic IV from the inner content so it only changes when the catalog does)
-  const inner = enc(JSON.stringify({ master: b64(master), lessons: catalog }));
+  if (lessonsChanged) fs.writeFileSync(P("private/lessons.json"), JSON.stringify(lessons, null, 1));
+  const inner = enc(JSON.stringify({ master: b64(master), lessons: catalog, ...(gh ? { gh } : {}) }));
   const k = await pwKey(pw, salt, ITER);
   const iv = (await hmac(master, inner)).slice(0, 12);
   const ct = new Uint8Array(await subtle.encrypt({ name: "AES-GCM", iv }, k, inner));
