@@ -129,7 +129,7 @@ footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);color:v
 
 <script>
 const LESSONS = [
-{id:"me-llamo-lucia",level:"A1",title:"Me llamo Lucía",topic:"Presentarse",
+{id:"me-llamo-lucia",narrator:"f",level:"A1",title:"Me llamo Lucía",topic:"Presentarse",
  summary:"Lucía habla de su familia, su ciudad y lo que le gusta hacer.",
  text:[
  "Hola, me llamo Lucía y tengo veintidós años. Soy de Valencia, una ciudad grande en el este de España. Vivo en un piso pequeño con mi hermana Marta.",
@@ -143,7 +143,7 @@ const LESSONS = [
     ["¿Dónde trabaja su madre?",["En una escuela","En un hospital","En un banco","En una tienda"],2],
     ["¿Qué no le gusta mucho a Lucía?",["Leer","Ir a la playa","Escuchar música","Ver la televisión"],3]]},
 
-{id:"en-el-mercado",level:"A1",title:"En el mercado",topic:"Comida y compras",
+{id:"en-el-mercado",narrator:"m",level:"A1",title:"En el mercado",topic:"Comida y compras",
  summary:"Un sábado por la mañana, Diego compra fruta y verdura para la semana.",
  text:[
  "Todos los sábados, Diego va al mercado de su barrio. El mercado abre a las ocho y hay mucha gente.",
@@ -157,7 +157,7 @@ const LESSONS = [
     ["¿Qué toma Diego en el bar?",["Un zumo","Un té","Un café con leche","Agua"],2],
     ["¿Cuánto paga en total?",["Cinco euros","Doce euros","Quince euros","Cincuenta euros"],2]]},
 
-{id:"fin-de-semana-pablo",level:"A2",title:"El fin de semana de Pablo",topic:"Tiempo libre",
+{id:"fin-de-semana-pablo",narrator:"m",level:"A2",title:"El fin de semana de Pablo",topic:"Tiempo libre",
  summary:"Pablo cuenta lo que hizo el sábado y el domingo pasados.",
  text:[
  "El fin de semana pasado fue muy divertido. El sábado por la mañana me levanté tarde, a las once, porque el viernes salí con mis compañeros de trabajo.",
@@ -171,7 +171,7 @@ const LESSONS = [
     ["¿Cómo fueron al parque el domingo?",["En coche","A pie","En autobús","En bicicleta"],3],
     ["¿A qué hora se acostó el domingo?",["A las diez y media","A las once","A las doce","A las nueve"],0]]},
 
-{id:"viaje-a-sevilla",level:"A2",title:"Un viaje a Sevilla",topic:"Viajes",
+{id:"viaje-a-sevilla",narrator:"f",level:"A2",title:"Un viaje a Sevilla",topic:"Viajes",
  summary:"Ana y su madre pasan tres días en Sevilla durante la primavera.",
  text:[
  "En abril, Ana y su madre viajaron a Sevilla en tren. El viaje desde Madrid duró dos horas y media. Llegaron un jueves por la tarde.",
@@ -185,7 +185,7 @@ const LESSONS = [
     ["¿Qué problema tuvo la madre en la Giralda?",["Tuvo miedo","Se perdió","Se cansó con las escaleras","Perdió el móvil"],2],
     ["¿Qué día volvieron a Madrid?",["El viernes","El sábado","El domingo","El lunes"],2]]},
 
-{id:"trabajar-desde-casa",level:"B1",title:"Trabajar desde casa",topic:"Trabajo",
+{id:"trabajar-desde-casa",narrator:"f",level:"B1",title:"Trabajar desde casa",topic:"Trabajo",
  summary:"Una diseñadora explica ventajas y desventajas del teletrabajo.",
  text:[
  "Desde hace dos años trabajo desde casa como diseñadora gráfica. Al principio me parecía un sueño: no tenía que coger el metro a las siete ni gastar dinero en comidas fuera.",
@@ -199,7 +199,7 @@ const LESSONS = [
     ["¿Qué hace cuando termina de trabajar?",["Sale a correr","Guarda el portátil en un cajón","Llama a su madre","Ve una serie"],1],
     ["¿Por qué va a un espacio de coworking?",["Porque en casa hay obras","Para sentirse menos sola","Porque su jefe la obliga","Porque es gratis"],1]]},
 
-{id:"el-huerto-de-la-abuela",level:"B1",title:"El huerto de la abuela",topic:"Familia y naturaleza",
+{id:"el-huerto-de-la-abuela",narrator:"m",level:"B1",title:"El huerto de la abuela",topic:"Familia y naturaleza",
  summary:"Un nieto recuerda los veranos en el pueblo ayudando a su abuela.",
  text:[
  "Cuando era niño, pasaba los veranos en el pueblo de mi abuela, en Asturias. Lo que más recuerdo es su huerto, detrás de la casa, donde cultivaba de todo: patatas, judías, lechugas y unos tomates enormes.",
@@ -213,7 +213,7 @@ const LESSONS = [
     ["¿Qué le enseñó la abuela?",["A cocinar","A reconocer la fruta madura","A pescar","A conducir"],1],
     ["¿Qué cultiva el narrador hoy?",["Patatas y judías","Lechugas","Tomates y albahaca","Nada"],2]]},
 
-{id:"ciudades-y-bicicleta",level:"B2",title:"Las ciudades y la bicicleta",topic:"Sociedad y medio ambiente",
+{id:"ciudades-y-bicicleta",narrator:"m",level:"B2",title:"Las ciudades y la bicicleta",topic:"Sociedad y medio ambiente",
  summary:"Un breve reportaje sobre el auge de la bici en las ciudades españolas.",
  text:[
  "En la última década, muchas ciudades españolas han apostado por la bicicleta como alternativa al coche. Sevilla suele citarse como ejemplo: en pocos años construyó una red de carriles bici que transformó la manera de moverse de sus habitantes.",
@@ -227,7 +227,7 @@ const LESSONS = [
     ["¿De qué se quejan algunos vecinos?",["De que los ciclistas no respetan a los peatones","Del precio de las bicis","Del ruido de las obras","De la falta de parques"],0],
     ["Según los expertos, ¿qué es la clave?",["Prohibir los coches","Pintar más carriles","Una red continua y segura con buen transporte público","Bajar el precio de la gasolina"],2]]},
 
-{id:"el-valor-del-silencio",level:"C1",title:"El valor del silencio",topic:"Reflexión",
+{id:"el-valor-del-silencio",narrator:"f",level:"C1",title:"El valor del silencio",topic:"Reflexión",
  summary:"Un ensayo breve sobre el ruido constante y la necesidad de pausas.",
  text:[
  "Vivimos rodeados de estímulos: notificaciones, música de fondo, conversaciones que se superponen. Hasta tal punto nos hemos acostumbrado al ruido que el silencio, lejos de reconfortarnos, a menudo nos incomoda.",
@@ -271,21 +271,26 @@ const NEURAL = [
 const synth = window.speechSynthesis;
 let voices = [];
 function vScore(v){let s=0;const n=v.name;if(/natural|neural/i.test(n))s+=50;if(/premium/i.test(n))s+=45;if(/enhanced|mejorad/i.test(n))s+=40;if(/google/i.test(n))s+=25;if(!v.localService)s+=5;if(v.lang==='es-ES')s+=3;if(/eloquence|compact|espeak/i.test(n))s-=30;return s;}
-let player = {sentences:[],paras:[],idx:0,playing:false,paused:false,rate:store.get("vs-rate",0.9),voice:store.get("vs-voice3","g:kore")};
+let player = {sentences:[],paras:[],idx:0,playing:false,paused:false,rate:store.get("vs-rate",0.9),voice:store.get("vs-voice4","r:main"),lesson:null};
 let geminiReady = null;   // null = unknown, true/false after checking this lesson
+let rec = null;           // full-text recording for this lesson: {duration, starts[]} from audio/full/<id>.json
 function loadVoices(){ if(!synth) return; voices = synth.getVoices().filter(v=>/^es/i.test(v.lang)).sort((a,b)=>vScore(b)-vScore(a)); fillVoiceSelect(); }
 if(synth){ loadVoices(); synth.onvoiceschanged = loadVoices; }
 
-const isGem = () => player.voice.startsWith("g:");
-const isNeural = () => player.voice.startsWith("n:");
-function effectiveVoice(){ return (isGem() && geminiReady===false) ? "n:elvira" : player.voice; }
+function effectiveVoice(){
+  const v = player.voice;
+  if(v.startsWith("r:") && !rec) return geminiReady ? "g:kore" : "n:elvira";
+  if(v.startsWith("g:") && geminiReady===false) return rec ? "r:main" : "n:elvira";
+  return v;
+}
 
 function fillVoiceSelect(){
   const sel = document.getElementById("voice"); if(!sel) return;
   const cur = effectiveVoice();
   const opt = (val,label)=>`<option value="${esc(val)}" ${val===cur?"selected":""}>${esc(label)}</option>`;
   sel.innerHTML =
-      (geminiReady!==false ? `<optgroup label="Voces Gemini">${GEMINI.map(g=>opt("g:"+g.id,"★ "+g.label)).join("")}</optgroup>` : "")
+      (rec ? `<optgroup label="Grabación">${opt("r:main","★ Voz principal")}</optgroup>` : "")
+    + (geminiReady!==false ? `<optgroup label="Voces Gemini">${GEMINI.map(g=>opt("g:"+g.id,"★ "+g.label)).join("")}</optgroup>` : "")
     + `<optgroup label="Voces neuronales">${NEURAL.map(n=>opt("n:"+n.id,n.label)).join("")}</optgroup>`
     + (voices.length?`<optgroup label="Voces del dispositivo">${voices.map(v=>opt(v.name,v.name+" · "+v.lang)).join("")}</optgroup>`:"");
 }
@@ -294,6 +299,8 @@ async function sha12(t){
   catch(e){ return null; }
 }
 async function prepareAudio(){
+  const lid = player.lesson;
+  try{ const r = await fetch(`audio/full/${lid}.json`,{cache:"no-cache"}); if(r.ok){ const j = await r.json(); if(lid===player.lesson && j.starts && j.starts.length===player.sentences.length) rec = j; } }catch(e){}
   await Promise.all([...player.sentences,...player.paras].map(async o=>{ o.hash = await sha12(o.text); }));
   const first = player.paras[0];
   geminiReady = false;
@@ -301,7 +308,8 @@ async function prepareAudio(){
     try{ const r = await fetch(`audio/g-${GEMINI[0].id}/${first.hash}.mp3`,{method:"HEAD",cache:"no-store"}); geminiReady = r.ok; }catch(e){}
   }
   fillVoiceSelect();
-  if(geminiReady) note("★ Voces Gemini: lectura natural adaptada a tu nivel. Toca cualquier frase para escucharla desde ahí.");
+  if(rec) note("★ Voz principal: lectura natural. Toca cualquier frase para escucharla desde ahí.");
+  else if(geminiReady) note("★ Voces Gemini: lectura natural adaptada a tu nivel. Toca cualquier frase para escucharla desde ahí.");
 }
 
 const audio = new Audio(); audio.preload = "auto";
@@ -317,9 +325,29 @@ function speakFrom(i){
   const s = player.sentences[i];
   if(!s){ stop(true); return; }
   const v = effectiveVoice();
-  if(v.startsWith("g:") && player.paras[s.p] && player.paras[s.p].hash) playGem(i, v.slice(2));
+  if(v.startsWith("r:") && rec) playRec(i);
+  else if(v.startsWith("g:") && player.paras[s.p] && player.paras[s.p].hash) playGem(i, v.slice(2));
   else if(v.startsWith("n:") && s.hash) playMp3(i, `audio/${v.slice(2)}/${s.hash}.mp3`);
   else doSpeak(i);
+}
+
+/* Full recording: one file per lesson, sentence starts from audio/full/<id>.json */
+function recIndex(t){ let k=0; for(let j=0;j<rec.starts.length;j++){ if(t>=rec.starts[j]-0.02) k=j; else break; } return k; }
+function recHandlers(){
+  audio.ontimeupdate = () => { if(!player.playing || !rec) return; const k=recIndex(audio.currentTime); if(k!==player.idx){ player.idx=k; updatePlayerUI(); } };
+  audio.onended = () => { if(player.playing) stop(true); };
+  audio.onerror = () => { if(player.playing){ rec=null; fillVoiceSelect(); speakFrom(player.idx); } };
+}
+function playRec(i){
+  mode = "rec";
+  const url = `audio/full/${player.lesson}.mp3`;
+  if(audio.dataset.key !== url){ audio.src = url; audio.dataset.key = url; }
+  audio.playbackRate = mp3Rate();
+  const t = Math.max(0, rec.starts[i]);
+  const seek = () => { try{ audio.currentTime = t; }catch(e){} };
+  if(audio.readyState >= 1) seek(); else audio.onloadedmetadata = () => { audio.onloadedmetadata = null; if(player.idx===i) seek(); };
+  recHandlers();
+  audio.play().catch(e=>{ if(e.name==="NotAllowedError"){ player.playing=false; updatePlayerUI(); } });
 }
 
 /* Gemini: one file per paragraph; sentence highlight follows position by character share */
@@ -396,10 +424,11 @@ function halt(){
   if(synth && (synth.speaking||synth.pending)) synth.cancel();
 }
 function pause(){
-  if((mode==="mp3"||mode==="gem") && !audio.ended){ audio.pause(); player.playing=false; player.paused=true; updatePlayerUI(); }
+  if((mode==="mp3"||mode==="gem"||mode==="rec") && !audio.ended){ audio.pause(); player.playing=false; player.paused=true; updatePlayerUI(); }
   else stop(false);
 }
 function resume(){
+  if(player.paused && mode==="rec"){ player.playing=true; player.paused=false; updatePlayerUI(); recHandlers(); audio.play().catch(()=>speakFrom(player.idx)); return; }
   if(player.paused && mode==="gem"){ player.playing=true; player.paused=false; updatePlayerUI();
     const i=player.idx, s=player.sentences[i];
     audio.onended = () => { if(!player.playing) return; const next=player.sentences.findIndex(x=>x.p===s.p+1); if(next<0) stop(true); else speakFrom(next); };
@@ -413,7 +442,7 @@ function resume(){
   } else speakFrom(player.idx>=player.sentences.length?0:player.idx);
 }
 function applyRate(){
-  if(mode==="mp3"||mode==="gem"){ audio.playbackRate = mp3Rate(); }
+  if(mode==="mp3"||mode==="gem"||mode==="rec"){ audio.playbackRate = mp3Rate(); }
   else if(player.playing) speakFrom(player.idx);
 }
 function stop(finished){
@@ -466,7 +495,7 @@ function renderHome(){
 function renderLesson(l){
   stop(true);
   let si=0;
-  player.sentences=[]; player.paras=[]; geminiReady=null; warnedMissing=false;
+  player.sentences=[]; player.paras=[]; geminiReady=null; rec=null; warnedMissing=false; player.lesson=l.id;
   const paras = l.text.map((p,pi)=>{
     const parts = splitSentences(p);
     player.paras.push({text:p});
@@ -477,7 +506,7 @@ function renderLesson(l){
   $app.innerHTML = `
   <a class="back" href="#">← Todos los textos</a>
   <section class="lhead">
-    <div class="meta"><span class="lv ${lvClass(l.level)}">${l.level}</span><span>${esc(l.topic)}</span><span>· ${words(l)} palabras</span></div>
+    <div class="meta"><span class="lv ${lvClass(l.level)}">${l.level}</span><span>${esc(l.topic)}</span><span>· ${words(l)} palabras</span><span>· ${l.narrator==="f"?"Narradora":"Narrador"}</span></div>
     <h1>${esc(l.title)}</h1>
   </section>
   <div class="cols">
@@ -525,7 +554,7 @@ function renderLesson(l){
     $app.querySelectorAll("[data-rate]").forEach(x=>x.classList.toggle("on",x===b));
     applyRate();
   });
-  document.getElementById("voice").onchange=e=>{player.voice=e.target.value;store.set("vs-voice3",player.voice);warnedMissing=false;if(player.playing||player.paused)speakFrom(player.idx);};
+  document.getElementById("voice").onchange=e=>{player.voice=e.target.value;store.set("vs-voice4",player.voice);warnedMissing=false;if(player.playing||player.paused)speakFrom(player.idx);};
   $app.querySelectorAll(".s").forEach(s=>s.onclick=()=>speakFrom(+s.dataset.i));
   document.getElementById("tog").onclick=()=>{
     const p=document.getElementById("tpanel"); const b=p.classList.toggle("blur");

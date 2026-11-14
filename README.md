@@ -5,6 +5,7 @@ Spanish listening practice from A1 to C1. Each lesson has a text read aloud, a t
 Live site: https://museo-am.github.io/Verba-Listenting/
 
 ## How it works
+- **Recordings (main voice):** one file per text in `audio/full/<lesson-id>.mp3` plus a `.json` with each sentence's start time. Upload a `.wav` or `.mp3` named after the lesson id into `audio/full/` and the **Prepare recordings** workflow converts it and syncs the highlighting to the pauses.
 - Everything is in `index.html`. Lessons are in the `LESSONS` array at the top of the script.
 - **Gemini voices (best):** Kore and Charon, one MP3 per paragraph in `audio/g-*/`, read slower and clearer for A1–A2 and at native pace for B2–C1. Made by the **Generate Gemini voices** workflow using the `GEMINI_API_KEY` repository secret. It runs on every change to `index.html` and once a day, so if the free quota runs out it continues the next day.
 - **Neural voices (backup):** Elvira, Álvaro and Dalia, one MP3 per sentence in `audio/<voice>/`, made by **Generate natural voices**.
