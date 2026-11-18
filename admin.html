@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -14,8 +14,15 @@
 
 <div class="wrap">
   <header class="top">
-    <span class="brand"><b>Verba<span>.</span>School</b><small>Panel del profesor</small></span>
-    <button type="button" class="tog" id="lock" hidden>Cerrar sesión</button>
+    <span class="brand"><b>Verba<span>.</span>School</b><small id="brandsub">Tutor panel</small></span>
+    <div class="hdr-actions">
+      <nav class="langtabs" id="langs" aria-label="Language">
+        <button type="button" data-lang="en" lang="en">EN</button>
+        <button type="button" data-lang="hy" lang="hy">ՀՅ</button>
+        <button type="button" data-lang="es" lang="es">ES</button>
+      </nav>
+      <button type="button" class="tog" id="lock" hidden>Log out</button>
+    </div>
   </header>
   <main id="app"></main>
 </div>
@@ -27,6 +34,117 @@
    "Nuevo enlace" raises v, re-encrypts that lesson with the new key and commits it to
    GitHub, so the old link stops working. */
 const REPO = "museo-am/Verba-Listenting";
+
+/* ---------- languages ---------- */
+const STR = {
+ en: {
+  brand:"Tutor panel", logout:"Log out",
+  loginTitle:"Tutor panel", loginText:"Enter the password to create links to the listenings.",
+  password:"Password", login:"Log in", checking:"Checking…",
+  wrongPw:"Wrong password. Try again.", noFile:"Panel settings not found.",
+  secListen:"Listenings", secTests:"Tests",
+  countLine:(n,r)=>`${n} listenings · ${r} with recording`,
+  intro:"Each link opens only that listening. <b>New link</b> cancels the current link for everyone who has it and creates another one.",
+  narrF:"Female narrator", narrM:"Male narrator", chipRec:"Recording", chipTts:"Device voice",
+  copy:"Copy link", copied:"Copied ✓", selectCopy:"Select and copy", open:"Open", newLink:"New link", linkLabel:"Link",
+  confirmText:"The current link will stop working for everyone.", confirmYes:"Create new link", cancel:"Cancel", creating:"Creating…",
+  done:"New link created. The old one no longer works. The new one will work in 1–2 minutes, once GitHub publishes the change.",
+  changedElsewhere:"This link was already changed on another device. Log out and log in again.",
+  e401:"GitHub rejected the key. It may have expired: connect GitHub again.",
+  e403:"The GitHub key doesn't have permission to write to the repository.",
+  e409:"Another change happened at the same time. Try again.",
+  eNet:"Couldn't save the change. Check your connection and try again.",
+  ghTitle:"Connect GitHub (one time only)",
+  ghIntro:"To change a link, the panel saves the change to your repository. Create an access key:",
+  ghS1:a=>`Open ${a}.`,
+  ghS2:r=>`Repository access: <b>Only select repositories</b> → <b>${r}</b>.`,
+  ghS3:"Permissions → Repository → <b>Contents: Read and write</b>. Expiration: your choice.",
+  ghS4:"Click <b>Generate token</b>, copy it and paste it here.",
+  ghKey:"GitHub key", ghConnect:"Connect", ghEmpty:"Paste the GitHub key.",
+  ghInvalid:"That key isn't valid. Copy it again from GitHub.",
+  ghStored:"The key is stored encrypted with your panel password.",
+  testsSoon:"Coming soon", testsTitle:"No tests yet",
+  testsText:"Tests will appear here. You'll share each test with its own link, just like the listenings."
+ },
+ hy: {
+  brand:"Ուսուցչի վահանակ", logout:"Դուրս գալ",
+  loginTitle:"Ուսուցչի վահանակ", loginText:"Մուտքագրեք գաղտնաբառը՝ լսողական առաջադրանքների հղումներ ստեղծելու համար։",
+  password:"Գաղտնաբառ", login:"Մուտք", checking:"Ստուգվում է…",
+  wrongPw:"Սխալ գաղտնաբառ։ Փորձեք կրկին։", noFile:"Վահանակի կարգավորումները չեն գտնվել։",
+  secListen:"Լսողություն", secTests:"Թեստեր",
+  countLine:(n,r)=>`${n} առաջադրանք · ${r}-ը՝ ձայնագրությամբ`,
+  intro:"Յուրաքանչյուր հղում բացում է միայն այդ առաջադրանքը։ <b>Նոր հղում</b> կոճակը չեղարկում է ընթացիկ հղումը բոլորի համար և ստեղծում նորը։",
+  narrF:"Կին ընթերցող", narrM:"Տղամարդ ընթերցող", chipRec:"Ձայնագրություն", chipTts:"Սարքի ձայն",
+  copy:"Պատճենել հղումը", copied:"Պատճենված է ✓", selectCopy:"Ընտրեք և պատճենեք", open:"Բացել", newLink:"Նոր հղում", linkLabel:"Հղում",
+  confirmText:"Ընթացիկ հղումն այլևս չի աշխատի ոչ ոքի համար։", confirmYes:"Ստեղծել նոր հղում", cancel:"Չեղարկել", creating:"Ստեղծվում է…",
+  done:"Նոր հղումը ստեղծված է։ Հինն այլևս չի աշխատում։ Նորը կաշխատի 1–2 րոպեից, երբ GitHub-ը հրապարակի փոփոխությունը։",
+  changedElsewhere:"Այս հղումն արդեն փոխվել է մեկ այլ սարքից։ Դուրս եկեք և նորից մուտք գործեք։",
+  e401:"GitHub-ը մերժեց բանալին։ Հնարավոր է՝ ժամկետն անցել է․ նորից միացրեք GitHub-ը։",
+  e403:"GitHub-ի բանալին պահոցում գրելու իրավունք չունի։",
+  e409:"Միաժամանակ մեկ այլ փոփոխություն եղավ։ Փորձեք կրկին։",
+  eNet:"Չհաջողվեց պահպանել փոփոխությունը։ Ստուգեք կապը և փորձեք կրկին։",
+  ghTitle:"Միացրեք GitHub-ը (միայն մեկ անգամ)",
+  ghIntro:"Հղումը փոխելու համար վահանակը փոփոխությունը պահպանում է ձեր պահոցում։ Ստեղծեք մուտքի բանալի․",
+  ghS1:a=>`Բացեք ${a}։`,
+  ghS2:r=>`Repository access՝ <b>Only select repositories</b> → <b>${r}</b>։`,
+  ghS3:"Permissions → Repository → <b>Contents: Read and write</b>։ Expiration՝ ըստ ցանկության։",
+  ghS4:"Սեղմեք <b>Generate token</b>, պատճենեք այն և տեղադրեք այստեղ։",
+  ghKey:"GitHub-ի բանալի", ghConnect:"Միացնել", ghEmpty:"Տեղադրեք GitHub-ի բանալին։",
+  ghInvalid:"Այդ բանալին վավեր չէ։ Կրկին պատճենեք այն GitHub-ից։",
+  ghStored:"Բանալին պահվում է գաղտնագրված՝ վահանակի ձեր գաղտնաբառով։",
+  testsSoon:"Շուտով", testsTitle:"Թեստեր դեռ չկան",
+  testsText:"Թեստերը կհայտնվեն այստեղ։ Յուրաքանչյուր թեստ կկիսեք առանձին հղումով, ինչպես լսողական առաջադրանքները։"
+ },
+ es: {
+  brand:"Panel del profesor", logout:"Cerrar sesión",
+  loginTitle:"Panel del profesor", loginText:"Introduce la contraseña para crear enlaces a las audiciones.",
+  password:"Contraseña", login:"Entrar", checking:"Comprobando…",
+  wrongPw:"Contraseña incorrecta. Inténtalo de nuevo.", noFile:"No se encontró la configuración del panel.",
+  secListen:"Audiciones", secTests:"Tests",
+  countLine:(n,r)=>`${n} audiciones · ${r} con grabación`,
+  intro:"Cada enlace abre solo esa audición. <b>Nuevo enlace</b> anula el enlace actual para todos los que lo tengan y crea otro.",
+  narrF:"Narradora", narrM:"Narrador", chipRec:"Grabación", chipTts:"Voz del dispositivo",
+  copy:"Copiar enlace", copied:"Copiado ✓", selectCopy:"Selecciona y copia", open:"Abrir", newLink:"Nuevo enlace", linkLabel:"Enlace",
+  confirmText:"El enlace actual dejará de funcionar para todos.", confirmYes:"Crear nuevo enlace", cancel:"Cancelar", creating:"Creando…",
+  done:"Nuevo enlace creado. El anterior ya no sirve. El nuevo funcionará en 1–2 minutos, cuando GitHub publique el cambio.",
+  changedElsewhere:"Este enlace ya se cambió desde otro dispositivo. Cierra sesión y vuelve a entrar.",
+  e401:"GitHub rechazó la clave. Puede que haya caducado: conecta GitHub de nuevo.",
+  e403:"La clave de GitHub no tiene permiso para escribir en el repositorio.",
+  e409:"Hubo otro cambio al mismo tiempo. Vuelve a intentarlo.",
+  eNet:"No se pudo guardar el cambio. Comprueba tu conexión y vuelve a intentarlo.",
+  ghTitle:"Conecta GitHub (solo una vez)",
+  ghIntro:"Para cambiar un enlace, el panel guarda el cambio en tu repositorio. Crea una clave de acceso:",
+  ghS1:a=>`Abre ${a}.`,
+  ghS2:r=>`Repository access: <b>Only select repositories</b> → <b>${r}</b>.`,
+  ghS3:"Permissions → Repository → <b>Contents: Read and write</b>. Expiration: la que prefieras.",
+  ghS4:"Pulsa <b>Generate token</b>, cópiala y pégala aquí.",
+  ghKey:"Clave de GitHub", ghConnect:"Conectar", ghEmpty:"Pega la clave de GitHub.",
+  ghInvalid:"Esa clave no es válida. Cópiala de nuevo desde GitHub.",
+  ghStored:"La clave se guarda cifrada con tu contraseña del panel.",
+  testsSoon:"Próximamente", testsTitle:"Todavía no hay tests",
+  testsText:"Los tests aparecerán aquí. Compartirás cada test con su propio enlace, igual que las audiciones."
+ }
+};
+const store = {
+  get(k,d){try{const v=localStorage.getItem(k);return v===null?d:v}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+};
+let lang = store.get("vs-admin-lang", (navigator.language||"").toLowerCase().startsWith("hy") ? "hy" : (navigator.language||"").toLowerCase().startsWith("es") ? "es" : "en");
+if(!STR[lang]) lang = "en";
+const t = (k, ...a) => { const v = STR[lang][k] ?? STR.en[k]; return typeof v === "function" ? v(...a) : v; };
+let section = store.get("vs-admin-section","listenings");
+let currentView = null;   // function that re-renders the screen in the new language
+
+function applyChrome(){
+  document.documentElement.lang = lang;
+  document.getElementById("brandsub").textContent = t("brand");
+  document.getElementById("lock").textContent = t("logout");
+  document.querySelectorAll("#langs [data-lang]").forEach(b=>{ const on = b.dataset.lang===lang; b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); });
+}
+document.querySelectorAll("#langs [data-lang]").forEach(b=>b.onclick=()=>{
+  lang = b.dataset.lang; store.set("vs-admin-lang",lang); applyChrome(); currentView && currentView();
+});
+
 const $app = document.getElementById("app");
 const enc = s => new TextEncoder().encode(s);
 const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -98,10 +216,10 @@ async function commitFiles(files, message){
   await gh("/git/refs/heads/main", {method:"PATCH", body:JSON.stringify({sha:c.sha})});
 }
 function ghError(e){
-  if(e.status===401) return "GitHub rechazó la clave. Puede que haya caducado: conecta GitHub de nuevo.";
-  if(e.status===403 || e.status===404) return "La clave de GitHub no tiene permiso para escribir en el repositorio.";
-  if(e.status===409 || e.status===422) return "Hubo otro cambio al mismo tiempo. Vuelve a intentarlo.";
-  return "No se pudo guardar el cambio. Comprueba tu conexión y vuelve a intentarlo.";
+  if(e.status===401) return t("e401");
+  if(e.status===403 || e.status===404) return t("e403");
+  if(e.status===409 || e.status===422) return t("e409");
+  return t("eNet");
 }
 
 /* ---------- new link for one listening ---------- */
@@ -121,53 +239,56 @@ async function newLink(l){
 }
 
 /* ---------- views ---------- */
-function renderLogin(err){
+function renderLogin(errKey){
+  currentView = () => renderLogin(errKey);
+  applyChrome();
   document.getElementById("lock").hidden = true;
   $app.innerHTML = `
   <form class="login" id="login" autocomplete="off">
-    <h1>Panel del profesor</h1>
-    <p>Introduce la contraseña para crear enlaces a las audiciones.</p>
+    <h1>${t("loginTitle")}</h1>
+    <p>${t("loginText")}</p>
     <div class="field">
-      <label for="pw">Contraseña</label>
+      <label for="pw">${t("password")}</label>
       <input class="input" id="pw" type="password" autocomplete="current-password" required>
     </div>
-    ${err?`<p class="err" role="alert">${err}</p>`:""}
-    <button class="btn" type="submit" id="go">Entrar</button>
+    ${errKey?`<p class="err" role="alert">${t(errKey)}</p>`:""}
+    <button class="btn" type="submit" id="go">${t("login")}</button>
   </form>`;
   const pw = document.getElementById("pw"); pw.focus();
   document.getElementById("login").onsubmit = async e => {
     e.preventDefault();
-    const btn = document.getElementById("go"); btn.disabled = true; btn.textContent = "Comprobando…";
+    const btn = document.getElementById("go"); btn.disabled = true; btn.textContent = t("checking");
     try{ session = await unlock(pw.value); renderPanel(); }
-    catch(x){ renderLogin(x.message==="nofile" ? "No se encontró la configuración del panel." : "Contraseña incorrecta. Inténtalo de nuevo."); }
+    catch(x){ renderLogin(x.message==="nofile" ? "noFile" : "wrongPw"); }
   };
 }
 
 function connectBox(then){
   const box = document.getElementById("connect");
   box.hidden = false;
+  const link = `<a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com → Fine-grained token</a>`;
   box.innerHTML = `
-    <h2>Conecta GitHub (solo una vez)</h2>
-    <p class="hint">Para cambiar un enlace, el panel guarda el cambio en tu repositorio. Crea una clave de acceso:</p>
+    <h2>${t("ghTitle")}</h2>
+    <p class="hint">${t("ghIntro")}</p>
     <ol class="hint steps">
-      <li>Abre <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com → Fine-grained token</a>.</li>
-      <li>Repository access: <b>Only select repositories</b> → <b>${REPO.split("/")[1]}</b>.</li>
-      <li>Permissions → Repository → <b>Contents: Read and write</b>. Expiration: la que prefieras.</li>
-      <li>Pulsa <b>Generate token</b>, cópiala y pégala aquí.</li>
+      <li>${t("ghS1", link)}</li>
+      <li>${t("ghS2", esc(REPO.split("/")[1]))}</li>
+      <li>${t("ghS3")}</li>
+      <li>${t("ghS4")}</li>
     </ol>
-    <div class="field"><label for="tok">Clave de GitHub</label><input class="input" id="tok" type="password" autocomplete="off" placeholder="github_pat_…"></div>
+    <div class="field"><label for="tok">${t("ghKey")}</label><input class="input" id="tok" type="password" autocomplete="off" placeholder="github_pat_…"></div>
     <p class="err" id="tokerr" role="alert" hidden></p>
     <div class="acts" style="justify-content:flex-start">
-      <button type="button" class="btn" id="toksave">Conectar</button>
-      <button type="button" class="btn ghost" id="tokcancel">Cancelar</button>
+      <button type="button" class="btn" id="toksave">${t("ghConnect")}</button>
+      <button type="button" class="btn ghost" id="tokcancel">${t("cancel")}</button>
     </div>
-    <p class="hint">La clave se guarda cifrada con tu contraseña del panel.</p>`;
+    <p class="hint">${t("ghStored")}</p>`;
   box.scrollIntoView({block:"start", behavior:"smooth"});
   document.getElementById("tokcancel").onclick = () => { box.hidden = true; };
   document.getElementById("toksave").onclick = async e => {
     const btn = e.currentTarget, err = document.getElementById("tokerr"), tok = document.getElementById("tok").value.trim();
-    if(!tok){ err.hidden=false; err.textContent="Pega la clave de GitHub."; return; }
-    btn.disabled = true; btn.textContent = "Comprobando…"; err.hidden = true;
+    if(!tok){ err.hidden=false; err.textContent=t("ghEmpty"); return; }
+    btn.disabled = true; btn.textContent = t("checking"); err.hidden = true;
     try{
       const repo = await gh("", {}, tok);
       if(!repo.permissions || !repo.permissions.push){ const x = new Error("perm"); x.status = 403; throw x; }
@@ -176,23 +297,48 @@ function connectBox(then){
       catch(x){ session.gh = prev; throw x; }
       box.hidden = true; then && then();
     }catch(x){
-      err.hidden = false; err.textContent = x.status===401 ? "Esa clave no es válida. Cópiala de nuevo desde GitHub." : ghError(x);
-      btn.disabled = false; btn.textContent = "Conectar";
+      err.hidden = false; err.textContent = x.status===401 ? t("ghInvalid") : ghError(x);
+      btn.disabled = false; btn.textContent = t("ghConnect");
     }
   };
 }
 
 const LEVELS = ["A1","A2","B1","B2","C1","C2"];
+const SECTIONS = ["listenings","tests"];
 function renderPanel(){
+  currentView = renderPanel;
+  applyChrome();
   document.getElementById("lock").hidden = false;
+  if(!SECTIONS.includes(section)) section = "listenings";
+  $app.innerHTML = `
+  <nav class="sections" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" data-sec="listenings" aria-selected="${section==="listenings"}">${t("secListen")}<span class="count">${session.lessons.length}</span></button>
+    <button type="button" role="tab" data-sec="tests" aria-selected="${section==="tests"}">${t("secTests")}<span class="count soon">${t("testsSoon")}</span></button>
+  </nav>
+  <div id="sec" role="tabpanel"></div>`;
+  $app.querySelectorAll("[data-sec]").forEach(b=>b.onclick=()=>{ section=b.dataset.sec; store.set("vs-admin-section",section); renderPanel(); });
+  const box = document.getElementById("sec");
+  if(section==="tests") renderTests(box); else renderListenings(box);
+}
+
+function renderTests(box){
+  box.innerHTML = `
+  <section class="state">
+    <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l2 2 4-4"/><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 17h8"/></svg></div>
+    <h1>${t("testsTitle")}</h1>
+    <p>${t("testsText")}</p>
+  </section>`;
+}
+
+function renderListenings(box){
   const byLevel = LEVELS.map(lv=>[lv, session.lessons.filter(l=>l.level===lv)]).filter(([,ls])=>ls.length);
   const recs = session.lessons.filter(l=>l.audio).length;
-  $app.innerHTML = `
+  box.innerHTML = `
   <div class="toolbar">
-    <h1>Audiciones</h1>
-    <p class="hint">${session.lessons.length} audiciones · ${recs} con grabación</p>
+    <h1>${t("secListen")}</h1>
+    <p class="hint">${t("countLine", session.lessons.length, recs)}</p>
   </div>
-  <p class="hint">Cada enlace abre solo esa audición. <b>Nuevo enlace</b> anula el enlace actual para todos los que lo tengan y crea otro.</p>
+  <p class="hint">${t("intro")}</p>
   <section class="panel connect" id="connect" hidden></section>
   ${byLevel.map(([lv,ls])=>`
     <h2 class="section-title">${lv}</h2>
@@ -200,14 +346,14 @@ function renderPanel(){
       <div class="row-l" data-id="${esc(l.id)}">
         <span class="lv ${lvClass(l.level)}">${esc(l.level)}</span>
         <div style="min-width:0">
-          <h3>${esc(l.title)}</h3>
-          <div class="meta"><span>${esc(l.topic)}</span><span>· ${l.narrator==="f"?"Narradora":"Narrador"}</span>
-            <span class="chip ${l.audio?"rec":""}">${l.audio?"Grabación":"Voz del dispositivo"}</span></div>
+          <h3 lang="es">${esc(l.title)}</h3>
+          <div class="meta"><span lang="es">${esc(l.topic)}</span><span>· ${l.narrator==="f"?t("narrF"):t("narrM")}</span>
+            <span class="chip ${l.audio?"rec":""}">${l.audio?t("chipRec"):t("chipTts")}</span></div>
         </div>
         <div class="acts"></div>
         <p class="rowmsg" hidden></p>
       </div>`).join("")}</div>`).join("")}`;
-  $app.querySelectorAll(".row-l").forEach(row => renderActs(row));
+  box.querySelectorAll(".row-l").forEach(row => renderActs(row));
 }
 
 function rowMsg(row, text, kind){
@@ -219,20 +365,20 @@ async function renderActs(row){
   const acts = row.querySelector(".acts");
   const url = await linkFor(l);
   acts.innerHTML = `
-    <button type="button" class="btn sm" data-copy>Copiar enlace</button>
-    <a class="btn sm ghost" target="_blank" rel="noopener noreferrer" href="${esc(url)}">Abrir</a>
-    <button type="button" class="btn sm ghost" data-new>Nuevo enlace</button>`;
+    <button type="button" class="btn sm" data-copy>${t("copy")}</button>
+    <a class="btn sm ghost" target="_blank" rel="noopener noreferrer" href="${esc(url)}">${t("open")}</a>
+    <button type="button" class="btn sm ghost" data-new>${t("newLink")}</button>`;
   acts.querySelector("[data-copy]").onclick = async (e)=>{
     const btn = e.currentTarget;
     try{
       await navigator.clipboard.writeText(url);
-      btn.textContent = "Copiado ✓"; btn.classList.add("ok");
-      setTimeout(()=>{ btn.textContent="Copiar enlace"; btn.classList.remove("ok"); }, 1800);
+      btn.textContent = t("copied"); btn.classList.add("ok");
+      setTimeout(()=>{ btn.textContent=t("copy"); btn.classList.remove("ok"); }, 1800);
     }catch(err){
       let box = row.querySelector(".linkbox");
-      if(!box){ box = document.createElement("div"); box.className="linkbox"; box.innerHTML=`<input readonly aria-label="Enlace">`; row.appendChild(box); }
-      const inp = box.querySelector("input"); inp.value = url; inp.focus(); inp.select();
-      btn.textContent = "Selecciona y copia";
+      if(!box){ box = document.createElement("div"); box.className="linkbox"; box.innerHTML=`<input readonly>`; row.appendChild(box); }
+      const inp = box.querySelector("input"); inp.setAttribute("aria-label", t("linkLabel")); inp.value = url; inp.focus(); inp.select();
+      btn.textContent = t("selectCopy");
     }
   };
   acts.querySelector("[data-new]").onclick = () => confirmNew(row, l);
@@ -241,22 +387,22 @@ function confirmNew(row, l){
   const acts = row.querySelector(".acts");
   rowMsg(row, "");
   acts.innerHTML = `
-    <span class="hint">El enlace actual dejará de funcionar para todos.</span>
-    <button type="button" class="btn sm danger" data-yes>Crear nuevo enlace</button>
-    <button type="button" class="btn sm ghost" data-no>Cancelar</button>`;
+    <span class="hint">${t("confirmText")}</span>
+    <button type="button" class="btn sm danger" data-yes>${t("confirmYes")}</button>
+    <button type="button" class="btn sm ghost" data-no>${t("cancel")}</button>`;
   acts.querySelector("[data-no]").onclick = () => renderActs(row);
   acts.querySelector("[data-yes]").onclick = async (e) => {
     if(!session.gh){ renderActs(row); connectBox(() => confirmNew(row, l)); return; }
-    const btn = e.currentTarget; btn.disabled = true; btn.textContent = "Creando…";
+    const btn = e.currentTarget; btn.disabled = true; btn.textContent = t("creating");
     acts.querySelector("[data-no]").disabled = true;
     try{
       await newLink(l);
       await renderActs(row);
-      rowMsg(row, "Nuevo enlace creado. El anterior ya no sirve. El nuevo funcionará en 1–2 minutos, cuando GitHub publique el cambio.", "good");
+      rowMsg(row, t("done"), "good");
     }catch(x){
       await renderActs(row);
       if(x.status===401){ session.gh = null; connectBox(() => confirmNew(row, l)); }
-      rowMsg(row, x.name==="OperationError" ? "Este enlace ya se cambió desde otro dispositivo. Cierra sesión y vuelve a entrar." : ghError(x), "bad");
+      rowMsg(row, x.name==="OperationError" ? t("changedElsewhere") : ghError(x), "bad");
     }
   };
 }

@@ -145,3 +145,13 @@ footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);color:v
 .connect h2{font-size:1.15rem;font-weight:700}
 .connect a{color:var(--accent)}
 .steps{margin:0;padding-left:1.2em;display:grid;gap:4px}
+
+/* admin header + sections */
+.hdr-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.langtabs button{font-family:var(--f-mono);font-size:.78rem;padding:5px 10px}
+.sections{display:flex;gap:4px;margin-top:20px;border-bottom:1px solid var(--line);overflow-x:auto}
+.sections button{display:flex;align-items:center;gap:8px;font:700 1rem var(--f-display);letter-spacing:-.01em;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);padding:10px 14px 9px;cursor:pointer;white-space:nowrap;margin-bottom:-1px}
+.sections button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.sections .count{font:600 .72rem var(--f-mono);background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:999px}
+.sections .count.soon{background:var(--sun-soft);color:var(--ink);font-family:var(--f-body)}
+.langtabs button[lang="hy"]{font-family:var(--f-body);font-weight:700}

@@ -3,7 +3,7 @@
 Spanish listening practice from A1 to C1: a recording or device voice, a transcript you can hide, a comprehension quiz and vocabulary.
 
 - **Students:** https://museo-am.github.io/Verba-Listenting/ opens nothing on its own. Each listening opens only from a link the tutor sends.
-- **Tutor panel:** https://museo-am.github.io/Verba-Listenting/admin.html (password protected). Lists every listening with a **Copy link** button.
+- **Tutor panel:** https://museo-am.github.io/Verba-Listenting/admin.html (password protected), in English, Armenian or Spanish. Two sections: **Listenings**, with a **Copy link** button for each, and **Tests** (coming soon).
 
 ## How access works
 Every listening is encrypted (AES-256-GCM) with its own key. A student link ends in `#<lesson-id>~<key>`, and that key opens only that one listening. The part after `#` never reaches the server.
