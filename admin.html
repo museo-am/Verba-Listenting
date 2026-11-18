@@ -37,6 +37,7 @@
    "Nuevo enlace" raises v, re-encrypts that lesson with the new key and commits it to
    GitHub, so the old link stops working. */
 const REPO = "museo-am/Verba-Listenting";
+const OWNER = REPO.split("/")[0];
 
 /* ---------- languages ---------- */
 const STR = {
@@ -60,8 +61,8 @@ const STR = {
   ghTitle:"Connect GitHub (one time only)",
   ghIntro:"To change a link, the panel saves the change to your repository. Create an access key:",
   ghS1:a=>`Open ${a}.`,
-  ghS2:r=>`Repository access: <b>Only select repositories</b> → <b>${r}</b>.`,
-  ghS3:"Permissions → Repository → <b>Contents: Read and write</b>. Expiration: your choice.",
+  ghS2:r=>`Resource owner: <b>${OWNER}</b>. Repository access: <b>Only select repositories</b> → <b>${r}</b>.`,
+  ghS3:"Permissions → Repository permissions → <b>Contents: Read and write</b>. Expiration: choose a long one, for example 1 year.",
   ghS4:"Click <b>Generate token</b>, copy it and paste it here.",
   ghKey:"GitHub key", ghConnect:"Connect", ghEmpty:"Paste the GitHub key.",
   ghInvalid:"That key isn't valid. Copy it again from GitHub.",
@@ -90,8 +91,8 @@ const STR = {
   ghTitle:"Միացրեք GitHub-ը (միայն մեկ անգամ)",
   ghIntro:"Հղումը փոխելու համար վահանակը փոփոխությունը պահպանում է ձեր պահոցում։ Ստեղծեք մուտքի բանալի․",
   ghS1:a=>`Բացեք ${a}։`,
-  ghS2:r=>`Repository access՝ <b>Only select repositories</b> → <b>${r}</b>։`,
-  ghS3:"Permissions → Repository → <b>Contents: Read and write</b>։ Expiration՝ ըստ ցանկության։",
+  ghS2:r=>`Resource owner՝ <b>${OWNER}</b>։ Repository access՝ <b>Only select repositories</b> → <b>${r}</b>։`,
+  ghS3:"Permissions → Repository permissions → <b>Contents: Read and write</b>։ Expiration՝ ընտրեք երկար ժամկետ, օրինակ՝ 1 տարի։",
   ghS4:"Սեղմեք <b>Generate token</b>, պատճենեք այն և տեղադրեք այստեղ։",
   ghKey:"GitHub-ի բանալի", ghConnect:"Միացնել", ghEmpty:"Տեղադրեք GitHub-ի բանալին։",
   ghInvalid:"Այդ բանալին վավեր չէ։ Կրկին պատճենեք այն GitHub-ից։",
@@ -120,8 +121,8 @@ const STR = {
   ghTitle:"Conecta GitHub (solo una vez)",
   ghIntro:"Para cambiar un enlace, el panel guarda el cambio en tu repositorio. Crea una clave de acceso:",
   ghS1:a=>`Abre ${a}.`,
-  ghS2:r=>`Repository access: <b>Only select repositories</b> → <b>${r}</b>.`,
-  ghS3:"Permissions → Repository → <b>Contents: Read and write</b>. Expiration: la que prefieras.",
+  ghS2:r=>`Resource owner: <b>${OWNER}</b>. Repository access: <b>Only select repositories</b> → <b>${r}</b>.`,
+  ghS3:"Permissions → Repository permissions → <b>Contents: Read and write</b>. Expiration: elige un plazo largo, por ejemplo 1 año.",
   ghS4:"Pulsa <b>Generate token</b>, cópiala y pégala aquí.",
   ghKey:"Clave de GitHub", ghConnect:"Conectar", ghEmpty:"Pega la clave de GitHub.",
   ghInvalid:"Esa clave no es válida. Cópiala de nuevo desde GitHub.",
