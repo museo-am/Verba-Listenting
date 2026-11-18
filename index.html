@@ -500,15 +500,39 @@ function renderTestResult(t, r){
   };
 }
 
+/* History: every listening or test sits one step above "Mi material", so the phone's
+   Back button always returns to the list, even when the student arrived from a link. */
 function route(){
   const h = decodeURIComponent(location.hash.slice(1));
   const m = h.match(/^([a-z0-9-]+)~([A-Za-z0-9_-]{43})$/);
-  if(m) openLesson(m[1], m[2]);
-  else if(vault[h]) openLesson(h, vault[h].k);
-  else { openToken++; renderHome(); }
+  const item = m ? [m[1], m[2]] : (vault[h] ? [h, vault[h].k] : null);
+  if(item){
+    if(!(history.state && history.state.overList)){
+      const here = location.hash;
+      history.replaceState({list:true}, "", location.pathname + location.search);
+      history.pushState({overList:true}, "", here);
+    }
+    openLesson(item[0], item[1]);
+  }else{
+    if(!(history.state && history.state.list)) history.replaceState({list:true}, "", location.pathname + location.search);
+    openToken++; renderHome();
+  }
   window.scrollTo(0,0);
 }
-window.addEventListener("hashchange",route);
+// links inside the page: open an item over the list, and go "back" to the list instead of adding a new step
+document.addEventListener("click", e => {
+  const a = e.target.closest && e.target.closest("a[href^='#']");
+  if(!a || e.metaKey || e.ctrlKey || e.shiftKey) return;
+  const href = a.getAttribute("href");
+  e.preventDefault();
+  if(href === "#"){
+    if(history.state && history.state.overList) history.back();
+    else { history.replaceState({list:true}, "", location.pathname + location.search); route(); }
+  }else{
+    history.pushState({overList:true}, "", href); route();
+  }
+});
+window.addEventListener("popstate", route);
 window.addEventListener("pagehide",()=>synth&&synth.cancel());
 route();
 </script>
