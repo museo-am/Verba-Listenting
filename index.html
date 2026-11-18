@@ -1,18 +1,126 @@
 <!doctype html>
-<html lang="es">
+<html lang="hy">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>if(location.protocol==="http:"&&!/^(localhost|127\.)/.test(location.hostname))location.replace("https:"+location.href.slice(5));</script>
-<meta name="robots" content="noindex">
+<meta name="description" content="Verba School — իսպաներենի դպրոց։ Իսպաներեն՝ զրոյից մինչև C1, բացատրությունները՝ հայերենով։">
+<meta property="og:title" content="Verba School">
+<meta property="og:description" content="Իսպաներեն՝ զրոյից մինչև ազատ խոսք։ Spanish from zero to fluency.">
+<meta name="theme-color" content="#2747d0">
 <title>Verba School</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=3ae45d5e">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Noto+Sans+Armenian:wght@400;600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="style.css?v=51bf3c2b">
 </head>
 <body>
 
-<div class="wrap">
+<div id="landing" class="landing" hidden>
+  <header class="lnav">
+    <div class="lnav-in">
+      <span class="brand"><b>Verba<span>.</span>School</b></span>
+      <nav class="lnav-links" aria-label="Sections">
+        <a href="#niveles" data-t="navLevels">Մակարդակներ</a>
+        <a href="#metodo" data-t="navMethod">Մեթոդ</a>
+        <a href="#plataforma" data-t="navPlatform">Հարթակ</a>
+      </nav>
+      <nav class="langtabs" id="sitelangs" aria-label="Language">
+        <button type="button" data-lang="hy" lang="hy">ՀՅ</button>
+        <button type="button" data-lang="en" lang="en">EN</button>
+        <button type="button" data-lang="es" lang="es">ES</button>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-in">
+      <div class="hero-copy">
+        <p class="eyebrow" data-t="eyebrow">Իսպաներենի դպրոց</p>
+        <h1 data-t="h1">Իսպաներեն՝ զրոյից մինչև ազատ խոսք</h1>
+        <p class="lede" data-t="lede">Սովորեք իսպաներեն A1-ից մինչև C1 մակարդակ։ Քերականությունը բացատրում ենք հայերենով, իսկ լսելն ու խոսելը զարգացնում ենք իրական տեքստերով։</p>
+        <div class="hero-cta">
+          <a class="btn big" href="https://www.instagram.com/verba.school_/" target="_blank" rel="noopener" data-t="ctaIg">Գրեք մեզ Instagram-ում</a>
+          <a class="btn big ghost" href="#niveles" data-t="ctaLevels">Տեսնել մակարդակները</a>
+        </div>
+      </div>
+      <div class="words" aria-label="Ejemplos de vocabulario">
+        <div class="word w1"><span class="pos">verbo</span><b lang="es">hablar</b><span class="tr" data-w="0">խոսել</span></div>
+        <div class="word w2"><span class="pos">verbo</span><b lang="es">escuchar</b><span class="tr" data-w="1">լսել</span></div>
+        <div class="word w3"><span class="pos">verbo</span><b lang="es">entender</b><span class="tr" data-w="2">հասկանալ</span></div>
+        <div class="word w4"><span class="pos">verbo</span><b lang="es">viajar</b><span class="tr" data-w="3">ճամփորդել</span></div>
+        <p class="words-note" data-t="verba"><i lang="la">Verba</i> լատիներեն նշանակում է «բառեր»։</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="lsec" id="niveles">
+    <div class="lsec-in">
+      <p class="eyebrow" data-t="levelsEyebrow">CEFR · MCER</p>
+      <h2 data-t="levelsTitle">Հինգ մակարդակ՝ A1-ից մինչև C1</h2>
+      <p class="lede" data-t="levelsLede">Դասերը կառուցված են եվրոպական լեզվական մակարդակներով։ Յուրաքանչյուր մակարդակի վերջում թեստը ցույց է տալիս՝ պատրաստ եք արդյոք հաջորդին։</p>
+      <ol class="stairs">
+        <li><span class="lv">A1</span><b lang="es">Acceso</b><span data-t="a1">Ներկայանալ, պատվիրել սուրճ, խոսել ընտանիքի մասին։</span></li>
+        <li><span class="lv">A2</span><b lang="es">Plataforma</b><span data-t="a2">Պատմել անցյալի մասին, ճամփորդել, գնումներ անել։</span></li>
+        <li><span class="lv b">B1</span><b lang="es">Umbral</b><span data-t="b1">Խոսել աշխատանքի, ծրագրերի և կարծիքների մասին։</span></li>
+        <li><span class="lv b">B2</span><b lang="es">Avanzado</b><span data-t="b2">Բանավիճել, դիտել ֆիլմեր, կարդալ հոդվածներ։</span></li>
+        <li><span class="lv c">C1</span><b lang="es">Dominio</b><span data-t="c1">Ազատ և նրբերանգներով խոսք ցանկացած թեմայով։</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="lsec alt" id="metodo">
+    <div class="lsec-in">
+      <p class="eyebrow" data-t="methodEyebrow">Մեթոդ</p>
+      <h2 data-t="methodTitle">Ինչպես ենք սովորեցնում</h2>
+      <div class="pillars">
+        <article><span class="pnum" lang="es">explicar</span><h3 data-t="p1t">Բացատրություններ հայերենով</h3><p data-t="p1">Քերականությունը պարզ է դառնում, երբ այն բացատրում են մայրենի լեզվով։ Օրինակները՝ իսպաներենով։</p></article>
+        <article><span class="pnum" lang="es">escuchar</span><h3 data-t="p2t">Լսողական առաջադրանքներ</h3><p data-t="p2">Ձայնագրված տեքստեր ձեր մակարդակի համար՝ տեքստով, բառապաշարով և հարցերով։</p></article>
+        <article><span class="pnum" lang="es">comprobar</span><h3 data-t="p3t">Մակարդակի թեստեր</h3><p data-t="p3">Ստուգեք՝ հաղթահարել եք արդյոք մակարդակը, և տեսեք, թե որ մասում է պետք դեռ աշխատել։</p></article>
+      </div>
+      <div class="course">
+        <span class="lv">A1</span>
+        <div><b lang="es">Español desde cero</b><span data-t="course">Դասընթաց սկսնակների համար՝ բոլորովին զրոյից։</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lsec" id="plataforma">
+    <div class="lsec-in split">
+      <div>
+        <p class="eyebrow" data-t="platEyebrow">Verba Listenings</p>
+        <h2 data-t="platTitle">Մեր հարթակը</h2>
+        <p class="lede" data-t="platLede">Յուրաքանչյուր աշակերտ ստանում է անձնական հղումներ լսողական առաջադրանքներին և թեստերին։</p>
+        <ul class="ticks">
+          <li data-t="t1">Լսեք ձայնագրությունը՝ սկզբում առանց տեքստի</li>
+          <li data-t="t2">Բացեք տեքստը և հետևեք նախադասություն առ նախադասություն</li>
+          <li data-t="t3">Պատասխանեք հարցերին և ստուգեք ինքներդ ձեզ</li>
+        </ul>
+      </div>
+      <div class="mock" aria-hidden="true">
+        <div class="mock-head"><span class="lv">A1</span><span>Presentarse · Narradora</span></div>
+        <b class="mock-title">Me llamo Lucía</b>
+        <div class="mock-player"><span class="mock-play"></span><span class="mock-bar"><i></i></span><small>Frase 4 / 13</small></div>
+        <p class="mock-text"><span>Vivo en un piso pequeño con mi hermana Marta.</span> <mark>Soy estudiante.</mark> <span>Estudio Medicina en la universidad.</span></p>
+        <div class="mock-q"><b>¿Qué estudia Lucía?</b><span class="ok">a&nbsp; Medicina</span><span>b&nbsp; Derecho</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="lsec-in">
+      <h2 lang="es">¿Empezamos?</h2>
+      <p class="lede" data-t="ctaText">Գրեք մեզ Instagram-ում. կօգնենք որոշել ձեր մակարդակը և ընտրել դասերը։</p>
+      <a class="igbtn" href="https://www.instagram.com/verba.school_/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+        @verba.school_
+      </a>
+    </div>
+  </section>
+
+  <footer class="lfoot"><div class="lsec-in"><span class="brand"><b>Verba<span>.</span>School</b></span><span data-t="foot">Իսպաներենի դպրոց</span><span>© 2026</span></div></footer>
+</div>
+
+<div class="wrap" id="appwrap">
   <header class="top">
     <span class="brand"><b>Verba<span>.</span>School</b></span>
   </header>
@@ -157,14 +265,87 @@ function updatePlayerUI(){
 }
 
 /* ---------- views ---------- */
+/* ---------- landing page (site without a link) ---------- */
+const SITE_STR = {
+ hy:{navLevels:"Մակարդակներ",navMethod:"Մեթոդ",navPlatform:"Հարթակ",eyebrow:"Իսպաներենի դպրոց",
+  h1:"Իսպաներեն՝ զրոյից մինչև ազատ խոսք",
+  lede:"Սովորեք իսպաներեն A1-ից մինչև C1 մակարդակ։ Քերականությունը բացատրում ենք հայերենով, իսկ լսելն ու խոսելը զարգացնում ենք իրական տեքստերով։",
+  ctaIg:"Գրեք մեզ Instagram-ում",ctaLevels:"Տեսնել մակարդակները",verba:"<i lang=\"la\">Verba</i> լատիներեն նշանակում է «բառեր»։",
+  levelsEyebrow:"CEFR · MCER",levelsTitle:"Հինգ մակարդակ՝ A1-ից մինչև C1",
+  levelsLede:"Դասերը կառուցված են եվրոպական լեզվական մակարդակներով։ Մակարդակի վերջում թեստը ցույց է տալիս՝ պատրաստ եք արդյոք հաջորդին։",
+  a1:"Ներկայանալ, պատվիրել սուրճ, խոսել ընտանիքի մասին։",a2:"Պատմել անցյալի մասին, ճամփորդել, գնումներ անել։",
+  b1:"Խոսել աշխատանքի, ծրագրերի և կարծիքների մասին։",b2:"Բանավիճել, դիտել ֆիլմեր, կարդալ հոդվածներ։",c1:"Ազատ և նրբերանգներով խոսք ցանկացած թեմայով։",
+  methodEyebrow:"Մեթոդ",methodTitle:"Ինչպես ենք սովորեցնում",
+  p1t:"Բացատրություններ հայերենով",p1:"Քերականությունը պարզ է դառնում, երբ այն բացատրում են մայրենի լեզվով։ Օրինակները՝ իսպաներենով։",
+  p2t:"Լսողական առաջադրանքներ",p2:"Ձայնագրված տեքստեր ձեր մակարդակի համար՝ տեքստով, բառապաշարով և հարցերով։",
+  p3t:"Մակարդակի թեստեր",p3:"Ստուգեք՝ հաղթահարել եք արդյոք մակարդակը, և տեսեք, թե որ մասում է պետք դեռ աշխատել։",
+  course:"Դասընթաց սկսնակների համար՝ բոլորովին զրոյից։",
+  platEyebrow:"Verba Listenings",platTitle:"Մեր հարթակը",platLede:"Յուրաքանչյուր աշակերտ ստանում է անձնական հղումներ լսողական առաջադրանքներին և թեստերին։",
+  t1:"Լսեք ձայնագրությունը՝ սկզբում առանց տեքստի",t2:"Բացեք տեքստը և հետևեք նախադասություն առ նախադասություն",t3:"Պատասխանեք հարցերին և ստուգեք ինքներդ ձեզ",
+  ctaText:"Գրեք մեզ Instagram-ում. կօգնենք որոշել ձեր մակարդակը և ընտրել դասերը։",foot:"Իսպաներենի դպրոց",
+  words:["խոսել","լսել","հասկանալ","ճամփորդել"],title:"Verba School — իսպաներենի դպրոց"},
+ en:{navLevels:"Levels",navMethod:"Method",navPlatform:"Platform",eyebrow:"Spanish school",
+  h1:"Spanish, from zero to fluent",
+  lede:"Learn Spanish from A1 to C1. We explain grammar in Armenian and build your listening and speaking with real texts.",
+  ctaIg:"Message us on Instagram",ctaLevels:"See the levels",verba:"<i lang=\"la\">Verba</i> is Latin for “words”.",
+  levelsEyebrow:"CEFR",levelsTitle:"Five levels, from A1 to C1",
+  levelsLede:"Lessons follow the European language levels. At the end of each level, a test shows whether you're ready for the next one.",
+  a1:"Introduce yourself, order a coffee, talk about your family.",a2:"Talk about the past, travel, go shopping.",
+  b1:"Talk about work, plans and opinions.",b2:"Debate, watch films, read articles.",c1:"Speak freely and with nuance on any topic.",
+  methodEyebrow:"Method",methodTitle:"How we teach",
+  p1t:"Explanations in Armenian",p1:"Grammar makes sense when it's explained in your own language. The examples are in Spanish.",
+  p2t:"Listening practice",p2:"Recorded texts for your level, with the transcript, vocabulary and questions.",
+  p3t:"Level tests",p3:"Check whether you've passed a level, and see which part still needs work.",
+  course:"Our course for complete beginners.",
+  platEyebrow:"Verba Listenings",platTitle:"Our platform",platLede:"Every student gets personal links to listening tasks and tests.",
+  t1:"Listen to the recording, first without the text",t2:"Open the transcript and follow it sentence by sentence",t3:"Answer the questions and check yourself",
+  ctaText:"Message us on Instagram and we'll help you find your level and choose your lessons.",foot:"Spanish school",
+  words:["to speak","to listen","to understand","to travel"],title:"Verba School — Spanish school"},
+ es:{navLevels:"Niveles",navMethod:"Método",navPlatform:"Plataforma",eyebrow:"Escuela de español",
+  h1:"Español, desde cero hasta hablar con soltura",
+  lede:"Aprende español del A1 al C1. Explicamos la gramática en armenio y trabajamos la comprensión y la expresión con textos reales.",
+  ctaIg:"Escríbenos en Instagram",ctaLevels:"Ver los niveles",verba:"<i lang=\"la\">Verba</i> significa «palabras» en latín.",
+  levelsEyebrow:"MCER",levelsTitle:"Cinco niveles, del A1 al C1",
+  levelsLede:"Las clases siguen los niveles del Marco Común Europeo. Al final de cada nivel, un test muestra si estás listo para el siguiente.",
+  a1:"Presentarte, pedir un café, hablar de tu familia.",a2:"Hablar del pasado, viajar, ir de compras.",
+  b1:"Hablar del trabajo, de tus planes y opiniones.",b2:"Debatir, ver películas, leer artículos.",c1:"Hablar con soltura y matices de cualquier tema.",
+  methodEyebrow:"Método",methodTitle:"Cómo enseñamos",
+  p1t:"Explicaciones en armenio",p1:"La gramática se entiende mejor en tu propio idioma. Los ejemplos, en español.",
+  p2t:"Audiciones",p2:"Textos grabados para tu nivel, con transcripción, vocabulario y preguntas.",
+  p3t:"Tests de nivel",p3:"Comprueba si has superado el nivel y descubre qué parte necesitas reforzar.",
+  course:"Nuestro curso para empezar desde cero.",
+  platEyebrow:"Verba Listenings",platTitle:"Nuestra plataforma",platLede:"Cada alumno recibe enlaces personales a sus audiciones y tests.",
+  t1:"Escucha la grabación, primero sin el texto",t2:"Abre la transcripción y síguela frase a frase",t3:"Responde las preguntas y comprueba cuánto has entendido",
+  ctaText:"Escríbenos en Instagram y te ayudamos a saber tu nivel y elegir tus clases.",foot:"Escuela de español",
+  words:["խոսել","լսել","հասկանալ","ճամփորդել"],title:"Verba School — escuela de español"}
+};
+let siteLang = (()=>{ try{ return localStorage.getItem("vs-site-lang") || "hy"; }catch(e){ return "hy"; } })();
+if(!SITE_STR[siteLang]) siteLang = "hy";
+function applySiteLang(){
+  const S = SITE_STR[siteLang];
+  document.documentElement.lang = siteLang;
+  document.title = S.title;
+  document.querySelectorAll("#landing [data-t]").forEach(el=>{ const v = S[el.dataset.t]; if(v!=null) el.innerHTML = v; });
+  document.querySelectorAll("#landing [data-w]").forEach(el=>{ el.textContent = S.words[+el.dataset.w]; el.lang = siteLang==="en" ? "en" : "hy"; });
+  document.querySelectorAll("#sitelangs [data-lang]").forEach(b=>{ const on=b.dataset.lang===siteLang; b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); });
+}
+document.querySelectorAll("#sitelangs [data-lang]").forEach(b=>b.onclick=()=>{
+  siteLang = b.dataset.lang; try{ localStorage.setItem("vs-site-lang",siteLang); }catch(e){} applySiteLang();
+});
+// in-page section links scroll without changing the address (the # part is reserved for student links)
+document.querySelectorAll('#landing a[href^="#"]').forEach(a=>a.onclick=e=>{
+  e.preventDefault(); const t=document.getElementById(a.getAttribute("href").slice(1)); if(t) t.scrollIntoView({behavior:"smooth"});
+});
+function showLanding(on){
+  document.getElementById("landing").hidden = !on;
+  document.getElementById("appwrap").hidden = on;
+  document.body.classList.toggle("is-landing", on);
+}
 function renderHome(){
   stop(true);
-  $app.innerHTML = `
-  <section class="state">
-    <div class="ico">${ICON_HEAD}</div>
-    <h1>Escucha. Entiende. Responde.</h1>
-    <p>Abre el enlace que te envió tu profesor o profesora para empezar tu audición o tu test.</p>
-  </section>`;
+  $app.innerHTML = "";
+  applySiteLang();
+  showLanding(true);
 }
 function renderState(kind, title, text){
   stop(true);
@@ -178,6 +359,7 @@ function renderState(kind, title, text){
 let openToken = 0;
 async function openLesson(id, k){
   const token = ++openToken;
+  showLanding(false); document.documentElement.lang = "es"; document.title = "Verba School";
   renderState("load","Abriendo…");
   let l;
   try{
