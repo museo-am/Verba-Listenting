@@ -1,9 +1,11 @@
 # Verba School Listenings
 
+Live at **https://verba-school.online** (GitHub Pages custom domain, see `CNAME`). Pages must be served over HTTPS: the browser only allows the decryption over a secure connection.
+
 Spanish listening practice from A1 to C1: a recording or device voice, a transcript you can hide, a comprehension quiz and vocabulary.
 
-- **Students:** https://museo-am.github.io/Verba-Listenting/ opens nothing on its own. Each listening opens only from a link the tutor sends.
-- **Tutor panel:** https://museo-am.github.io/Verba-Listenting/admin.html (password protected), in English, Armenian or Spanish. Two sections: **Listenings** and **Tests**, each item with **Copy link**, **Open** and **New link**.
+- **Students:** https://verba-school.online/ opens nothing on its own. Each listening opens only from a link the tutor sends.
+- **Tutor panel:** https://verba-school.online/admin.html (password protected), in English, Armenian or Spanish. Two sections: **Listenings** and **Tests**, each item with **Copy link**, **Open** and **New link**.
 
 ## How access works
 Every listening is encrypted (AES-256-GCM) with its own key. A student link ends in `#<lesson-id>~<key>`, and that key opens only that one listening. The part after `#` never reaches the server.
