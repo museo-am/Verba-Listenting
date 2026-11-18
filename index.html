@@ -14,7 +14,7 @@
 <title>Verba School</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Noto+Sans+Armenian:wght@400;600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=af4b8b88">
+<link rel="stylesheet" href="style.css?v=6a644f7e">
 </head>
 <body>
 
@@ -91,6 +91,7 @@
         <article><h3 data-t="p1t"></h3><p data-t="p1"></p></article>
         <article><h3 data-t="p2t"></h3><p data-t="p2"></p></article>
         <article><h3 data-t="p3t"></h3><p data-t="p3"></p></article>
+        <article class="cert"><h3 data-t="p4t"></h3><p data-t="p4"></p></article>
       </div>
     </div>
   </section>
@@ -105,12 +106,14 @@
           <h3 data-t="groupT">Խմբային դասեր</h3>
           <p class="amount"><b data-t="groupP">25 000 ֏</b><span data-t="perMonth">ամսական</span></p>
           <p data-t="groupD"></p>
+          <p class="incl" data-t="certIncl"></p>
           <a class="btn" href="https://www.instagram.com/verba.school_/" target="_blank" rel="noopener" data-t="signUp">Գրանցվել</a>
         </article>
         <article class="price main">
           <h3 data-t="privT">Անհատական դասեր</h3>
           <p class="amount"><b data-t="privP">30 000 ֏</b><span data-t="perMonth">ամսական</span></p>
           <p data-t="privD"></p>
+          <p class="incl" data-t="certIncl"></p>
           <a class="btn" href="https://www.instagram.com/verba.school_/" target="_blank" rel="noopener" data-t="signUp">Գրանցվել</a>
         </article>
       </div>
@@ -310,7 +313,7 @@ const SITE_STR = {
  hy:{navLangs:"Լեզուներ",navLevels:"Մակարդակներ",navPrices:"Գներ",navPlatform:"Հարթակ",
   eyebrow:"Լեզուների դպրոց · առցանց",
   h1:"Իսպաներեն, անգլերեն, ֆրանսերեն՝ զրոյից մինչև ազատ խոսք",
-  lede:"Առցանց դասեր A1-ից մինչև C1 մակարդակ՝ խմբային կամ անհատական։ Քերականությունը բացատրում ենք հայերենով, իսկ լսելն ու խոսելը զարգացնում ենք իրական տեքստերով։",
+  lede:"Առցանց դասեր A1-ից մինչև C1 մակարդակ՝ խմբային կամ անհատական, դասընթացի ավարտին՝ հավաստագիր։ Քերականությունը բացատրում ենք հայերենով, իսկ լսելն ու խոսելը զարգացնում ենք իրական տեքստերով։",
   ctaIg:"Գրեք մեզ Instagram-ում",ctaPrices:"Տեսնել գները",
   wSpeak:"խոսել",wListen:"լսել",wUnderstand:"հասկանալ",wLatin:"լատիներեն",wWords:"բառեր",
   langsEyebrow:"Լեզուներ",langsTitle:"Երեք լեզու՝ մեկ դպրոցում",
@@ -326,6 +329,7 @@ const SITE_STR = {
   methodEyebrow:"Մեթոդ",methodTitle:"Ինչպես ենք սովորեցնում",
   p1t:"Բացատրություններ հայերենով",p1:"Քերականությունը պարզ է դառնում, երբ այն բացատրում են մայրենի լեզվով։ Օրինակները՝ ուսումնասիրվող լեզվով։",
   p2t:"Լսողական առաջադրանքներ",p2:"Ձայնագրված տեքստեր ձեր մակարդակի համար՝ տեքստով, բառապաշարով և հարցերով։",
+  p4t:"Հավաստագիր",p4:"Դասընթացի ավարտին ստանում եք Verba School-ի հավաստագիր։",certIncl:"Դասընթացի ավարտին՝ հավաստագիր",
   p3t:"Մակարդակի թեստեր",p3:"Ստուգեք՝ հաղթահարել եք արդյոք մակարդակը, և տեսեք, թե որ մասում է պետք դեռ աշխատել։",
   pricesEyebrow:"Ձևաչափ և արժեք",pricesTitle:"Բոլոր դասերը՝ առցանց",pricesLede:"Սովորեք տնից՝ առանց ճանապարհին ժամանակ կորցնելու։ Ընտրեք ձեզ հարմար ձևաչափը։",
   groupT:"Խմբային դասեր",groupP:"25 000 ֏",groupD:"Սովորեք այլ աշակերտների հետ միասին։",
@@ -338,7 +342,7 @@ const SITE_STR = {
  en:{navLangs:"Languages",navLevels:"Levels",navPrices:"Prices",navPlatform:"Platform",
   eyebrow:"Language school · online",
   h1:"Spanish, English and French, from zero to fluent",
-  lede:"Online lessons from A1 to C1, in a group or one-on-one. We explain grammar in Armenian and build your listening and speaking with real texts.",
+  lede:"Online lessons from A1 to C1, in a group or one-on-one, with a certificate at the end of the course. We explain grammar in Armenian and build your listening and speaking with real texts.",
   ctaIg:"Message us on Instagram",ctaPrices:"See prices",
   wSpeak:"to speak",wListen:"to listen",wUnderstand:"to understand",wLatin:"Latin",wWords:"words",
   langsEyebrow:"Languages",langsTitle:"Three languages, one school",
@@ -354,6 +358,7 @@ const SITE_STR = {
   methodEyebrow:"Method",methodTitle:"How we teach",
   p1t:"Explanations in Armenian",p1:"Grammar makes sense when it's explained in your own language. The examples are in the language you're learning.",
   p2t:"Listening practice",p2:"Recorded texts for your level, with the transcript, vocabulary and questions.",
+  p4t:"Certificate",p4:"At the end of the course you receive a Verba School certificate.",certIncl:"Certificate at the end of the course",
   p3t:"Level tests",p3:"Check whether you've passed a level, and see which part still needs work.",
   pricesEyebrow:"Format and prices",pricesTitle:"All lessons are online",pricesLede:"Learn from home, without wasting time on the road. Choose the format that suits you.",
   groupT:"Group lessons",groupP:"25,000 ֏",groupD:"Learn together with other students.",
@@ -366,7 +371,7 @@ const SITE_STR = {
  es:{navLangs:"Idiomas",navLevels:"Niveles",navPrices:"Precios",navPlatform:"Plataforma",
   eyebrow:"Escuela de idiomas · online",
   h1:"Español, inglés y francés, desde cero hasta hablar con soltura",
-  lede:"Clases online del A1 al C1, en grupo o individuales. Explicamos la gramática en armenio y trabajamos la comprensión y la expresión con textos reales.",
+  lede:"Clases online del A1 al C1, en grupo o individuales, con certificado al terminar el curso. Explicamos la gramática en armenio y trabajamos la comprensión y la expresión con textos reales.",
   ctaIg:"Escríbenos en Instagram",ctaPrices:"Ver precios",
   wSpeak:"խոսել",wListen:"լսել",wUnderstand:"հասկանալ",wLatin:"latín",wWords:"palabras",
   langsEyebrow:"Idiomas",langsTitle:"Tres idiomas, una escuela",
@@ -382,6 +387,7 @@ const SITE_STR = {
   methodEyebrow:"Método",methodTitle:"Cómo enseñamos",
   p1t:"Explicaciones en armenio",p1:"La gramática se entiende mejor en tu propio idioma. Los ejemplos, en el idioma que aprendes.",
   p2t:"Audiciones",p2:"Textos grabados para tu nivel, con transcripción, vocabulario y preguntas.",
+  p4t:"Certificado",p4:"Al terminar el curso recibes un certificado de Verba School.",certIncl:"Certificado al terminar el curso",
   p3t:"Tests de nivel",p3:"Comprueba si has superado el nivel y descubre qué parte necesitas reforzar.",
   pricesEyebrow:"Formato y precios",pricesTitle:"Todas las clases son online",pricesLede:"Aprende desde casa, sin perder tiempo en desplazamientos. Elige el formato que más te convenga.",
   groupT:"Clases en grupo",groupP:"25 000 ֏",groupD:"Aprende junto con otros alumnos.",
