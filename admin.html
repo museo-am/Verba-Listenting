@@ -8,7 +8,7 @@
 <title>Verba School Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=bcbbf5ef">
+<link rel="stylesheet" href="style.css?v=3ae45d5e">
 </head>
 <body>
 
@@ -63,6 +63,7 @@ const STR = {
   ghKey:"GitHub key", ghConnect:"Connect", ghEmpty:"Paste the GitHub key.",
   ghInvalid:"That key isn't valid. Copy it again from GitHub.",
   ghStored:"The key is stored encrypted with your panel password.",
+  testsCount:n=>`${n} tests`, testsIntro:"Each test checks whether a student has passed that level. The student writes their name, answers 25 questions and sees the result. They can copy the result and send it to you. Each link opens only that test.", questionsN:n=>`${n} questions`, passMark:p=>`pass mark ${p} %`, testLevel:l=>`Level ${l}`,
   testsSoon:"Coming soon", testsTitle:"No tests yet",
   testsText:"Tests will appear here. You'll share each test with its own link, just like the listenings."
  },
@@ -92,6 +93,7 @@ const STR = {
   ghKey:"GitHub-ի բանալի", ghConnect:"Միացնել", ghEmpty:"Տեղադրեք GitHub-ի բանալին։",
   ghInvalid:"Այդ բանալին վավեր չէ։ Կրկին պատճենեք այն GitHub-ից։",
   ghStored:"Բանալին պահվում է գաղտնագրված՝ վահանակի ձեր գաղտնաբառով։",
+  testsCount:n=>`${n} թեստ`, testsIntro:"Յուրաքանչյուր թեստ ստուգում է՝ արդյոք աշակերտը հաղթահարել է տվյալ մակարդակը։ Աշակերտը գրում է իր անունը, պատասխանում է 25 հարցի և տեսնում արդյունքը։ Նա կարող է պատճենել արդյունքը և ուղարկել ձեզ։ Յուրաքանչյուր հղում բացում է միայն այդ թեստը։", questionsN:n=>`${n} հարց`, passMark:p=>`անցողիկ շեմ՝ ${p} %`, testLevel:l=>`${l} մակարդակ`,
   testsSoon:"Շուտով", testsTitle:"Թեստեր դեռ չկան",
   testsText:"Թեստերը կհայտնվեն այստեղ։ Յուրաքանչյուր թեստ կկիսեք առանձին հղումով, ինչպես լսողական առաջադրանքները։"
  },
@@ -121,6 +123,7 @@ const STR = {
   ghKey:"Clave de GitHub", ghConnect:"Conectar", ghEmpty:"Pega la clave de GitHub.",
   ghInvalid:"Esa clave no es válida. Cópiala de nuevo desde GitHub.",
   ghStored:"La clave se guarda cifrada con tu contraseña del panel.",
+  testsCount:n=>`${n} tests`, testsIntro:"Cada test comprueba si el alumno ha superado ese nivel. El alumno escribe su nombre, responde 25 preguntas y ve el resultado. Puede copiarlo y enviártelo. Cada enlace abre solo ese test.", questionsN:n=>`${n} preguntas`, passMark:p=>`aprobado con ${p} %`, testLevel:l=>`Nivel ${l}`,
   testsSoon:"Próximamente", testsTitle:"Todavía no hay tests",
   testsText:"Los tests aparecerán aquí. Compartirás cada test con su propio enlace, igual que las audiciones."
  }
@@ -305,6 +308,8 @@ function connectBox(then){
 
 const LEVELS = ["A1","A2","B1","B2","C1","C2"];
 const SECTIONS = ["listenings","tests"];
+const listenings = () => session.lessons.filter(l=>l.kind!=="test");
+const tests = () => session.lessons.filter(l=>l.kind==="test");
 function renderPanel(){
   currentView = renderPanel;
   applyChrome();
@@ -312,8 +317,8 @@ function renderPanel(){
   if(!SECTIONS.includes(section)) section = "listenings";
   $app.innerHTML = `
   <nav class="sections" role="tablist" aria-label="Sections">
-    <button type="button" role="tab" data-sec="listenings" aria-selected="${section==="listenings"}">${t("secListen")}<span class="count">${session.lessons.length}</span></button>
-    <button type="button" role="tab" data-sec="tests" aria-selected="${section==="tests"}">${t("secTests")}<span class="count soon">${t("testsSoon")}</span></button>
+    <button type="button" role="tab" data-sec="listenings" aria-selected="${section==="listenings"}">${t("secListen")}<span class="count">${listenings().length}</span></button>
+    <button type="button" role="tab" data-sec="tests" aria-selected="${section==="tests"}">${t("secTests")}${tests().length?`<span class="count">${tests().length}</span>`:`<span class="count soon">${t("testsSoon")}</span>`}</button>
   </nav>
   <div id="sec" role="tabpanel"></div>`;
   $app.querySelectorAll("[data-sec]").forEach(b=>b.onclick=()=>{ section=b.dataset.sec; store.set("vs-admin-section",section); renderPanel(); });
@@ -322,6 +327,28 @@ function renderPanel(){
 }
 
 function renderTests(box){
+  const list = tests();
+  if(list.length){
+    box.innerHTML = `
+    <div class="toolbar">
+      <h1>${t("secTests")}</h1>
+      <p class="hint">${t("testsCount", list.length)}</p>
+    </div>
+    <p class="hint">${t("testsIntro")}</p>
+    <section class="panel connect" id="connect" hidden></section>
+    <div class="rows" style="margin-top:18px">${list.map(l=>`
+      <div class="row-l" data-id="${esc(l.id)}">
+        <span class="lv ${lvClass(l.level)}">${esc(l.level)}</span>
+        <div style="min-width:0">
+          <h3 lang="es">${esc(l.title)}</h3>
+          <div class="meta"><span>${t("questionsN", l.questions)}</span><span>· ${t("passMark", Math.round((l.pass||0.7)*100))}</span></div>
+        </div>
+        <div class="acts"></div>
+        <p class="rowmsg" hidden></p>
+      </div>`).join("")}</div>`;
+    box.querySelectorAll(".row-l").forEach(row => renderActs(row));
+    return;
+  }
   box.innerHTML = `
   <section class="state">
     <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l2 2 4-4"/><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 17h8"/></svg></div>
@@ -331,12 +358,13 @@ function renderTests(box){
 }
 
 function renderListenings(box){
-  const byLevel = LEVELS.map(lv=>[lv, session.lessons.filter(l=>l.level===lv)]).filter(([,ls])=>ls.length);
-  const recs = session.lessons.filter(l=>l.audio).length;
+  const all = listenings();
+  const byLevel = LEVELS.map(lv=>[lv, all.filter(l=>l.level===lv)]).filter(([,ls])=>ls.length);
+  const recs = all.filter(l=>l.audio).length;
   box.innerHTML = `
   <div class="toolbar">
     <h1>${t("secListen")}</h1>
-    <p class="hint">${t("countLine", session.lessons.length, recs)}</p>
+    <p class="hint">${t("countLine", all.length, recs)}</p>
   </div>
   <p class="hint">${t("intro")}</p>
   <section class="panel connect" id="connect" hidden></section>

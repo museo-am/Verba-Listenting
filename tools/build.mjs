@@ -57,6 +57,17 @@ export async function openAdmin(adminJson, pw) {
   return JSON.parse(new TextDecoder().decode(plain));
 }
 
+// stable shuffle: Fisher–Yates driven by SHA-256 of the seed string
+async function seededOrder(seed, n) {
+  const bytes = new Uint8Array(await subtle.digest("SHA-256", enc(seed)));
+  const order = [...Array(n).keys()];
+  for (let i = n - 1; i > 0; i--) {
+    const j = bytes[i % bytes.length] % (i + 1);
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  return order;
+}
+
 function writeIfChanged(file, bytes) {
   if (fs.existsSync(file) && Buffer.compare(fs.readFileSync(file), Buffer.from(bytes)) === 0) return false;
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -109,6 +120,35 @@ async function main() {
     catalog.push({ id: l.id, v, level: l.level, title: l.title, topic: l.topic, narrator: l.narrator, audio: !!rec });
   }
 
+  // level tests (private/tests.json): same encryption and links as lessons, kind "test".
+  // Options are written correct-first; they are shuffled here with a fixed seed per question,
+  // so the order is stable between builds and the answer is not always the first option.
+  const testsFile = P("private/tests.json");
+  const tests = fs.existsSync(testsFile) ? JSON.parse(fs.readFileSync(testsFile, "utf8")) : [];
+  let testsChanged = false;
+  for (const t of tests) {
+    const v = Math.max(t.v || 1, adminV[t.id] || 1);
+    if (v !== t.v) { t.v = v; testsChanged = true; }
+    const key = await lessonKey(master, t.id, v);
+    let qn = 0;
+    const sections = [];
+    for (const [si, s] of t.sections.entries()) {
+      const q = [];
+      for (const [qi, [prompt, opts]] of s.q.entries()) {
+        const order = await seededOrder(`${t.id}:${si}:${qi}`, opts.length);
+        q.push([prompt, order.map((i) => opts[i]), order.indexOf(0)]);
+        qn++;
+      }
+      sections.push({ title: s.title, intro: s.intro, ...(s.text ? { text: s.text } : {}), q });
+    }
+    const data = { id: t.id, kind: "test", level: t.level, title: t.title, topic: t.topic,
+      pass: t.pass || 0.7, minutes: t.minutes || 20, sections };
+    if (writeIfChanged(P("content", `${t.id}.bin`), await seal(key, enc(JSON.stringify(data))))) changed++;
+    keep.add(`content/${t.id}.bin`);
+    catalog.push({ id: t.id, v, kind: "test", level: t.level, title: t.title, topic: t.topic, questions: qn, pass: data.pass, audio: false });
+  }
+  if (testsChanged) fs.writeFileSync(testsFile, JSON.stringify(tests, null, 1));
+
   // remove files for lessons that no longer exist
   for (const dir of ["content", "audio"]) {
     if (!fs.existsSync(P(dir))) continue;
@@ -133,7 +173,7 @@ async function main() {
     if (next !== html) { fs.writeFileSync(P(page), next); changed++; }
   }
 
-  console.log(`${lessons.length} lessons, ${catalog.filter((c) => c.audio).length} with recordings, ${changed} files updated.`);
+  console.log(`${lessons.length} lessons, ${catalog.filter((c) => c.audio).length} with recordings, ${tests.length} tests, ${changed} files updated.`);
   if (process.env.VERBA_PRINT_LINKS) {
     for (const c of catalog) console.log(`${c.id}~${b64u(await lessonKey(master, c.id, c.v))}`);
   }

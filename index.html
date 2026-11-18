@@ -7,7 +7,7 @@
 <title>Verba School Listenings</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=bcbbf5ef">
+<link rel="stylesheet" href="style.css?v=3ae45d5e">
 </head>
 <body>
 
@@ -170,12 +170,17 @@ function renderHome(){
     </section>`;
     return;
   }
-  const done = store.get("vs-done",{});
+  const done = store.get("vs-done",{}), results = store.get("vs-tests",{});
+  const hasTests = items.some(([,v])=>v.kind==="test");
+  const badge = (id,v) => {
+    if(v.kind==="test"){ const r = results[id]; return `<span class="chip">Test</span>` + (r ? `<span class="done ${r.passed?"":"miss"}">${r.passed?"✓ Aprobado":"No aprobado"} · ${r.score}/${r.total}</span>` : ""); }
+    return done[id]!=null ? `<span class="done">✓ ${done[id]}</span>` : "";
+  };
   $app.innerHTML = `
-  <h2 class="section-title">Mis audiciones</h2>
+  <h2 class="section-title">${hasTests ? "Mis audiciones y tests" : "Mis audiciones"}</h2>
   <div class="grid">${items.map(([id,v])=>`
     <a class="card" href="#${esc(id)}~${esc(v.k)}">
-      <div class="meta"><span class="lv ${lvClass(v.level)}">${esc(v.level)}</span>${done[id]!=null?`<span class="done">✓ ${done[id]}</span>`:""}</div>
+      <div class="meta"><span class="lv ${lvClass(v.level)}">${esc(v.level)}</span>${badge(id,v)}</div>
       <h3>${esc(v.title)}</h3>
     </a>`).join("")}</div>`;
 }
@@ -185,14 +190,14 @@ function renderState(kind, title, text){
   <section class="state ${kind==="bad"?"bad":""}">
     ${kind==="load" ? '<div class="spin" role="status" aria-label="Cargando"></div>' : `<div class="ico">${kind==="bad"?ICON_LOCK:ICON_HEAD}</div>`}
     <h1>${title}</h1>${text?`<p>${text}</p>`:""}
-    ${kind==="bad" && Object.keys(vault).length ? '<a class="btn ghost" href="#">Ver mis audiciones</a>' : ""}
+    ${kind==="bad" && Object.keys(vault).length ? '<a class="btn ghost" href="#">Ver mi material</a>' : ""}
   </section>`;
 }
 
 let openToken = 0;
 async function openLesson(id, k){
   const token = ++openToken;
-  renderState("load","Abriendo la audición…");
+  renderState("load","Abriendo…");
   let l;
   try{
     l = JSON.parse(new TextDecoder().decode(await openFile(k, `content/${encodeURIComponent(id)}.bin`)));
@@ -203,7 +208,8 @@ async function openLesson(id, k){
     return;
   }
   if(token!==openToken) return;
-  vault[id] = {k, title:l.title, level:l.level}; saveVault();
+  vault[id] = {k, title:l.title, level:l.level, kind:l.kind||"listening"}; saveVault();
+  if(l.kind==="test"){ stop(true); renderTest(l); return; }
   if(recUrl){ URL.revokeObjectURL(recUrl); recUrl=null; }
   rec = null; audio.removeAttribute("src");
   renderLesson(l);
@@ -228,7 +234,7 @@ function renderLesson(l){
   ).join("");
   const blurred = store.get("vs-blur",true);
   $app.innerHTML = `
-  ${Object.keys(vault).length>1 ? '<a class="back" href="#">← Mis audiciones</a>' : ""}
+  ${Object.keys(vault).length>1 ? '<a class="back" href="#">← Mi material</a>' : ""}
   <section class="lhead">
     <div class="meta"><span class="lv ${lvClass(l.level)}">${esc(l.level)}</span><span>${esc(l.topic)}</span><span>· ${words} palabras</span><span>· ${l.narrator==="f"?"Narradora":"Narrador"}</span></div>
     <h1>${esc(l.title)}</h1>
@@ -315,6 +321,182 @@ function renderLesson(l){
     scoreEl.textContent=`${ok} / ${l.q.length} correctas`;
     const done=store.get("vs-done",{}); done[l.id]=`${Math.max(ok,parseInt(done[l.id])||0)}/${l.q.length}`; store.set("vs-done",done);
     checkBtn.textContent="Intentar de nuevo"; checkBtn.classList.add("ghost");
+  };
+}
+
+
+/* ---------- level tests ---------- */
+const fmtDate = ts => new Date(ts).toLocaleString("es-ES",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
+function testState(t){
+  const all = store.get("vs-tests-draft",{});
+  return all[t.id] || null;
+}
+function saveDraft(t, d){ const all = store.get("vs-tests-draft",{}); if(d) all[t.id]=d; else delete all[t.id]; store.set("vs-tests-draft",all); }
+function flatQ(t){ const out=[]; t.sections.forEach((s,si)=>s.q.forEach((q,qi)=>out.push({si,qi,q}))); return out; }
+const needed = t => Math.ceil(t.pass*flatQ(t).length - 1e-9);
+
+function renderTest(t){
+  const draft = testState(t);
+  if(draft && !draft.finished) return renderTestRun(t, draft);
+  const last = store.get("vs-tests",{})[t.id];
+  const total = flatQ(t).length;
+  $app.innerHTML = `
+  ${Object.keys(vault).length>1 ? '<a class="back" href="#">← Mi material</a>' : ""}
+  <section class="lhead">
+    <div class="meta"><span class="lv ${lvClass(t.level)}">${esc(t.level)}</span><span>Test de nivel</span></div>
+    <h1>${esc(t.title)}</h1>
+    <p class="lede">${esc(t.topic)}</p>
+  </section>
+  <div class="cols">
+    <section class="panel">
+      <h2>Antes de empezar</h2>
+      <ul class="facts">
+        <li><b>${total}</b><span>preguntas en ${t.sections.length} partes: ${t.sections.map(s=>esc(s.title.toLowerCase())).join(" y ")}</span></li>
+        <li><b>${t.minutes} min</b><span>aproximadamente</span></li>
+        <li><b>${needed(t)} / ${total}</b><span>para aprobar (${Math.round(t.pass*100)} %)</span></li>
+      </ul>
+      <div class="field">
+        <label for="stname">Tu nombre</label>
+        <input class="input" id="stname" autocomplete="name" value="${esc(store.get("vs-name",""))}" placeholder="Nombre y apellido">
+      </div>
+      <p class="err" id="nameerr" role="alert" hidden>Escribe tu nombre para que tu profesor/a sepa de quién es el resultado.</p>
+      <div class="qfoot"><button type="button" class="btn" id="start">Empezar el test</button></div>
+    </section>
+    ${last ? `<section class="panel">
+      <h2>Tu último resultado</h2>
+      <p class="bigscore ${last.passed?"pass":"fail"}">${last.score}<small> / ${last.total}</small></p>
+      <p class="hint">${last.passed?"Aprobado":"No aprobado"} · ${fmtDate(last.at)}</p>
+      <div class="qfoot"><button type="button" class="btn ghost" id="seelast">Ver resultado</button></div>
+    </section>` : ""}
+  </div>`;
+  document.getElementById("start").onclick = () => {
+    const name = document.getElementById("stname").value.trim();
+    if(!name){ document.getElementById("nameerr").hidden=false; document.getElementById("stname").focus(); return; }
+    store.set("vs-name", name);
+    const d = {name, started:Date.now(), ans:{}, finished:false};
+    saveDraft(t, d); renderTestRun(t, d); window.scrollTo(0,0);
+  };
+  const see = document.getElementById("seelast");
+  if(see) see.onclick = () => { renderTestResult(t, last); window.scrollTo(0,0); };
+}
+
+function renderTestRun(t, d){
+  const total = flatQ(t).length;
+  let n = 0;
+  $app.innerHTML = `
+  <div class="testbar" role="status"><div><b id="answered">0</b> / ${total} respondidas</div><div class="bar"><i id="tbfill"></i></div></div>
+  <section class="lhead">
+    <div class="meta"><span class="lv ${lvClass(t.level)}">${esc(t.level)}</span><span>${esc(d.name)}</span></div>
+    <h1>${esc(t.title)}</h1>
+  </section>
+  ${t.sections.map((s,si)=>`
+  <section class="panel tsec">
+    <h2><span class="partno">Parte ${si+1}</span>${esc(s.title)}</h2>
+    ${s.intro?`<p class="hint">${esc(s.intro)}</p>`:""}
+    ${s.text?`<div class="reading">${s.text.map(p=>`<p>${esc(p)}</p>`).join("")}</div>`:""}
+    ${s.q.map((q,qi)=>{ n++; const key=`${si}.${qi}`; return `
+      <div class="q" data-k="${key}">
+        <p><small>${n}</small>${esc(q[0])}</p>
+        ${q[1].map((o,oi)=>`<button type="button" class="opt ${d.ans[key]===oi?"sel":""}" data-o="${oi}"><i>${"abcd"[oi]}</i>${esc(o)}</button>`).join("")}
+      </div>`; }).join("")}
+  </section>`).join("")}
+  <section class="panel">
+    <div class="qfoot">
+      <button type="button" class="btn" id="finish">Terminar el test</button>
+      <span class="score" id="finmsg"></span>
+    </div>
+  </section>`;
+  const upd = () => {
+    const c = Object.keys(d.ans).length;
+    document.getElementById("answered").textContent = c;
+    document.getElementById("tbfill").style.width = Math.round(c/total*100)+"%";
+  };
+  $app.querySelectorAll(".q").forEach(qel=>{
+    qel.querySelectorAll(".opt").forEach(o=>o.onclick=()=>{
+      d.ans[qel.dataset.k] = +o.dataset.o;
+      qel.querySelectorAll(".opt").forEach(x=>x.classList.toggle("sel",x===o));
+      qel.classList.remove("miss");
+      saveDraft(t, d); upd();
+    });
+  });
+  upd();
+  document.getElementById("finish").onclick = () => {
+    const missing = [...$app.querySelectorAll(".q")].filter(q=>d.ans[q.dataset.k]===undefined);
+    if(missing.length){
+      missing.forEach(q=>q.classList.add("miss"));
+      document.getElementById("finmsg").textContent = `Te ${missing.length===1?"falta 1 pregunta":`faltan ${missing.length} preguntas`}`;
+      missing[0].scrollIntoView({block:"center", behavior:"smooth"});
+      return;
+    }
+    const sections = t.sections.map((s,si)=>({title:s.title, total:s.q.length, score:s.q.filter((q,qi)=>d.ans[`${si}.${qi}`]===q[2]).length}));
+    const score = sections.reduce((a,s)=>a+s.score,0);
+    const r = {name:d.name, score, total, passed: score>=needed(t), sections, at:Date.now(), mins:Math.max(1,Math.round((Date.now()-d.started)/60000)), ans:d.ans};
+    const all = store.get("vs-tests",{}); all[t.id] = r; store.set("vs-tests",all);
+    saveDraft(t, null);
+    renderTestResult(t, r); window.scrollTo(0,0);
+  };
+}
+
+function resultText(t, r){
+  return [
+    `Verba School · ${t.title}`,
+    `Alumno/a: ${r.name}`,
+    `Resultado: ${r.score}/${r.total} (${Math.round(r.score/r.total*100)} %) · ${r.passed?"APROBADO":"NO APROBADO"}`,
+    r.sections.map(s=>`${s.title}: ${s.score}/${s.total}`).join(" · "),
+    `Fecha: ${fmtDate(r.at)} · Tiempo: ${r.mins} min`
+  ].join("\n");
+}
+
+function renderTestResult(t, r){
+  const pct = Math.round(r.score/r.total*100), passPct = Math.round(needed(t)/r.total*100);
+  $app.innerHTML = `
+  ${Object.keys(vault).length>1 ? '<a class="back" href="#">← Mi material</a>' : ""}
+  <section class="result ${r.passed?"pass":"fail"}">
+    <div class="meta"><span class="lv ${lvClass(t.level)}">${esc(t.level)}</span><span>${esc(t.title)}</span><span>· ${esc(r.name)}</span></div>
+    <h1>${r.passed?"¡Aprobado!":"Todavía no"}</h1>
+    <p class="lede">${r.passed?`Has superado el nivel ${esc(t.level)}.`:`Todavía no has superado el nivel ${esc(t.level)}. Necesitas ${needed(t)} respuestas correctas de ${r.total}.`}</p>
+    <p class="bigscore">${r.score}<small> / ${r.total} · ${pct} %</small></p>
+    <div class="scorebar" aria-hidden="true"><i style="width:${pct}%"></i><b style="left:${passPct}%"></b></div>
+    <p class="hint">La marca indica el mínimo para aprobar (${needed(t)} de ${r.total}).</p>
+  </section>
+  <div class="cols">
+    <section class="panel">
+      <h2>Por partes</h2>
+      <ul class="facts">${r.sections.map(s=>`<li><b>${s.score} / ${s.total}</b><span>${esc(s.title)}</span></li>`).join("")}
+        <li><b>${r.mins} min</b><span>Tiempo · ${fmtDate(r.at)}</span></li></ul>
+    </section>
+    <section class="panel">
+      <h2>Envía el resultado a tu profesor/a</h2>
+      <pre class="restext" id="restext">${esc(resultText(t,r))}</pre>
+      <div class="qfoot">
+        <button type="button" class="btn" id="copyres">Copiar resultado</button>
+        <button type="button" class="btn ghost" id="review">Ver respuestas</button>
+        <button type="button" class="btn ghost" id="retry">Repetir el test</button>
+      </div>
+    </section>
+  </div>
+  <div id="reviewbox"></div>`;
+  document.getElementById("copyres").onclick = async e => {
+    const btn = e.currentTarget;
+    try{ await navigator.clipboard.writeText(resultText(t,r)); btn.textContent="Copiado ✓"; setTimeout(()=>btn.textContent="Copiar resultado",1800); }
+    catch(x){ const sel=window.getSelection(), rg=document.createRange(); rg.selectNodeContents(document.getElementById("restext")); sel.removeAllRanges(); sel.addRange(rg); btn.textContent="Selecciona y copia"; }
+  };
+  document.getElementById("retry").onclick = () => { renderTest(t); window.scrollTo(0,0); };
+  document.getElementById("review").onclick = e => {
+    e.currentTarget.disabled = true;
+    let n = 0;
+    const box = document.getElementById("reviewbox");
+    box.innerHTML = t.sections.map((s,si)=>`
+      <section class="panel tsec">
+        <h2><span class="partno">Parte ${si+1}</span>${esc(s.title)}</h2>
+        ${s.text?`<div class="reading">${s.text.map(p=>`<p>${esc(p)}</p>`).join("")}</div>`:""}
+        ${s.q.map((q,qi)=>{ n++; const a=(r.ans||{})[`${si}.${qi}`]; return `
+          <div class="q">
+            <p><small>${n}</small>${esc(q[0])}</p>
+            ${q[1].map((o,oi)=>`<div class="opt ${oi===q[2]?"ok":(oi===a?"no":"")}"><i>${"abcd"[oi]}</i>${esc(o)}${oi===a&&oi!==q[2]?' <span class="tag">tu respuesta</span>':""}</div>`).join("")}
+          </div>`; }).join("")}
+      </section>`).join("");
+    box.scrollIntoView({block:"start", behavior:"smooth"});
   };
 }
 
