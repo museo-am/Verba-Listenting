@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="img/icon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Noto+Sans+Armenian:wght@400;600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=6a644f7e">
+<link rel="stylesheet" href="style.css?v=ccb16c2d">
 </head>
 <body>
 
@@ -23,6 +23,7 @@
         <button type="button" data-lang="hy" lang="hy">ՀՅ</button>
         <button type="button" data-lang="es" lang="es">ES</button>
       </nav>
+      <span class="who" id="who" hidden></span>
       <button type="button" class="tog" id="lock" hidden>Log out</button>
     </div>
   </header>
@@ -30,8 +31,8 @@
 </div>
 
 <script>
-/* The lesson list and the master secret live in admin.json, encrypted with the admin
-   password (PBKDF2-SHA256 → AES-256-GCM). Without the password this page shows nothing.
+/* Each tutor has a profile file tutors/<username>.json holding their master secret and
+   lesson list, encrypted with their own password (PBKDF2-SHA256 → AES-256-GCM). Without the password this page shows nothing.
    A student link holds only HMAC(master, "<id>:<v>"), which opens that one lesson.
    "Nuevo enlace" raises v, re-encrypts that lesson with the new key and commits it to
    GitHub, so the old link stops working. */
@@ -41,9 +42,9 @@ const REPO = "museo-am/Verba-Listenting";
 const STR = {
  en: {
   brand:"Tutor panel", logout:"Log out",
-  loginTitle:"Tutor panel", loginText:"Enter the password to create links to the listenings.",
+  loginTitle:"Tutor panel", loginText:"Enter your username and password.", username:"Username", langNames:{es:"Spanish",en:"English",fr:"French"},
   password:"Password", login:"Log in", checking:"Checking…",
-  wrongPw:"Wrong password. Try again.", noFile:"Panel settings not found.",
+  wrongPw:"Wrong username or password. Try again.", noFile:"Panel settings not found.",
   secListen:"Listenings", secTests:"Tests",
   countLine:(n,r)=>`${n} listenings · ${r} with recording`,
   intro:"Each link opens only that listening. <b>New link</b> cancels the current link for everyone who has it and creates another one.",
@@ -71,9 +72,9 @@ const STR = {
  },
  hy: {
   brand:"Ուսուցչի վահանակ", logout:"Դուրս գալ",
-  loginTitle:"Ուսուցչի վահանակ", loginText:"Մուտքագրեք գաղտնաբառը՝ լսողական առաջադրանքների հղումներ ստեղծելու համար։",
+  loginTitle:"Ուսուցչի վահանակ", loginText:"Մուտքագրեք ձեր օգտանունը և գաղտնաբառը։", username:"Օգտանուն", langNames:{es:"Իսպաներեն",en:"Անգլերեն",fr:"Ֆրանսերեն"},
   password:"Գաղտնաբառ", login:"Մուտք", checking:"Ստուգվում է…",
-  wrongPw:"Սխալ գաղտնաբառ։ Փորձեք կրկին։", noFile:"Վահանակի կարգավորումները չեն գտնվել։",
+  wrongPw:"Սխալ օգտանուն կամ գաղտնաբառ։ Փորձեք կրկին։", noFile:"Վահանակի կարգավորումները չեն գտնվել։",
   secListen:"Լսողություն", secTests:"Թեստեր",
   countLine:(n,r)=>`${n} առաջադրանք · ${r}-ը՝ ձայնագրությամբ`,
   intro:"Յուրաքանչյուր հղում բացում է միայն այդ առաջադրանքը։ <b>Նոր հղում</b> կոճակը չեղարկում է ընթացիկ հղումը բոլորի համար և ստեղծում նորը։",
@@ -101,9 +102,9 @@ const STR = {
  },
  es: {
   brand:"Panel del profesor", logout:"Cerrar sesión",
-  loginTitle:"Panel del profesor", loginText:"Introduce la contraseña para crear enlaces a las audiciones.",
+  loginTitle:"Panel del profesor", loginText:"Introduce tu usuario y contraseña.", username:"Usuario", langNames:{es:"Español",en:"Inglés",fr:"Francés"},
   password:"Contraseña", login:"Entrar", checking:"Comprobando…",
-  wrongPw:"Contraseña incorrecta. Inténtalo de nuevo.", noFile:"No se encontró la configuración del panel.",
+  wrongPw:"Usuario o contraseña incorrectos. Inténtalo de nuevo.", noFile:"No se encontró la configuración del panel.",
   secListen:"Audiciones", secTests:"Tests",
   countLine:(n,r)=>`${n} audiciones · ${r} con grabación`,
   intro:"Cada enlace abre solo esa audición. <b>Nuevo enlace</b> anula el enlace actual para todos los que lo tengan y crea otro.",
@@ -137,6 +138,7 @@ const store = {
 let lang = store.get("vs-admin-lang", (navigator.language||"").toLowerCase().startsWith("hy") ? "hy" : (navigator.language||"").toLowerCase().startsWith("es") ? "es" : "en");
 if(!STR[lang]) lang = "en";
 const t = (k, ...a) => { const v = STR[lang][k] ?? STR.en[k]; return typeof v === "function" ? v(...a) : v; };
+const slugify = u => String(u).trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
 let section = store.get("vs-admin-section","listenings");
 let currentView = null;   // function that re-renders the screen in the new language
 
@@ -144,6 +146,9 @@ function applyChrome(){
   document.documentElement.lang = lang;
   document.getElementById("brandsub").textContent = t("brand");
   document.getElementById("lock").textContent = t("logout");
+  const who = document.getElementById("who");
+  who.hidden = !session;
+  if(session) who.textContent = session.username + (session.language && t("langNames")[session.language] ? " · " + t("langNames")[session.language] : "");
   document.querySelectorAll("#langs [data-lang]").forEach(b=>{ const on = b.dataset.lang===lang; b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); });
 }
 document.querySelectorAll("#langs [data-lang]").forEach(b=>b.onclick=()=>{
@@ -176,35 +181,40 @@ async function unseal(rawKey, buf){
   const k = await crypto.subtle.importKey("raw", rawKey, "AES-GCM", false, ["decrypt"]);
   return new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM", iv:buf.slice(0,12)}, k, buf.slice(12)));
 }
-async function fetchAdmin(){
-  const r = await fetch("admin.json",{cache:"no-cache"});
+const profilePath = slug => `tutors/${slug}.json`;
+async function fetchAdmin(slug){
+  if(!slug) throw new Error("nouser");
+  const r = await fetch(profilePath(slug),{cache:"no-cache"});
+  if(r.status===404) throw new Error("nouser");
   if(!r.ok) throw new Error("nofile");
   return r.json();
 }
-async function openWith(a, wrapKey){
+async function openWith(a, wrapKey, slug){
   const plain = await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(a.iv)}, wrapKey, unb64(a.ct));
   const inner = JSON.parse(new TextDecoder().decode(plain));
-  return {master: unb64(inner.master), lessons: inner.lessons, gh: inner.gh || null, wrapKey, meta:{iter:a.iter, salt:a.salt}};
+  return {slug, username: inner.username || slug, language: inner.language || null,
+    master: unb64(inner.master), lessons: inner.lessons, gh: inner.gh || null, wrapKey, meta:{iter:a.iter, salt:a.salt}};
 }
-async function unlock(pw){
-  const a = await fetchAdmin();
+async function unlock(username, pw){
+  const slug = slugify(username);
+  const a = await fetchAdmin(slug);
   const base = await crypto.subtle.importKey("raw", enc(pw), "PBKDF2", false, ["deriveKey"]);
   const wrapKey = await crypto.subtle.deriveKey({name:"PBKDF2", salt:unb64(a.salt), iterations:a.iter, hash:"SHA-256"}, base,
     {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
-  const s = await openWith(a, wrapKey);
-  await remember.save(wrapKey, a.salt);
+  const s = await openWith(a, wrapKey, slug);
+  await remember.save(wrapKey, a.salt, slug);
   return s;
 }
 
 /* Stay logged in on this device. IndexedDB keeps the unlock key as a non-extractable
-   CryptoKey: the browser can use it to open admin.json but nobody can read it out,
+   CryptoKey: the browser can use it to open the tutor's profile but nobody can read it out,
    and the password itself is never stored. "Log out" deletes it; it also expires. */
 const REMEMBER_DAYS = 30;
 const remember = {
   db(){ return new Promise((res, rej) => { const q = indexedDB.open("verba-admin", 1);
     q.onupgradeneeded = () => q.result.createObjectStore("s"); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); },
   done(tx){ return new Promise(res => { tx.oncomplete = tx.onerror = tx.onabort = () => res(); }); },
-  async save(key, salt){ try{ const d = await this.db(); const tx = d.transaction("s","readwrite"); tx.objectStore("s").put({key, salt, at:Date.now()}, "session"); await this.done(tx); }catch(e){} },
+  async save(key, salt, slug){ try{ const d = await this.db(); const tx = d.transaction("s","readwrite"); tx.objectStore("s").put({key, salt, slug, at:Date.now()}, "session"); await this.done(tx); }catch(e){} },
   async load(){ try{ const d = await this.db(); return await new Promise(res => { const q = d.transaction("s").objectStore("s").get("session"); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); }); }catch(e){ return null; } },
   async clear(){ try{ const d = await this.db(); const tx = d.transaction("s","readwrite"); tx.objectStore("s").delete("session"); await this.done(tx); }catch(e){} }
 };
@@ -212,14 +222,14 @@ async function resume(){
   const saved = await remember.load();
   if(!saved || Date.now() - saved.at > REMEMBER_DAYS*864e5) { if(saved) remember.clear(); return null; }
   try{
-    const a = await fetchAdmin();
+    const a = await fetchAdmin(saved.slug);
     if(a.salt !== saved.salt) throw new Error("changed");
-    return await openWith(a, saved.key);
+    return await openWith(a, saved.key, saved.slug);
   }catch(e){ if(e.message !== "nofile") remember.clear(); return null; }
 }
 
 async function adminJsonBytes(){
-  const inner = enc(JSON.stringify({master:b64(session.master), lessons:session.lessons, ...(session.gh?{gh:session.gh}:{})}));
+  const inner = enc(JSON.stringify({username:session.username, language:session.language, master:b64(session.master), lessons:session.lessons, ...(session.gh?{gh:session.gh}:{})}));
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const ct = new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM", iv}, session.wrapKey, inner));
   return enc(JSON.stringify({v:1, iter:session.meta.iter, salt:session.meta.salt, iv:b64(iv), ct:b64(ct)}, null, 1)+"\n");
@@ -269,12 +279,13 @@ async function newLink(l){
   }
   l.v = newV;
   try{
-    files["admin.json"] = await adminJsonBytes();
+    files[profilePath(session.slug)] = await adminJsonBytes();
     await commitFiles(files, `New link for ${l.id}`);
   }catch(e){ l.v = newV - 1; throw e; }
 }
 
 /* ---------- views ---------- */
+let lastUser = store.get("vs-admin-user","");
 function renderLogin(errKey){
   currentView = () => renderLogin(errKey);
   applyChrome();
@@ -284,17 +295,23 @@ function renderLogin(errKey){
     <h1>${t("loginTitle")}</h1>
     <p>${t("loginText")}</p>
     <div class="field">
+      <label for="user">${t("username")}</label>
+      <input class="input" id="user" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required value="${esc(lastUser)}">
+    </div>
+    <div class="field">
       <label for="pw">${t("password")}</label>
       <input class="input" id="pw" type="password" autocomplete="current-password" required>
     </div>
     ${errKey?`<p class="err" role="alert">${t(errKey)}</p>`:""}
     <button class="btn" type="submit" id="go">${t("login")}</button>
   </form>`;
-  const pw = document.getElementById("pw"); pw.focus();
+  const pw = document.getElementById("pw"), user = document.getElementById("user");
+  (lastUser ? pw : user).focus();
   document.getElementById("login").onsubmit = async e => {
     e.preventDefault();
     const btn = document.getElementById("go"); btn.disabled = true; btn.textContent = t("checking");
-    try{ session = await unlock(pw.value); renderPanel(); }
+    lastUser = user.value.trim(); store.set("vs-admin-user", lastUser);
+    try{ session = await unlock(lastUser, pw.value); renderPanel(); }
     catch(x){ renderLogin(x.message==="nofile" ? "noFile" : "wrongPw"); }
   };
 }
@@ -329,7 +346,7 @@ function connectBox(then){
       const repo = await gh("", {}, tok);
       if(!repo.permissions || !repo.permissions.push){ const x = new Error("perm"); x.status = 403; throw x; }
       const prev = session.gh; session.gh = tok;
-      try{ await commitFiles({"admin.json": await adminJsonBytes()}, "Connect tutor panel to GitHub"); }
+      try{ await commitFiles({[profilePath(session.slug)]: await adminJsonBytes()}, `Connect ${session.username}'s panel to GitHub`); }
       catch(x){ session.gh = prev; throw x; }
       box.hidden = true; then && then();
     }catch(x){
