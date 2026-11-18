@@ -13,7 +13,7 @@
 
 <div class="wrap">
   <header class="top">
-    <a class="brand" href="#"><b>Verba<span>.</span>School</b></a>
+    <span class="brand"><b>Verba<span>.</span>School</b></span>
   </header>
   <main id="app"></main>
   <footer>Verba School · Comprensión auditiva en español, niveles A1–C1 según el MCER.</footer>
@@ -42,9 +42,7 @@ async function openFile(keyB64u, url){
   const k = await crypto.subtle.importKey("raw", unb64u(keyB64u), "AES-GCM", false, ["decrypt"]);
   return new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM", iv:buf.slice(0,12)}, k, buf.slice(12)));
 }
-// lessons this browser has opened: {id: {k, title, level}}
-let vault = store.get("vs-vault",{});
-const saveVault = () => store.set("vs-vault",vault);
+try{ localStorage.removeItem("vs-vault"); }catch(e){}   // old shared list, no longer used
 
 /* ---------- speech ---------- */
 const synth = window.speechSynthesis;
@@ -160,29 +158,12 @@ function updatePlayerUI(){
 /* ---------- views ---------- */
 function renderHome(){
   stop(true);
-  const items = Object.entries(vault);
-  if(!items.length){
-    $app.innerHTML = `
-    <section class="state">
-      <div class="ico">${ICON_HEAD}</div>
-      <h1>Escucha. Entiende. Responde.</h1>
-      <p>Tu profesor o profesora te enviará un enlace para cada audición. Ábrelo y la audición aparecerá aquí.</p>
-    </section>`;
-    return;
-  }
-  const done = store.get("vs-done",{}), results = store.get("vs-tests",{});
-  const hasTests = items.some(([,v])=>v.kind==="test");
-  const badge = (id,v) => {
-    if(v.kind==="test"){ const r = results[id]; return `<span class="chip">Test</span>` + (r ? `<span class="done ${r.passed?"":"miss"}">${r.passed?"✓ Aprobado":"No aprobado"} · ${r.score}/${r.total}</span>` : ""); }
-    return done[id]!=null ? `<span class="done">✓ ${done[id]}</span>` : "";
-  };
   $app.innerHTML = `
-  <h2 class="section-title">${hasTests ? "Mis audiciones y tests" : "Mis audiciones"}</h2>
-  <div class="grid">${items.map(([id,v])=>`
-    <a class="card" href="#${esc(id)}~${esc(v.k)}">
-      <div class="meta"><span class="lv ${lvClass(v.level)}">${esc(v.level)}</span>${badge(id,v)}</div>
-      <h3>${esc(v.title)}</h3>
-    </a>`).join("")}</div>`;
+  <section class="state">
+    <div class="ico">${ICON_HEAD}</div>
+    <h1>Escucha. Entiende. Responde.</h1>
+    <p>Abre el enlace que te envió tu profesor o profesora para empezar tu audición o tu test.</p>
+  </section>`;
 }
 function renderState(kind, title, text){
   stop(true);
@@ -190,7 +171,6 @@ function renderState(kind, title, text){
   <section class="state ${kind==="bad"?"bad":""}">
     ${kind==="load" ? '<div class="spin" role="status" aria-label="Cargando"></div>' : `<div class="ico">${kind==="bad"?ICON_LOCK:ICON_HEAD}</div>`}
     <h1>${title}</h1>${text?`<p>${text}</p>`:""}
-    ${kind==="bad" && Object.keys(vault).length ? '<a class="btn ghost" href="#">Ver mi material</a>' : ""}
   </section>`;
 }
 
@@ -203,12 +183,10 @@ async function openLesson(id, k){
     l = JSON.parse(new TextDecoder().decode(await openFile(k, `content/${encodeURIComponent(id)}.bin`)));
   }catch(e){
     if(token!==openToken) return;
-    if(vault[id] && vault[id].k===k){ delete vault[id]; saveVault(); }
     renderState("bad","Este enlace no funciona","Puede que esté incompleto o que tu profesor/a lo haya cambiado. Pídele un enlace nuevo.");
     return;
   }
   if(token!==openToken) return;
-  vault[id] = {k, title:l.title, level:l.level, kind:l.kind||"listening"}; saveVault();
   if(l.kind==="test"){ stop(true); renderTest(l); return; }
   if(recUrl){ URL.revokeObjectURL(recUrl); recUrl=null; }
   rec = null; audio.removeAttribute("src");
@@ -234,7 +212,6 @@ function renderLesson(l){
   ).join("");
   const blurred = store.get("vs-blur",true);
   $app.innerHTML = `
-  ${Object.keys(vault).length>1 ? '<a class="back" href="#">← Mi material</a>' : ""}
   <section class="lhead">
     <div class="meta"><span class="lv ${lvClass(l.level)}">${esc(l.level)}</span><span>${esc(l.topic)}</span><span>· ${words} palabras</span><span>· ${l.narrator==="f"?"Narradora":"Narrador"}</span></div>
     <h1>${esc(l.title)}</h1>
@@ -341,7 +318,6 @@ function renderTest(t){
   const last = store.get("vs-tests",{})[t.id];
   const total = flatQ(t).length;
   $app.innerHTML = `
-  ${Object.keys(vault).length>1 ? '<a class="back" href="#">← Mi material</a>' : ""}
   <section class="lhead">
     <div class="meta"><span class="lv ${lvClass(t.level)}">${esc(t.level)}</span><span>Test de nivel</span></div>
     <h1>${esc(t.title)}</h1>
@@ -450,7 +426,6 @@ function resultText(t, r){
 function renderTestResult(t, r){
   const pct = Math.round(r.score/r.total*100), passPct = Math.round(needed(t)/r.total*100);
   $app.innerHTML = `
-  ${Object.keys(vault).length>1 ? '<a class="back" href="#">← Mi material</a>' : ""}
   <section class="result ${r.passed?"pass":"fail"}">
     <div class="meta"><span class="lv ${lvClass(t.level)}">${esc(t.level)}</span><span>${esc(t.title)}</span><span>· ${esc(r.name)}</span></div>
     <h1>${r.passed?"¡Aprobado!":"Todavía no"}</h1>
@@ -500,38 +475,22 @@ function renderTestResult(t, r){
   };
 }
 
-/* History: every listening or test sits one step above "Mi material", so the phone's
-   Back button always returns to the list, even when the student arrived from a link. */
+/* Each link stands alone. If a student opens several links in the same tab,
+   Back skips over the earlier ones and leaves the page, instead of showing them again. */
+function nextSeq(){ try{ const n = (+sessionStorage.getItem("vs-seq")||0)+1; sessionStorage.setItem("vs-seq",n); return n; }catch(e){ return Date.now(); } }
+let shownSeq = 0;
 function route(){
-  const h = decodeURIComponent(location.hash.slice(1));
-  const m = h.match(/^([a-z0-9-]+)~([A-Za-z0-9_-]{43})$/);
-  const item = m ? [m[1], m[2]] : (vault[h] ? [h, vault[h].k] : null);
-  if(item){
-    if(!(history.state && history.state.overList)){
-      const here = location.hash;
-      history.replaceState({list:true}, "", location.pathname + location.search);
-      history.pushState({overList:true}, "", here);
-    }
-    openLesson(item[0], item[1]);
-  }else{
-    if(!(history.state && history.state.list)) history.replaceState({list:true}, "", location.pathname + location.search);
-    openToken++; renderHome();
+  const m = decodeURIComponent(location.hash.slice(1)).match(/^([a-z0-9-]+)~([A-Za-z0-9_-]{43})$/);
+  let st = history.state;
+  if(!st || !st.seq){ st = {seq: nextSeq()}; history.replaceState(st, "", location.href); }
+  if(st.seq < shownSeq){        // came back from a later link: leave instead
+    stop(true); openToken++; $app.innerHTML = ""; history.back(); return;
   }
+  shownSeq = st.seq;
+  if(m) openLesson(m[1], m[2]);
+  else { openToken++; renderHome(); }
   window.scrollTo(0,0);
 }
-// links inside the page: open an item over the list, and go "back" to the list instead of adding a new step
-document.addEventListener("click", e => {
-  const a = e.target.closest && e.target.closest("a[href^='#']");
-  if(!a || e.metaKey || e.ctrlKey || e.shiftKey) return;
-  const href = a.getAttribute("href");
-  e.preventDefault();
-  if(href === "#"){
-    if(history.state && history.state.overList) history.back();
-    else { history.replaceState({list:true}, "", location.pathname + location.search); route(); }
-  }else{
-    history.pushState({overList:true}, "", href); route();
-  }
-});
 window.addEventListener("popstate", route);
 window.addEventListener("pagehide",()=>synth&&synth.cancel());
 route();
