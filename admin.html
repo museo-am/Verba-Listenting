@@ -176,17 +176,48 @@ async function unseal(rawKey, buf){
   const k = await crypto.subtle.importKey("raw", rawKey, "AES-GCM", false, ["decrypt"]);
   return new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM", iv:buf.slice(0,12)}, k, buf.slice(12)));
 }
-async function unlock(pw){
+async function fetchAdmin(){
   const r = await fetch("admin.json",{cache:"no-cache"});
   if(!r.ok) throw new Error("nofile");
-  const a = await r.json();
-  const base = await crypto.subtle.importKey("raw", enc(pw), "PBKDF2", false, ["deriveKey"]);
-  const wrapKey = await crypto.subtle.deriveKey({name:"PBKDF2", salt:unb64(a.salt), iterations:a.iter, hash:"SHA-256"}, base,
-    {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
+  return r.json();
+}
+async function openWith(a, wrapKey){
   const plain = await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(a.iv)}, wrapKey, unb64(a.ct));
   const inner = JSON.parse(new TextDecoder().decode(plain));
   return {master: unb64(inner.master), lessons: inner.lessons, gh: inner.gh || null, wrapKey, meta:{iter:a.iter, salt:a.salt}};
 }
+async function unlock(pw){
+  const a = await fetchAdmin();
+  const base = await crypto.subtle.importKey("raw", enc(pw), "PBKDF2", false, ["deriveKey"]);
+  const wrapKey = await crypto.subtle.deriveKey({name:"PBKDF2", salt:unb64(a.salt), iterations:a.iter, hash:"SHA-256"}, base,
+    {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
+  const s = await openWith(a, wrapKey);
+  await remember.save(wrapKey, a.salt);
+  return s;
+}
+
+/* Stay logged in on this device. IndexedDB keeps the unlock key as a non-extractable
+   CryptoKey: the browser can use it to open admin.json but nobody can read it out,
+   and the password itself is never stored. "Log out" deletes it; it also expires. */
+const REMEMBER_DAYS = 30;
+const remember = {
+  db(){ return new Promise((res, rej) => { const q = indexedDB.open("verba-admin", 1);
+    q.onupgradeneeded = () => q.result.createObjectStore("s"); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); },
+  done(tx){ return new Promise(res => { tx.oncomplete = tx.onerror = tx.onabort = () => res(); }); },
+  async save(key, salt){ try{ const d = await this.db(); const tx = d.transaction("s","readwrite"); tx.objectStore("s").put({key, salt, at:Date.now()}, "session"); await this.done(tx); }catch(e){} },
+  async load(){ try{ const d = await this.db(); return await new Promise(res => { const q = d.transaction("s").objectStore("s").get("session"); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); }); }catch(e){ return null; } },
+  async clear(){ try{ const d = await this.db(); const tx = d.transaction("s","readwrite"); tx.objectStore("s").delete("session"); await this.done(tx); }catch(e){} }
+};
+async function resume(){
+  const saved = await remember.load();
+  if(!saved || Date.now() - saved.at > REMEMBER_DAYS*864e5) { if(saved) remember.clear(); return null; }
+  try{
+    const a = await fetchAdmin();
+    if(a.salt !== saved.salt) throw new Error("changed");
+    return await openWith(a, saved.key);
+  }catch(e){ if(e.message !== "nofile") remember.clear(); return null; }
+}
+
 async function adminJsonBytes(){
   const inner = enc(JSON.stringify({master:b64(session.master), lessons:session.lessons, ...(session.gh?{gh:session.gh}:{})}));
   const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -437,8 +468,12 @@ function confirmNew(row, l){
   };
 }
 
-document.getElementById("lock").onclick = ()=>{ session = null; renderLogin(); };
-renderLogin();
+document.getElementById("lock").onclick = async ()=>{ session = null; await remember.clear(); renderLogin(); };
+(async () => {
+  $app.innerHTML = '<div class="login"><div class="spin" role="status"></div></div>';
+  session = await resume();
+  if(session) renderPanel(); else renderLogin();
+})();
 </script>
 </body>
 </html>
