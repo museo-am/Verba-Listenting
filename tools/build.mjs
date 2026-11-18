@@ -124,6 +124,15 @@ async function main() {
   const admin = JSON.stringify({ v: 1, iter: ITER, salt: b64(salt), iv: b64(iv), ct: b64(ct) }, null, 1) + "\n";
   if (writeIfChanged(P("admin.json"), enc(admin))) changed++;
 
+  // pages ask for style.css by its content hash, so a cached old stylesheet is never paired with a new page
+  const cssHash = (await subtle.digest("SHA-256", fs.readFileSync(P("style.css")))).slice(0, 4);
+  const ver = Buffer.from(cssHash).toString("hex");
+  for (const page of ["index.html", "admin.html"]) {
+    const html = fs.readFileSync(P(page), "utf8");
+    const next = html.replace(/href="style\.css(\?v=[0-9a-f]*)?"/, `href="style.css?v=${ver}"`);
+    if (next !== html) { fs.writeFileSync(P(page), next); changed++; }
+  }
+
   console.log(`${lessons.length} lessons, ${catalog.filter((c) => c.audio).length} with recordings, ${changed} files updated.`);
   if (process.env.VERBA_PRINT_LINKS) {
     for (const c of catalog) console.log(`${c.id}~${b64u(await lessonKey(master, c.id, c.v))}`);
