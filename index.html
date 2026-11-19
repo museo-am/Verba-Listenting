@@ -186,7 +186,7 @@
     <span class="brand"><img class="logo" src="img/logo.png" alt="" width="32" height="32"><b>Verba<span>.</span>School</b></span>
   </header>
   <main id="app"></main>
-  <footer>Verba School · Comprensión auditiva en español, niveles A1–C1 según el MCER.</footer>
+  <footer id="appfoot">Verba School</footer>
 </div>
 
 <script>
@@ -230,7 +230,7 @@ const UI_STR = {
   transcript:"Transcripción",show:"Mostrar texto",hide:"Ocultar texto",quizTitle:"¿Has entendido el texto?",check:"Comprobar",
   answered:(a,n)=>`${a} / ${n} respondidas`,answerAll:(a,n)=>`Responde todas las preguntas (${a} / ${n})`,correct:(a,n)=>`${a} / ${n} correctas`,
   retryQuiz:"Intentar de nuevo",vocab:"Vocabulario",copied:"Copiado ✓",selectCopy:"Selecciona y copia",
-  testLabel:"Test de nivel",before:"Antes de empezar",qInParts:(p,names)=>`preguntas en ${p} partes: ${names}`,and:", ",approx:"aproximadamente",
+  testLabel:"Test de nivel",before:"Antes de empezar",qInParts:(p,names)=>`preguntas en ${p} partes: ${names}`,and:", ",approx:"aproximadamente",timeNote:"tiempo aproximado",foot:"Verba School · Escuela de idiomas online",
   toPass:p=>`para aprobar (${p} %)`,yourName:"Tu nombre",namePh:"Nombre y apellido",
   nameErr:"Escribe tu nombre para que tu profesor/a sepa de quién es el resultado.",start:"Empezar el test",lastResult:"Tu último resultado",
   passedW:"Aprobado",failedW:"No aprobado",seeResult:"Ver resultado",part:i=>`Parte ${i}`,answeredBar:"respondidas",finish:"Terminar el test",
@@ -250,7 +250,7 @@ const UI_STR = {
   transcript:"Transcription",show:"Afficher le texte",hide:"Masquer le texte",quizTitle:"Avez-vous compris le texte ?",check:"Vérifier",
   answered:(a,n)=>`${a} / ${n} répondues`,answerAll:(a,n)=>`Répondez à toutes les questions (${a} / ${n})`,correct:(a,n)=>`${a} / ${n} correctes`,
   retryQuiz:"Réessayer",vocab:"Vocabulaire",copied:"Copié ✓",selectCopy:"Sélectionnez et copiez",
-  testLabel:"Test de niveau",before:"Avant de commencer",qInParts:(p,names)=>`questions en ${p} parties : ${names}`,and:", ",approx:"environ",
+  testLabel:"Test de niveau",before:"Avant de commencer",qInParts:(p,names)=>`questions en ${p} parties : ${names}`,and:", ",approx:"environ",timeNote:"durée approximative",foot:"Verba School · École de langues en ligne",
   toPass:p=>`pour réussir (${p} %)`,yourName:"Votre nom",namePh:"Prénom et nom",
   nameErr:"Écrivez votre nom pour que votre professeur sache à qui appartient le résultat.",start:"Commencer le test",lastResult:"Votre dernier résultat",
   passedW:"Réussi",failedW:"Non réussi",seeResult:"Voir le résultat",part:i=>`Partie ${i}`,answeredBar:"répondues",finish:"Terminer le test",
@@ -270,7 +270,7 @@ const UI_STR = {
   transcript:"Transcript",show:"Show text",hide:"Hide text",quizTitle:"Did you understand the text?",check:"Check",
   answered:(a,n)=>`${a} / ${n} answered`,answerAll:(a,n)=>`Answer all the questions (${a} / ${n})`,correct:(a,n)=>`${a} / ${n} correct`,
   retryQuiz:"Try again",vocab:"Vocabulary",copied:"Copied ✓",selectCopy:"Select and copy",
-  testLabel:"Level test",before:"Before you start",qInParts:(p,names)=>`questions in ${p} parts: ${names}`,and:", ",approx:"about",
+  testLabel:"Level test",before:"Before you start",qInParts:(p,names)=>`questions in ${p} parts: ${names}`,and:", ",approx:"about",timeNote:"approximate time",foot:"Verba School · Online language school",
   toPass:p=>`to pass (${p} %)`,yourName:"Your name",namePh:"First and last name",
   nameErr:"Write your name so your teacher knows whose result it is.",start:"Start the test",lastResult:"Your last result",
   passedW:"Passed",failedW:"Not passed",seeResult:"See the result",part:i=>`Part ${i}`,answeredBar:"answered",finish:"Finish the test",
@@ -284,7 +284,7 @@ const UI_STR = {
   locale:"en-GB"}
 };
 let UI = UI_STR.es, CLANG = "es";
-function setContentLang(lang){ CLANG = UI_STR[lang] ? lang : "es"; UI = UI_STR[CLANG]; document.documentElement.lang = CLANG; loadVoices(); }
+function setContentLang(lang){ CLANG = UI_STR[lang] ? lang : "es"; UI = UI_STR[CLANG]; document.documentElement.lang = CLANG; const f = document.getElementById("appfoot"); if(f) f.textContent = UI.foot; loadVoices(); }
 
 /* ---------- speech ---------- */
 const synth = window.speechSynthesis;
@@ -654,7 +654,7 @@ function renderTest(t){
       <h2>${UI.before}</h2>
       <ul class="facts">
         <li><b>${total}</b><span>${UI.qInParts(t.sections.length, t.sections.map(s=>esc(s.title.toLowerCase())).join(UI.and))}</span></li>
-        <li><b>${t.minutes} min</b><span>${UI.approx}</span></li>
+        <li><b>${t.minutes} min</b><span>${UI.timeNote}</span></li>
         <li><b>${needed(t)} / ${total}</b><span>${UI.toPass(Math.round(t.pass*100))}</span></li>
       </ul>
       <div class="field">
