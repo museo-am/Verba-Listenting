@@ -352,3 +352,10 @@ body.is-landing{background:var(--bg)}
 .wbubble.up::after{bottom:-6px}.wbubble.down::after{top:-6px}
 @keyframes gl{from{opacity:0;transform:translateY(4px)}}
 @media (prefers-reduced-motion:reduce){.wbubble{animation:none}}
+.is-link #landing{display:none!important}
+.landing section[id]{scroll-margin-top:84px}
+.langtabs a{display:inline-flex;align-items:center;font:600 .78rem var(--f-mono);border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:5px 10px;border-radius:999px;text-decoration:none}
+.langtabs a:hover{color:var(--ink)}
+.langtabs a.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.langtabs a[lang="hy"]{font-family:var(--f-body);font-weight:700}
+.langtabs{display:flex;gap:6px}

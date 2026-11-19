@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /tutors/
+Disallow: /content/
+Disallow: /audio/
+Disallow: /tools/
+
+Sitemap: https://verba-school.online/sitemap.xml

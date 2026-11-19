@@ -18,6 +18,9 @@ Limits of a site with no server:
 - The first time, the panel asks for a GitHub fine-grained token with **Contents: Read and write** on this repository only. It is stored inside the tutor's profile file, encrypted with their password.
 - `tools/build.mjs` keeps the higher version and the saved token, so a rebuild never brings back an old link.
 
+## Public pages and SEO
+The landing page exists in four languages: `/` (Armenian), `/en/`, `/es/`, `/ru/`. Text lives in `tools/site-strings.json`, layout in `tools/landing.html`; `tools/site.mjs` (run by the build) writes the pages with their title, description, canonical and hreflang tags, schema.org data (school, courses, prices), `sitemap.xml` and `robots.txt`. The Armenian page shares `index.html` with the student player: student links (`#id~key`) hide the landing before it paints.
+
 ## Word translations
 Students press and hold any word in a transcript to see its base form and Armenian translation. Translations live in `private/dict/es.json` and `fr.json` (word form → [base form, Armenian]); `private/dict/overrides.json` gives a different meaning for a word in one lesson. The build adds each lesson's words to its encrypted file and lists any word that has no translation yet.
 

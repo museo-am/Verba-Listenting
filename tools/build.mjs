@@ -222,6 +222,10 @@ async function main() {
     if (next !== html) { fs.writeFileSync(P(page), next); changed++; }
   }
 
+  // public pages: landing in four languages, SEO tags, sitemap, robots
+  const { buildSite } = await import("./site.mjs");
+  changed += buildSite(ROOT, ver);
+
   console.log(report.join("\n") + `\n${changed} files updated.`);
   if (missingWords.length) console.log(`Words without a translation (${missingWords.length}): ${missingWords.slice(0, 40).join(", ")}${missingWords.length > 40 ? " …" : ""}`);
   if (process.env.VERBA_PRINT_LINKS) for (const l of links) console.log(l);
