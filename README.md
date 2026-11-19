@@ -18,6 +18,9 @@ Limits of a site with no server:
 - The first time, the panel asks for a GitHub fine-grained token with **Contents: Read and write** on this repository only. It is stored inside the tutor's profile file, encrypted with their password.
 - `tools/build.mjs` keeps the higher version and the saved token, so a rebuild never brings back an old link.
 
+## Word translations
+Students press and hold any word in a transcript to see its base form and Armenian translation. Translations live in `private/dict/es.json` and `fr.json` (word form → [base form, Armenian]); `private/dict/overrides.json` gives a different meaning for a word in one lesson. The build adds each lesson's words to its encrypted file and lists any word that has no translation yet.
+
 ## Level tests
 `private/tests.json` holds the A1 and A2 level tests: 20 grammar and vocabulary questions plus a reading text with 5 questions, pass mark 70%. Write each question's correct option first; the build shuffles the options with a fixed seed. Students enter their name, take the test, see whether they passed, can review their answers, and copy a result summary to send to the tutor. Results stay in the student's browser; there is no server that collects them.
 

@@ -14,7 +14,7 @@
 <title>Verba School</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Noto+Sans+Armenian:wght@400;600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=ccb16c2d">
+<link rel="stylesheet" href="style.css?v=64652e30">
 </head>
 <body>
 
@@ -215,6 +215,7 @@ const UI_STR = {
   passH:"¡Aprobado!",failH:"Todavía no",passLede:lv=>`Has superado el nivel ${lv}.`,
   failLede:(lv,need,total)=>`Todavía no has superado el nivel ${lv}. Necesitas ${need} respuestas correctas de ${total}.`,
   markNote:(need,total)=>`La marca indica el mínimo para aprobar (${need} de ${total}).`,byPart:"Por partes",
+  holdHint:"Mantén pulsada una palabra para ver su traducción.",
   sendTitle:"Envía el resultado a tu profesor/a",copyRes:"Copiar resultado",review:"Ver respuestas",retryTest:"Repetir el test",yourAnswer:"tu respuesta",
   locale:"es-ES"},
  fr:{recGroup:"Enregistrement",mainVoice:"★ Voix principale",deviceGroup:"Voix de l'appareil",deviceVoice:"Voix française de l'appareil",
@@ -234,6 +235,7 @@ const UI_STR = {
   passH:"Réussi !",failH:"Pas encore",passLede:lv=>`Vous avez validé le niveau ${lv}.`,
   failLede:(lv,need,total)=>`Vous n'avez pas encore validé le niveau ${lv}. Il faut ${need} bonnes réponses sur ${total}.`,
   markNote:(need,total)=>`Le repère indique le minimum pour réussir (${need} sur ${total}).`,byPart:"Par partie",
+  holdHint:"Maintenez un mot appuyé pour voir sa traduction.",
   sendTitle:"Envoyez le résultat à votre professeur",copyRes:"Copier le résultat",review:"Voir les réponses",retryTest:"Refaire le test",yourAnswer:"votre réponse",
   locale:"fr-FR"}
 };
@@ -508,13 +510,74 @@ async function openLesson(id, k){
   }
 }
 
+
+/* ---------- press and hold a word: Armenian translation ---------- */
+const WORD_RE = /\p{L}+(?:['’-]\p{L}+)*/gu;   // must match WORD_RE in tools/build.mjs
+function wrapWords(text, dict){
+  if(!dict) return esc(text);
+  let out = "", last = 0;
+  for(const m of text.matchAll(WORD_RE)){
+    out += esc(text.slice(last, m.index));
+    const key = m[0].toLowerCase();
+    out += dict[key] ? `<span class="w" data-w="${esc(key)}">${esc(m[0])}</span>` : esc(m[0]);
+    last = m.index + m[0].length;
+  }
+  return out + esc(text.slice(last));
+}
+const gloss = {
+  el: null, dict: null, timer: null, start: null, held: null, justShown: false,
+  attach(box, dict){
+    this.hide(); this.dict = dict;
+    if(!box || !dict) return;
+    box.addEventListener("pointerdown", e => {
+      const w = e.target.closest(".w"); if(!w || e.button > 0) return;
+      this.start = {x:e.clientX, y:e.clientY};
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => this.show(w), 420);
+    });
+    box.addEventListener("pointermove", e => {
+      if(this.start && Math.hypot(e.clientX-this.start.x, e.clientY-this.start.y) > 10) this.cancel();
+    });
+    ["pointerup","pointercancel","pointerleave"].forEach(ev => box.addEventListener(ev, () => this.cancel()));
+    box.addEventListener("contextmenu", e => {          // phones open this on a long press; desktop: right click
+      const w = e.target.closest(".w"); e.preventDefault();
+      if(w && this.held !== w) this.show(w);
+    });
+  },
+  cancel(){ clearTimeout(this.timer); this.timer = null; this.start = null; },
+  show(w){
+    this.cancel();
+    const e = this.dict && this.dict[w.dataset.w]; if(!e) return;
+    this.hide();
+    const [lemma, hy] = e;
+    const el = document.createElement("div");
+    el.className = "wbubble"; el.setAttribute("role","tooltip");
+    el.innerHTML = `<b lang="${CLANG}">${esc(w.textContent)}</b>${lemma && lemma.toLowerCase() !== w.dataset.w ? `<span class="lemma" lang="${CLANG}">${esc(lemma)}</span>` : ""}<span class="hy" lang="hy">${esc(hy)}</span>`;
+    document.body.appendChild(el);
+    const r = w.getBoundingClientRect(), g = el.getBoundingClientRect();
+    const left = Math.min(Math.max(8, r.left + r.width/2 - g.width/2), document.documentElement.clientWidth - g.width - 8);
+    const above = r.top - g.height - 10 > 8;
+    el.style.left = (left + scrollX) + "px";
+    el.style.top = ((above ? r.top - g.height - 10 : r.bottom + 10) + scrollY) + "px";
+    el.style.setProperty("--ax", (r.left + r.width/2 - left) + "px");
+    el.classList.add(above ? "up" : "down");
+    w.classList.add("held"); this.held = w; this.el = el;
+    this.justShown = true; setTimeout(() => this.justShown = false, 500);
+    try{ navigator.vibrate && navigator.vibrate(12); }catch(x){}
+  },
+  hide(){ if(this.el){ this.el.remove(); this.el = null; } if(this.held){ this.held.classList.remove("held"); this.held = null; } }
+};
+document.addEventListener("pointerdown", e => { if(gloss.el && !e.target.closest(".wbubble") && e.target.closest(".w") !== gloss.held) gloss.hide(); });
+document.addEventListener("keydown", e => { if(e.key === "Escape") gloss.hide(); });
+window.addEventListener("scroll", () => gloss.hide(), {passive:true});
+
 function renderLesson(l){
   stop(true);
   let si=0;
   player.sentences=[];
   const words = l.sents.flat().join(" ").split(/\s+/).length;
   const paras = l.sents.map(parts =>
-    "<p>"+parts.map(t=>{player.sentences.push({text:t}); return `<span class="s" data-i="${si++}">${esc(t)}</span>`}).join(" ")+"</p>"
+    "<p>"+parts.map(t=>{player.sentences.push({text:t}); return `<span class="s" data-i="${si++}">${wrapWords(t, l.dict)}</span>`}).join(" ")+"</p>"
   ).join("");
   const blurred = store.get("vs-blur",true);
   $app.innerHTML = `
@@ -541,6 +604,7 @@ function renderLesson(l){
       </section>
       <section class="panel ${blurred?"blur":""}" id="tpanel">
         <div class="tbar"><h2>${UI.transcript}</h2><button type="button" class="tog" id="tog">${blurred?UI.show:UI.hide}</button></div>
+        ${l.dict ? `<p class="holdhint"><span aria-hidden="true">☝</span> ${UI.holdHint}<br><span lang="hy">Սեղմեք և պահեք բառի վրա՝ թարգմանությունը տեսնելու համար։</span></p>` : ""}
         <div class="transcript">${paras}</div>
       </section>
     </div>
@@ -570,7 +634,8 @@ function renderLesson(l){
     applyRate();
   });
   document.getElementById("voice").onchange=e=>{player.voice=e.target.value;store.set("vs-voice5",player.voice);if(player.playing||player.paused)speakFrom(player.idx);};
-  $app.querySelectorAll(".s").forEach(s=>s.onclick=()=>speakFrom(+s.dataset.i));
+  $app.querySelectorAll(".s").forEach(s=>s.onclick=()=>{ if(gloss.justShown) return; speakFrom(+s.dataset.i); });
+  gloss.attach(document.querySelector(".transcript"), l.dict);
   document.getElementById("tog").onclick=()=>{
     const p=document.getElementById("tpanel"); const b=p.classList.toggle("blur");
     store.set("vs-blur",b); document.getElementById("tog").textContent=b?UI.show:UI.hide;

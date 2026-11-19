@@ -26,6 +26,30 @@ const b64 = (u8) => Buffer.from(u8).toString("base64");
 const b64u = (u8) => Buffer.from(u8).toString("base64url");
 const unb64 = (s) => new Uint8Array(Buffer.from(s, "base64"));
 
+// word translations: private/dict/<lang>.json maps each lower-case word form to [base form, Armenian];
+// private/dict/overrides.json gives a different meaning for a word in one lesson
+export const WORD_RE = /\p{L}+(?:['\u2019-]\p{L}+)*/gu;   // must match WORD_RE in index.html
+const dictCache = {};
+function dictFor(lang) {
+  if (!(lang in dictCache)) {
+    const f = P("private/dict", `${lang}.json`);
+    dictCache[lang] = fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : null;
+  }
+  return dictCache[lang];
+}
+const overrides = () => { const f = P("private/dict/overrides.json"); return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : {}; };
+const missingWords = [];
+function lessonDict(l, lang) {
+  const base = dictFor(lang); if (!base) return null;
+  const over = overrides()[l.id] || {};
+  const out = {};
+  for (const w of new Set(l.text.join(" ").toLowerCase().match(WORD_RE) || [])) {
+    const e = over[w] || base[w];
+    if (e) out[w] = e; else missingWords.push(`${l.id}: ${w}`);
+  }
+  return out;
+}
+
 // must match split() in tools/align.py
 export const splitSentences = (p) =>
   (p.match(/[^.!?¿¡]*[¿¡]?[^.!?]*[.!?]+/g) || [p]).map((t) => t.trim()).filter(Boolean);
@@ -141,8 +165,9 @@ async function main() {
         if (writeIfChanged(P("audio", `${l.id}.bin`), await seal(key, new Uint8Array(fs.readFileSync(mp3))))) changed++;
         keep.add(`audio/${l.id}.bin`);
       }
-      const data = { id: l.id, lang: l.lang || tu.language || "es", level: l.level, title: l.title, topic: l.topic, summary: l.summary,
-        narrator: l.narrator, sents, gloss: l.gloss, q: l.q, rec };
+      const lang = l.lang || tu.language || "es";
+      const data = { id: l.id, lang, level: l.level, title: l.title, topic: l.topic, summary: l.summary,
+        narrator: l.narrator, sents, gloss: l.gloss, q: l.q, rec, dict: lessonDict(l, lang) };
       if (writeIfChanged(P("content", `${l.id}.bin`), await seal(key, enc(JSON.stringify(data))))) changed++;
       keep.add(`content/${l.id}.bin`);
       catalog.push({ id: l.id, v, level: l.level, title: l.title, topic: l.topic, narrator: l.narrator, audio: !!rec });
@@ -198,6 +223,7 @@ async function main() {
   }
 
   console.log(report.join("\n") + `\n${changed} files updated.`);
+  if (missingWords.length) console.log(`Words without a translation (${missingWords.length}): ${missingWords.slice(0, 40).join(", ")}${missingWords.length > 40 ? " …" : ""}`);
   if (process.env.VERBA_PRINT_LINKS) for (const l of links) console.log(l);
 }
 
