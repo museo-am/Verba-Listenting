@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="img/icon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Noto+Sans+Armenian:wght@400;600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=e36b5f6b">
+<link rel="stylesheet" href="style.css?v=8dfddec0">
 </head>
 <body>
 
@@ -46,7 +46,7 @@ const STR = {
   loginTitle:"Tutor panel", loginText:"Enter your username and password.", username:"Username", langNames:{es:"Spanish",en:"English",fr:"French"},
   password:"Password", login:"Log in", checking:"Checking…",
   wrongPw:"Wrong username or password. Try again.", noFile:"Panel settings not found.",
-  secListen:"Listenings", secTests:"Tests",
+  secListen:"Listenings", secTests:"Tests", allLevels:"All", levelsNav:"Levels",
   countLine:(n,r)=>`${n} listenings · ${r} with recording`,
   intro:"Each link opens only that listening. <b>New link</b> cancels the current link for everyone who has it and creates another one.",
   narrF:"Female narrator", narrM:"Male narrator", chipRec:"Recording", chipTts:"Device voice",
@@ -76,7 +76,7 @@ const STR = {
   loginTitle:"Ուսուցչի վահանակ", loginText:"Մուտքագրեք ձեր օգտանունը և գաղտնաբառը։", username:"Օգտանուն", langNames:{es:"Իսպաներեն",en:"Անգլերեն",fr:"Ֆրանսերեն"},
   password:"Գաղտնաբառ", login:"Մուտք", checking:"Ստուգվում է…",
   wrongPw:"Սխալ օգտանուն կամ գաղտնաբառ։ Փորձեք կրկին։", noFile:"Վահանակի կարգավորումները չեն գտնվել։",
-  secListen:"Լսողություն", secTests:"Թեստեր",
+  secListen:"Լսողություն", secTests:"Թեստեր", allLevels:"Բոլորը", levelsNav:"Մակարդակներ",
   countLine:(n,r)=>`${n} առաջադրանք · ${r}-ը՝ ձայնագրությամբ`,
   intro:"Յուրաքանչյուր հղում բացում է միայն այդ առաջադրանքը։ <b>Նոր հղում</b> կոճակը չեղարկում է ընթացիկ հղումը բոլորի համար և ստեղծում նորը։",
   narrF:"Կին ընթերցող", narrM:"Տղամարդ ընթերցող", chipRec:"Ձայնագրություն", chipTts:"Սարքի ձայն",
@@ -106,7 +106,7 @@ const STR = {
   loginTitle:"Panel del profesor", loginText:"Introduce tu usuario y contraseña.", username:"Usuario", langNames:{es:"Español",en:"Inglés",fr:"Francés"},
   password:"Contraseña", login:"Entrar", checking:"Comprobando…",
   wrongPw:"Usuario o contraseña incorrectos. Inténtalo de nuevo.", noFile:"No se encontró la configuración del panel.",
-  secListen:"Audiciones", secTests:"Tests",
+  secListen:"Audiciones", secTests:"Tests", allLevels:"Todos", levelsNav:"Niveles",
   countLine:(n,r)=>`${n} audiciones · ${r} con grabación`,
   intro:"Cada enlace abre solo esa audición. <b>Nuevo enlace</b> anula el enlace actual para todos los que lo tengan y crea otro.",
   narrF:"Narradora", narrM:"Narrador", chipRec:"Grabación", chipTts:"Voz del dispositivo",
@@ -381,6 +381,19 @@ function connectBox(then){
 }
 
 const LEVELS = ["A1","A2","B1","B2","C1","C2"];
+/* level tabs inside Listenings and Tests: "All" or one level, remembered per section */
+function levelTabs(items, key){
+  const present = LEVELS.filter(lv => items.some(l => l.level === lv));
+  let sel = store.get(key, "all");
+  if(sel !== "all" && !present.includes(sel)) sel = "all";
+  const html = present.length < 2 ? "" : `
+  <nav class="lvtabs" role="tablist" aria-label="${t("levelsNav")}">
+    <button type="button" role="tab" data-lv="all" aria-selected="${sel==="all"}">${t("allLevels")}<span class="n">${items.length}</span></button>
+    ${present.map(lv=>`<button type="button" role="tab" data-lv="${lv}" aria-selected="${sel===lv}"><span class="lv ${lvClass(lv)}">${lv}</span><span class="n">${items.filter(l=>l.level===lv).length}</span></button>`).join("")}
+  </nav>`;
+  const groups = present.filter(lv => sel === "all" || lv === sel).map(lv => [lv, items.filter(l => l.level === lv)]);
+  return {html, groups, wire(box, redraw){ box.querySelectorAll("[data-lv]").forEach(b => b.onclick = () => { store.set(key, b.dataset.lv); redraw(); }); }};
+}
 const SECTIONS = ["listenings","tests"];
 const listenings = () => session.lessons.filter(l=>l.kind!=="test");
 const tests = () => session.lessons.filter(l=>l.kind==="test");
@@ -402,6 +415,7 @@ function renderPanel(){
 
 function renderTests(box){
   const list = tests();
+  const lt = levelTabs(list, "vs-admin-lv-tests");
   if(list.length){
     box.innerHTML = `
     <div class="toolbar">
@@ -410,7 +424,10 @@ function renderTests(box){
     </div>
     <p class="hint">${t("testsIntro")}</p>
     <section class="panel connect" id="connect" hidden></section>
-    <div class="rows" style="margin-top:18px">${list.map(l=>`
+    ${lt.html}
+    ${lt.groups.map(([lv,ls])=>`
+    <h2 class="section-title">${lv}</h2>
+    <div class="rows">${ls.map(l=>`
       <div class="row-l" data-id="${esc(l.id)}">
         <span class="lv ${lvClass(l.level)}">${esc(l.level)}</span>
         <div style="min-width:0">
@@ -419,7 +436,8 @@ function renderTests(box){
         </div>
         <div class="acts"></div>
         <p class="rowmsg" hidden></p>
-      </div>`).join("")}</div>`;
+      </div>`).join("")}</div>`).join("")}`;
+    lt.wire(box, () => renderTests(box));
     box.querySelectorAll(".row-l").forEach(row => renderActs(row));
     return;
   }
@@ -433,7 +451,7 @@ function renderTests(box){
 
 function renderListenings(box){
   const all = listenings();
-  const byLevel = LEVELS.map(lv=>[lv, all.filter(l=>l.level===lv)]).filter(([,ls])=>ls.length);
+  const lt = levelTabs(all, "vs-admin-lv-listen"), byLevel = lt.groups;
   const recs = all.filter(l=>l.audio).length;
   box.innerHTML = `
   <div class="toolbar">
@@ -442,6 +460,7 @@ function renderListenings(box){
   </div>
   <p class="hint">${t("intro")}</p>
   <section class="panel connect" id="connect" hidden></section>
+  ${lt.html}
   ${byLevel.map(([lv,ls])=>`
     <h2 class="section-title">${lv}</h2>
     <div class="rows">${ls.map(l=>`
@@ -455,6 +474,7 @@ function renderListenings(box){
         <div class="acts"></div>
         <p class="rowmsg" hidden></p>
       </div>`).join("")}</div>`).join("")}`;
+  lt.wire(box, () => renderListenings(box));
   box.querySelectorAll(".row-l").forEach(row => renderActs(row));
 }
 

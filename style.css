@@ -359,3 +359,12 @@ body.is-landing{background:var(--bg)}
 .langtabs a.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .langtabs a[lang="hy"]{font-family:var(--f-body);font-weight:700}
 .langtabs{display:flex;gap:6px}
+
+/* level tabs in the tutor panel */
+.lvtabs{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 4px}
+.lvtabs button{display:inline-flex;align-items:center;gap:8px;font:600 .9rem var(--f-body);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 12px 6px 8px;cursor:pointer}
+.lvtabs button[data-lv="all"]{padding-left:14px}
+.lvtabs button .n{font:600 .72rem var(--f-mono);color:var(--muted)}
+.lvtabs button[aria-selected="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.lvtabs button[aria-selected="true"] .n{color:var(--accent)}
+.lvtabs .lv{margin:0}
