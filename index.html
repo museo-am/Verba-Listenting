@@ -196,14 +196,58 @@ async function openFile(keyB64u, url){
 }
 try{ localStorage.removeItem("vs-vault"); }catch(e){}   // old shared list, no longer used
 
+/* ---------- interface language: follows the language of the lesson ---------- */
+const UI_STR = {
+ es:{recGroup:"Grabación",mainVoice:"★ Voz principal",deviceGroup:"Voces del dispositivo",deviceVoice:"Voz española del dispositivo",
+  sentence:(i,n)=>`Frase ${i} / ${n}`,mainNote:"★ Voz principal: lectura natural. Toca cualquier frase para escucharla desde ahí.",
+  words:"palabras",narrF:"Narradora",narrM:"Narrador",speed:"Velocidad",slow:"Lenta",normal:"Normal",fast:"Rápida",restart:"↺ Desde el inicio",voice:"Voz",
+  loadingRec:"Cargando la grabación…",tapNote:"Toca cualquier frase para escucharla desde ahí.",
+  noAudio:'⚠️ El audio no funciona dentro de esta vista. Abre la página en <b>Chrome</b>, <b>Safari</b> o <b>Edge</b>.',
+  transcript:"Transcripción",show:"Mostrar texto",hide:"Ocultar texto",quizTitle:"¿Has entendido el texto?",check:"Comprobar",
+  answered:(a,n)=>`${a} / ${n} respondidas`,answerAll:(a,n)=>`Responde todas las preguntas (${a} / ${n})`,correct:(a,n)=>`${a} / ${n} correctas`,
+  retryQuiz:"Intentar de nuevo",vocab:"Vocabulario",copied:"Copiado ✓",selectCopy:"Selecciona y copia",
+  testLabel:"Test de nivel",before:"Antes de empezar",qInParts:(p,names)=>`preguntas en ${p} partes: ${names}`,and:", ",approx:"aproximadamente",
+  toPass:p=>`para aprobar (${p} %)`,yourName:"Tu nombre",namePh:"Nombre y apellido",
+  nameErr:"Escribe tu nombre para que tu profesor/a sepa de quién es el resultado.",start:"Empezar el test",lastResult:"Tu último resultado",
+  passedW:"Aprobado",failedW:"No aprobado",seeResult:"Ver resultado",part:i=>`Parte ${i}`,answeredBar:"respondidas",finish:"Terminar el test",
+  missing:n=>n===1?"Te falta 1 pregunta":`Te faltan ${n} preguntas`,
+  resStudent:"Alumno/a",resResult:"Resultado",resPASS:"APROBADO",resFAIL:"NO APROBADO",resDate:"Fecha",resTime:"Tiempo",
+  passH:"¡Aprobado!",failH:"Todavía no",passLede:lv=>`Has superado el nivel ${lv}.`,
+  failLede:(lv,need,total)=>`Todavía no has superado el nivel ${lv}. Necesitas ${need} respuestas correctas de ${total}.`,
+  markNote:(need,total)=>`La marca indica el mínimo para aprobar (${need} de ${total}).`,byPart:"Por partes",
+  sendTitle:"Envía el resultado a tu profesor/a",copyRes:"Copiar resultado",review:"Ver respuestas",retryTest:"Repetir el test",yourAnswer:"tu respuesta",
+  locale:"es-ES"},
+ fr:{recGroup:"Enregistrement",mainVoice:"★ Voix principale",deviceGroup:"Voix de l'appareil",deviceVoice:"Voix française de l'appareil",
+  sentence:(i,n)=>`Phrase ${i} / ${n}`,mainNote:"★ Voix principale : lecture naturelle. Touchez une phrase pour l'écouter à partir de là.",
+  words:"mots",narrF:"Narratrice",narrM:"Narrateur",speed:"Vitesse",slow:"Lente",normal:"Normale",fast:"Rapide",restart:"↺ Depuis le début",voice:"Voix",
+  loadingRec:"Chargement de l'enregistrement…",tapNote:"Touchez une phrase pour l'écouter à partir de là.",
+  noAudio:"⚠️ Le son ne fonctionne pas dans cette vue. Ouvrez la page dans <b>Chrome</b>, <b>Safari</b> ou <b>Edge</b>.",
+  transcript:"Transcription",show:"Afficher le texte",hide:"Masquer le texte",quizTitle:"Avez-vous compris le texte ?",check:"Vérifier",
+  answered:(a,n)=>`${a} / ${n} répondues`,answerAll:(a,n)=>`Répondez à toutes les questions (${a} / ${n})`,correct:(a,n)=>`${a} / ${n} correctes`,
+  retryQuiz:"Réessayer",vocab:"Vocabulaire",copied:"Copié ✓",selectCopy:"Sélectionnez et copiez",
+  testLabel:"Test de niveau",before:"Avant de commencer",qInParts:(p,names)=>`questions en ${p} parties : ${names}`,and:", ",approx:"environ",
+  toPass:p=>`pour réussir (${p} %)`,yourName:"Votre nom",namePh:"Prénom et nom",
+  nameErr:"Écrivez votre nom pour que votre professeur sache à qui appartient le résultat.",start:"Commencer le test",lastResult:"Votre dernier résultat",
+  passedW:"Réussi",failedW:"Non réussi",seeResult:"Voir le résultat",part:i=>`Partie ${i}`,answeredBar:"répondues",finish:"Terminer le test",
+  missing:n=>n===1?"Il manque 1 question":`Il manque ${n} questions`,
+  resStudent:"Élève",resResult:"Résultat",resPASS:"RÉUSSI",resFAIL:"NON RÉUSSI",resDate:"Date",resTime:"Durée",
+  passH:"Réussi !",failH:"Pas encore",passLede:lv=>`Vous avez validé le niveau ${lv}.`,
+  failLede:(lv,need,total)=>`Vous n'avez pas encore validé le niveau ${lv}. Il faut ${need} bonnes réponses sur ${total}.`,
+  markNote:(need,total)=>`Le repère indique le minimum pour réussir (${need} sur ${total}).`,byPart:"Par partie",
+  sendTitle:"Envoyez le résultat à votre professeur",copyRes:"Copier le résultat",review:"Voir les réponses",retryTest:"Refaire le test",yourAnswer:"votre réponse",
+  locale:"fr-FR"}
+};
+let UI = UI_STR.es, CLANG = "es";
+function setContentLang(lang){ CLANG = UI_STR[lang] ? lang : "es"; UI = UI_STR[CLANG]; document.documentElement.lang = CLANG; loadVoices(); }
+
 /* ---------- speech ---------- */
 const synth = window.speechSynthesis;
 let voices = [];
-function vScore(v){let s=0;const n=v.name;if(/natural|neural/i.test(n))s+=50;if(/premium/i.test(n))s+=45;if(/enhanced|mejorad/i.test(n))s+=40;if(/google/i.test(n))s+=25;if(!v.localService)s+=5;if(v.lang==='es-ES')s+=3;if(/eloquence|compact|espeak/i.test(n))s-=30;return s;}
+function vScore(v){let s=0;const n=v.name;if(/natural|neural/i.test(n))s+=50;if(/premium/i.test(n))s+=45;if(/enhanced|mejorad/i.test(n))s+=40;if(/google/i.test(n))s+=25;if(!v.localService)s+=5;if(v.lang===UI.locale)s+=3;if(/eloquence|compact|espeak/i.test(n))s-=30;return s;}
 let player = {sentences:[],idx:0,playing:false,paused:false,rate:store.get("vs-rate",0.9),voice:store.get("vs-voice5","r:main")};
 let rec = null;      // {duration, starts[]} when the lesson has a recording
 let recUrl = null;   // blob: URL of the decrypted recording
-function loadVoices(){ if(!synth) return; voices = synth.getVoices().filter(v=>/^es/i.test(v.lang)).sort((a,b)=>vScore(b)-vScore(a)); fillVoiceSelect(); }
+function loadVoices(){ if(!synth) return; voices = synth.getVoices().filter(v=>v.lang.toLowerCase().startsWith(CLANG)).sort((a,b)=>vScore(b)-vScore(a)); fillVoiceSelect(); }
 if(synth){ loadVoices(); synth.onvoiceschanged = loadVoices; }
 
 function effectiveVoice(){ return (player.voice.startsWith("r:") && !recUrl) ? (voices[0]?voices[0].name:"") : player.voice; }
@@ -211,9 +255,9 @@ function fillVoiceSelect(){
   const sel = document.getElementById("voice"); if(!sel) return;
   const cur = effectiveVoice();
   const opt = (val,label)=>`<option value="${esc(val)}" ${val===cur?"selected":""}>${esc(label)}</option>`;
-  sel.innerHTML = (recUrl ? `<optgroup label="Grabación">${opt("r:main","★ Voz principal")}</optgroup>` : "")
-    + (voices.length ? `<optgroup label="Voces del dispositivo">${voices.map(v=>opt(v.name,v.name+" · "+v.lang)).join("")}</optgroup>`
-                     : (recUrl ? "" : `<option value="">Voz española del dispositivo</option>`));
+  sel.innerHTML = (recUrl ? `<optgroup label="${UI.recGroup}">${opt("r:main",UI.mainVoice)}</optgroup>` : "")
+    + (voices.length ? `<optgroup label="${UI.deviceGroup}">${voices.map(v=>opt(v.name,v.name+" · "+v.lang)).join("")}</optgroup>`
+                     : (recUrl ? "" : `<option value="">${UI.deviceVoice}</option>`));
 }
 function note(html,warn){ const n=document.getElementById("anote"); if(n){ n.className="note"+(warn?" warn":""); n.innerHTML=html; } }
 
@@ -247,7 +291,7 @@ function playRec(i){
 let audioOK=false, watchdog=null;
 function noAudio(){
   player.playing=false; updatePlayerUI();
-  note('⚠️ El audio no funciona dentro de esta vista. Abre la página en <b>Chrome</b>, <b>Safari</b> o <b>Edge</b>.',true);
+  note(UI.noAudio,true);
 }
 function doSpeak(i){
   mode = "tts";
@@ -258,7 +302,7 @@ function doSpeak(i){
   const go = () => {
     if(!(player.playing && player.idx===i)) return;
     const u = new SpeechSynthesisUtterance(player.sentences[i].text);
-    u.lang = "es-ES"; u.rate = player.rate;
+    u.lang = UI.locale; u.rate = player.rate;
     const v = voices.find(v=>v.name===effectiveVoice()) || voices[0];
     if(v){ u.voice = v; u.lang = v.lang; }
     u.onstart = () => { audioOK=true; clearTimeout(watchdog); };
@@ -302,7 +346,7 @@ function updatePlayerUI(){
   btn.setAttribute("aria-label", player.playing?"Pausar":"Reproducir");
   const n = player.sentences.length;
   document.getElementById("barfill").style.width = (n? Math.round(player.idx/n*100):0)+"%";
-  document.getElementById("progtxt").textContent = `Frase ${Math.min(player.idx+1,n)} / ${n}`;
+  document.getElementById("progtxt").textContent = UI.sentence(Math.min(player.idx+1,n), n);
   const cur = document.querySelector(".s.now");
   if(cur && player.playing && !document.querySelector(".blur")) cur.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
@@ -320,7 +364,7 @@ const SITE_STR = {
   lEs:"Իսպաներեն",lEn:"Անգլերեն",lFr:"Ֆրանսերեն",
   lEsText:"Սկսնակից մինչև առաջադեմ մակարդակ։ Սկսնակների համար՝ <b lang=\"es\">Español desde cero</b> դասընթացը և լսողական հարթակը։",
   lEnText:"Սկսնակից մինչև առաջադեմ մակարդակ՝ խմբային կամ անհատական դասերով։",
-  lFrText:"Սկսնակից մինչև առաջադեմ մակարդակ՝ խմբային կամ անհատական դասերով։",
+  lFrText:"Սկսնակից մինչև առաջադեմ մակարդակ՝ խմբային կամ անհատական դասերով, լսողական առաջադրանքներով և թեստերով։",
   levelsTitle:"Հինգ մակարդակ՝ A1-ից մինչև C1",
   levelsLede:"Բոլոր լեզուների դասերը կառուցված են եվրոպական լեզվական մակարդակներով (CEFR)։ Մակարդակի վերջում թեստը ցույց է տալիս՝ պատրաստ եք արդյոք հաջորդին։",
   n1:"Սկսնակ",n2:"Տարրական",n3:"Միջին",n4:"Միջինից բարձր",n5:"Առաջադեմ",
@@ -335,7 +379,7 @@ const SITE_STR = {
   groupT:"Խմբային դասեր",groupP:"25 000 ֏",groupD:"Սովորեք այլ աշակերտների հետ միասին։",
   privT:"Անհատական դասեր",privP:"30 000 ֏",privD:"Դասեր՝ մեկը մեկին, ձեր տեմպով։",
   perMonth:"ամսական",signUp:"Գրանցվել",
-  platTitle:"Մեր հարթակը",platLede:"Իսպաներեն սովորողները ստանում են անձնական հղումներ լսողական առաջադրանքներին և թեստերին։",
+  platTitle:"Մեր հարթակը",platLede:"Իսպաներեն և ֆրանսերեն սովորողները ստանում են անձնական հղումներ լսողական առաջադրանքներին և թեստերին։",
   t1:"Լսեք ձայնագրությունը՝ սկզբում առանց տեքստի",t2:"Բացեք տեքստը և հետևեք նախադասություն առ նախադասություն",t3:"Պատասխանեք հարցերին և ստուգեք ինքներդ ձեզ",
   ctaTitle:"Սկսե՞նք",ctaText:"Գրեք մեզ Instagram-ում կամ զանգահարեք։ Կօգնենք որոշել ձեր մակարդակը և ընտրել դասերը։",
   foot:"Լեզուների դպրոց · իսպաներեն, անգլերեն, ֆրանսերեն",title:"Verba School — լեզուների դպրոց"},
@@ -349,7 +393,7 @@ const SITE_STR = {
   lEs:"Spanish",lEn:"English",lFr:"French",
   lEsText:"From beginner to advanced. For beginners: our <b lang=\"es\">Español desde cero</b> course and the listening platform.",
   lEnText:"From beginner to advanced, in group or private lessons.",
-  lFrText:"From beginner to advanced, in group or private lessons.",
+  lFrText:"From beginner to advanced, in group or private lessons, with listening tasks and level tests.",
   levelsTitle:"Five levels, from A1 to C1",
   levelsLede:"Lessons in every language follow the European language levels (CEFR). At the end of each level, a test shows whether you're ready for the next one.",
   n1:"Beginner",n2:"Elementary",n3:"Intermediate",n4:"Upper intermediate",n5:"Advanced",
@@ -364,7 +408,7 @@ const SITE_STR = {
   groupT:"Group lessons",groupP:"25,000 ֏",groupD:"Learn together with other students.",
   privT:"Private lessons",privP:"30,000 ֏",privD:"One-on-one lessons at your own pace.",
   perMonth:"per month",signUp:"Sign up",
-  platTitle:"Our platform",platLede:"Spanish students get personal links to listening tasks and tests.",
+  platTitle:"Our platform",platLede:"Spanish and French students get personal links to listening tasks and tests.",
   t1:"Listen to the recording, first without the text",t2:"Open the transcript and follow it sentence by sentence",t3:"Answer the questions and check yourself",
   ctaTitle:"Ready to start?",ctaText:"Message us on Instagram or call us. We'll help you find your level and choose your lessons.",
   foot:"Language school · Spanish, English, French",title:"Verba School — language school"},
@@ -378,7 +422,7 @@ const SITE_STR = {
   lEs:"Español",lEn:"Inglés",lFr:"Francés",
   lEsText:"De principiante a avanzado. Para empezar: nuestro curso <b>Español desde cero</b> y la plataforma de audiciones.",
   lEnText:"De principiante a avanzado, en clases de grupo o individuales.",
-  lFrText:"De principiante a avanzado, en clases de grupo o individuales.",
+  lFrText:"De principiante a avanzado, en clases de grupo o individuales, con audiciones y tests de nivel.",
   levelsTitle:"Cinco niveles, del A1 al C1",
   levelsLede:"Las clases de todos los idiomas siguen los niveles del Marco Común Europeo (MCER). Al final de cada nivel, un test muestra si estás listo para el siguiente.",
   n1:"Acceso",n2:"Plataforma",n3:"Umbral",n4:"Avanzado",n5:"Dominio",
@@ -393,7 +437,7 @@ const SITE_STR = {
   groupT:"Clases en grupo",groupP:"25 000 ֏",groupD:"Aprende junto con otros alumnos.",
   privT:"Clases individuales",privP:"30 000 ֏",privD:"Clases uno a uno, a tu ritmo.",
   perMonth:"al mes",signUp:"Apúntate",
-  platTitle:"Nuestra plataforma",platLede:"Los alumnos de español reciben enlaces personales a sus audiciones y tests.",
+  platTitle:"Nuestra plataforma",platLede:"Los alumnos de español y francés reciben enlaces personales a sus audiciones y tests.",
   t1:"Escucha la grabación, primero sin el texto",t2:"Abre la transcripción y síguela frase a frase",t3:"Responde las preguntas y comprueba cuánto has entendido",
   ctaTitle:"¿Empezamos?",ctaText:"Escríbenos en Instagram o llámanos. Te ayudamos a saber tu nivel y elegir tus clases.",
   foot:"Escuela de idiomas · español, inglés, francés",title:"Verba School — escuela de idiomas"}
@@ -438,16 +482,17 @@ let openToken = 0;
 async function openLesson(id, k){
   const token = ++openToken;
   showLanding(false); document.documentElement.lang = "es"; document.title = "Verba School";
-  renderState("load","Abriendo…");
+  renderState("load","");
   let l;
   try{
     l = JSON.parse(new TextDecoder().decode(await openFile(k, `content/${encodeURIComponent(id)}.bin`)));
   }catch(e){
     if(token!==openToken) return;
-    renderState("bad","Este enlace no funciona","Puede que esté incompleto o que tu profesor/a lo haya cambiado. Pídele un enlace nuevo.");
+    renderState("bad","Este enlace no funciona · Ce lien ne fonctionne pas","Pide un enlace nuevo a tu profesor/a. · Demandez un nouveau lien à votre professeur.");
     return;
   }
   if(token!==openToken) return;
+  setContentLang(l.lang || "es");
   if(l.kind==="test"){ stop(true); renderTest(l); return; }
   if(recUrl){ URL.revokeObjectURL(recUrl); recUrl=null; }
   rec = null; audio.removeAttribute("src");
@@ -458,7 +503,7 @@ async function openLesson(id, k){
       if(token!==openToken) return;
       rec = l.rec; recUrl = URL.createObjectURL(new Blob([bytes],{type:"audio/mpeg"}));
       fillVoiceSelect();
-      note("★ Voz principal: lectura natural. Toca cualquier frase para escucharla desde ahí.");
+      note(UI.mainNote);
     }catch(e){}
   }
 }
@@ -474,7 +519,7 @@ function renderLesson(l){
   const blurred = store.get("vs-blur",true);
   $app.innerHTML = `
   <section class="lhead">
-    <div class="meta"><span class="lv ${lvClass(l.level)}">${esc(l.level)}</span><span>${esc(l.topic)}</span><span>· ${words} palabras</span><span>· ${l.narrator==="f"?"Narradora":"Narrador"}</span></div>
+    <div class="meta"><span class="lv ${lvClass(l.level)}">${esc(l.level)}</span><span>${esc(l.topic)}</span><span>· ${words} ${UI.words}</span><span>· ${l.narrator==="f"?UI.narrF:UI.narrM}</span></div>
     <h1>${esc(l.title)}</h1>
   </section>
   <div class="cols">
@@ -485,32 +530,32 @@ function renderLesson(l){
           <div class="prog"><div class="bar"><i id="barfill"></i></div><small id="progtxt"></small></div>
         </div>
         <div class="row">
-          <label>Velocidad</label>
-          ${[0.7,0.9,1.1].map(r=>`<button type="button" class="ctl ${player.rate===r?"on":""}" data-rate="${r}">${r===0.7?"Lenta":r===0.9?"Normal":"Rápida"}</button>`).join("")}
-          <button type="button" class="ctl" id="restart">↺ Desde el inicio</button>
+          <label>${UI.speed}</label>
+          ${[0.7,0.9,1.1].map(r=>`<button type="button" class="ctl ${player.rate===r?"on":""}" data-rate="${r}">${r===0.7?UI.slow:r===0.9?UI.normal:UI.fast}</button>`).join("")}
+          <button type="button" class="ctl" id="restart">${UI.restart}</button>
         </div>
-        <div class="row"><label for="voice">Voz</label><select id="voice"></select></div>
-        ${l.rec ? `<p class="note" id="anote">Cargando la grabación…</p>`
-          : synth ? `<p class="note" id="anote">Toca cualquier frase para escucharla desde ahí.</p>`
-          : `<p class="note warn" id="anote">⚠️ El audio no funciona dentro de esta vista. Abre la página en <b>Chrome</b>, <b>Safari</b> o <b>Edge</b>.</p>`}
+        <div class="row"><label for="voice">${UI.voice}</label><select id="voice"></select></div>
+        ${l.rec ? `<p class="note" id="anote">${UI.loadingRec}</p>`
+          : synth ? `<p class="note" id="anote">${UI.tapNote}</p>`
+          : `<p class="note warn" id="anote">${UI.noAudio}</p>`}
       </section>
       <section class="panel ${blurred?"blur":""}" id="tpanel">
-        <div class="tbar"><h2>Transcripción</h2><button type="button" class="tog" id="tog">${blurred?"Mostrar texto":"Ocultar texto"}</button></div>
+        <div class="tbar"><h2>${UI.transcript}</h2><button type="button" class="tog" id="tog">${blurred?UI.show:UI.hide}</button></div>
         <div class="transcript">${paras}</div>
       </section>
     </div>
     <div style="display:grid;gap:18px;min-width:0">
       <section class="panel">
-        <h2>¿Has entendido el texto?</h2>
+        <h2>${UI.quizTitle}</h2>
         <div id="quiz">${l.q.map((q,qi)=>`
           <div class="q" data-q="${qi}">
             <p><small>${qi+1}</small>${esc(q[0])}</p>
             ${q[1].map((o,oi)=>`<button type="button" class="opt" data-o="${oi}"><i>${"abcd"[oi]}</i>${esc(o)}</button>`).join("")}
           </div>`).join("")}</div>
-        <div class="qfoot"><button type="button" class="btn" id="check">Comprobar</button><span class="score" id="score">0 / ${l.q.length} respondidas</span></div>
+        <div class="qfoot"><button type="button" class="btn" id="check">${UI.check}</button><span class="score" id="score">${UI.answered(0,l.q.length)}</span></div>
       </section>
       <section class="panel">
-        <h2>Vocabulario</h2>
+        <h2>${UI.vocab}</h2>
         <ul class="gloss">${l.gloss.map(g=>`<li><b>${esc(g[0])}</b><span>${esc(g[1])}</span></li>`).join("")}</ul>
       </section>
     </div>
@@ -528,7 +573,7 @@ function renderLesson(l){
   $app.querySelectorAll(".s").forEach(s=>s.onclick=()=>speakFrom(+s.dataset.i));
   document.getElementById("tog").onclick=()=>{
     const p=document.getElementById("tpanel"); const b=p.classList.toggle("blur");
-    store.set("vs-blur",b); document.getElementById("tog").textContent=b?"Mostrar texto":"Ocultar texto";
+    store.set("vs-blur",b); document.getElementById("tog").textContent=b?UI.show:UI.hide;
   };
 
   const ans = {}; let checked=false;
@@ -539,32 +584,32 @@ function renderLesson(l){
       if(checked) return;
       ans[qi]=+o.dataset.o;
       qel.querySelectorAll(".opt").forEach(x=>x.classList.toggle("sel",x===o));
-      scoreEl.textContent=`${Object.keys(ans).length} / ${l.q.length} respondidas`;
+      scoreEl.textContent=UI.answered(Object.keys(ans).length, l.q.length);
     });
   });
   checkBtn.onclick=()=>{
     if(checked){
       checked=false; Object.keys(ans).forEach(k=>delete ans[k]);
       $app.querySelectorAll(".opt").forEach(o=>o.classList.remove("sel","ok","no"));
-      scoreEl.textContent=`0 / ${l.q.length} respondidas`; checkBtn.textContent="Comprobar"; checkBtn.classList.remove("ghost");
+      scoreEl.textContent=UI.answered(0, l.q.length); checkBtn.textContent=UI.check; checkBtn.classList.remove("ghost");
       return;
     }
-    if(Object.keys(ans).length<l.q.length){ scoreEl.textContent=`Responde todas las preguntas (${Object.keys(ans).length} / ${l.q.length})`; return; }
+    if(Object.keys(ans).length<l.q.length){ scoreEl.textContent=UI.answerAll(Object.keys(ans).length, l.q.length); return; }
     checked=true; let ok=0;
     l.q.forEach((q,qi)=>{
       const opts=$app.querySelectorAll(`.q[data-q="${qi}"] .opt`);
       opts[q[2]].classList.add("ok");
       if(ans[qi]===q[2]) ok++; else opts[ans[qi]].classList.add("no");
     });
-    scoreEl.textContent=`${ok} / ${l.q.length} correctas`;
+    scoreEl.textContent=UI.correct(ok, l.q.length);
     const done=store.get("vs-done",{}); done[l.id]=`${Math.max(ok,parseInt(done[l.id])||0)}/${l.q.length}`; store.set("vs-done",done);
-    checkBtn.textContent="Intentar de nuevo"; checkBtn.classList.add("ghost");
+    checkBtn.textContent=UI.retryQuiz; checkBtn.classList.add("ghost");
   };
 }
 
 
 /* ---------- level tests ---------- */
-const fmtDate = ts => new Date(ts).toLocaleString("es-ES",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
+const fmtDate = ts => new Date(ts).toLocaleString(UI.locale,{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
 function testState(t){
   const all = store.get("vs-tests-draft",{});
   return all[t.id] || null;
@@ -580,30 +625,30 @@ function renderTest(t){
   const total = flatQ(t).length;
   $app.innerHTML = `
   <section class="lhead">
-    <div class="meta"><span class="lv ${lvClass(t.level)}">${esc(t.level)}</span><span>Test de nivel</span></div>
+    <div class="meta"><span class="lv ${lvClass(t.level)}">${esc(t.level)}</span><span>${UI.testLabel}</span></div>
     <h1>${esc(t.title)}</h1>
     <p class="lede">${esc(t.topic)}</p>
   </section>
   <div class="cols">
     <section class="panel">
-      <h2>Antes de empezar</h2>
+      <h2>${UI.before}</h2>
       <ul class="facts">
-        <li><b>${total}</b><span>preguntas en ${t.sections.length} partes: ${t.sections.map(s=>esc(s.title.toLowerCase())).join(" y ")}</span></li>
-        <li><b>${t.minutes} min</b><span>aproximadamente</span></li>
-        <li><b>${needed(t)} / ${total}</b><span>para aprobar (${Math.round(t.pass*100)} %)</span></li>
+        <li><b>${total}</b><span>${UI.qInParts(t.sections.length, t.sections.map(s=>esc(s.title.toLowerCase())).join(UI.and))}</span></li>
+        <li><b>${t.minutes} min</b><span>${UI.approx}</span></li>
+        <li><b>${needed(t)} / ${total}</b><span>${UI.toPass(Math.round(t.pass*100))}</span></li>
       </ul>
       <div class="field">
-        <label for="stname">Tu nombre</label>
-        <input class="input" id="stname" autocomplete="name" value="${esc(store.get("vs-name",""))}" placeholder="Nombre y apellido">
+        <label for="stname">${UI.yourName}</label>
+        <input class="input" id="stname" autocomplete="name" value="${esc(store.get("vs-name",""))}" placeholder="${UI.namePh}">
       </div>
-      <p class="err" id="nameerr" role="alert" hidden>Escribe tu nombre para que tu profesor/a sepa de quién es el resultado.</p>
-      <div class="qfoot"><button type="button" class="btn" id="start">Empezar el test</button></div>
+      <p class="err" id="nameerr" role="alert" hidden>${UI.nameErr}</p>
+      <div class="qfoot"><button type="button" class="btn" id="start">${UI.start}</button></div>
     </section>
     ${last ? `<section class="panel">
-      <h2>Tu último resultado</h2>
+      <h2>${UI.lastResult}</h2>
       <p class="bigscore ${last.passed?"pass":"fail"}">${last.score}<small> / ${last.total}</small></p>
-      <p class="hint">${last.passed?"Aprobado":"No aprobado"} · ${fmtDate(last.at)}</p>
-      <div class="qfoot"><button type="button" class="btn ghost" id="seelast">Ver resultado</button></div>
+      <p class="hint">${last.passed?UI.passedW:UI.failedW} · ${fmtDate(last.at)}</p>
+      <div class="qfoot"><button type="button" class="btn ghost" id="seelast">${UI.seeResult}</button></div>
     </section>` : ""}
   </div>`;
   document.getElementById("start").onclick = () => {
@@ -621,14 +666,14 @@ function renderTestRun(t, d){
   const total = flatQ(t).length;
   let n = 0;
   $app.innerHTML = `
-  <div class="testbar" role="status"><div><b id="answered">0</b> / ${total} respondidas</div><div class="bar"><i id="tbfill"></i></div></div>
+  <div class="testbar" role="status"><div><b id="answered">0</b> / ${total} ${UI.answeredBar}</div><div class="bar"><i id="tbfill"></i></div></div>
   <section class="lhead">
     <div class="meta"><span class="lv ${lvClass(t.level)}">${esc(t.level)}</span><span>${esc(d.name)}</span></div>
     <h1>${esc(t.title)}</h1>
   </section>
   ${t.sections.map((s,si)=>`
   <section class="panel tsec">
-    <h2><span class="partno">Parte ${si+1}</span>${esc(s.title)}</h2>
+    <h2><span class="partno">${UI.part(si+1)}</span>${esc(s.title)}</h2>
     ${s.intro?`<p class="hint">${esc(s.intro)}</p>`:""}
     ${s.text?`<div class="reading">${s.text.map(p=>`<p>${esc(p)}</p>`).join("")}</div>`:""}
     ${s.q.map((q,qi)=>{ n++; const key=`${si}.${qi}`; return `
@@ -639,7 +684,7 @@ function renderTestRun(t, d){
   </section>`).join("")}
   <section class="panel">
     <div class="qfoot">
-      <button type="button" class="btn" id="finish">Terminar el test</button>
+      <button type="button" class="btn" id="finish">${UI.finish}</button>
       <span class="score" id="finmsg"></span>
     </div>
   </section>`;
@@ -661,7 +706,7 @@ function renderTestRun(t, d){
     const missing = [...$app.querySelectorAll(".q")].filter(q=>d.ans[q.dataset.k]===undefined);
     if(missing.length){
       missing.forEach(q=>q.classList.add("miss"));
-      document.getElementById("finmsg").textContent = `Te ${missing.length===1?"falta 1 pregunta":`faltan ${missing.length} preguntas`}`;
+      document.getElementById("finmsg").textContent = UI.missing(missing.length);
       missing[0].scrollIntoView({block:"center", behavior:"smooth"});
       return;
     }
@@ -677,10 +722,10 @@ function renderTestRun(t, d){
 function resultText(t, r){
   return [
     `Verba School · ${t.title}`,
-    `Alumno/a: ${r.name}`,
-    `Resultado: ${r.score}/${r.total} (${Math.round(r.score/r.total*100)} %) · ${r.passed?"APROBADO":"NO APROBADO"}`,
+    `${UI.resStudent}: ${r.name}`,
+    `${UI.resResult}: ${r.score}/${r.total} (${Math.round(r.score/r.total*100)} %) · ${r.passed?UI.resPASS:UI.resFAIL}`,
     r.sections.map(s=>`${s.title}: ${s.score}/${s.total}`).join(" · "),
-    `Fecha: ${fmtDate(r.at)} · Tiempo: ${r.mins} min`
+    `${UI.resDate}: ${fmtDate(r.at)} · ${UI.resTime}: ${r.mins} min`
   ].join("\n");
 }
 
@@ -689,33 +734,33 @@ function renderTestResult(t, r){
   $app.innerHTML = `
   <section class="result ${r.passed?"pass":"fail"}">
     <div class="meta"><span class="lv ${lvClass(t.level)}">${esc(t.level)}</span><span>${esc(t.title)}</span><span>· ${esc(r.name)}</span></div>
-    <h1>${r.passed?"¡Aprobado!":"Todavía no"}</h1>
-    <p class="lede">${r.passed?`Has superado el nivel ${esc(t.level)}.`:`Todavía no has superado el nivel ${esc(t.level)}. Necesitas ${needed(t)} respuestas correctas de ${r.total}.`}</p>
+    <h1>${r.passed?UI.passH:UI.failH}</h1>
+    <p class="lede">${r.passed?UI.passLede(esc(t.level)):UI.failLede(esc(t.level), needed(t), r.total)}</p>
     <p class="bigscore">${r.score}<small> / ${r.total} · ${pct} %</small></p>
     <div class="scorebar" aria-hidden="true"><i style="width:${pct}%"></i><b style="left:${passPct}%"></b></div>
-    <p class="hint">La marca indica el mínimo para aprobar (${needed(t)} de ${r.total}).</p>
+    <p class="hint">${UI.markNote(needed(t), r.total)}</p>
   </section>
   <div class="cols">
     <section class="panel">
-      <h2>Por partes</h2>
+      <h2>${UI.byPart}</h2>
       <ul class="facts">${r.sections.map(s=>`<li><b>${s.score} / ${s.total}</b><span>${esc(s.title)}</span></li>`).join("")}
-        <li><b>${r.mins} min</b><span>Tiempo · ${fmtDate(r.at)}</span></li></ul>
+        <li><b>${r.mins} min</b><span>${UI.resTime} · ${fmtDate(r.at)}</span></li></ul>
     </section>
     <section class="panel">
-      <h2>Envía el resultado a tu profesor/a</h2>
+      <h2>${UI.sendTitle}</h2>
       <pre class="restext" id="restext">${esc(resultText(t,r))}</pre>
       <div class="qfoot">
-        <button type="button" class="btn" id="copyres">Copiar resultado</button>
-        <button type="button" class="btn ghost" id="review">Ver respuestas</button>
-        <button type="button" class="btn ghost" id="retry">Repetir el test</button>
+        <button type="button" class="btn" id="copyres">${UI.copyRes}</button>
+        <button type="button" class="btn ghost" id="review">${UI.review}</button>
+        <button type="button" class="btn ghost" id="retry">${UI.retryTest}</button>
       </div>
     </section>
   </div>
   <div id="reviewbox"></div>`;
   document.getElementById("copyres").onclick = async e => {
     const btn = e.currentTarget;
-    try{ await navigator.clipboard.writeText(resultText(t,r)); btn.textContent="Copiado ✓"; setTimeout(()=>btn.textContent="Copiar resultado",1800); }
-    catch(x){ const sel=window.getSelection(), rg=document.createRange(); rg.selectNodeContents(document.getElementById("restext")); sel.removeAllRanges(); sel.addRange(rg); btn.textContent="Selecciona y copia"; }
+    try{ await navigator.clipboard.writeText(resultText(t,r)); btn.textContent=UI.copied; setTimeout(()=>btn.textContent=UI.copyRes,1800); }
+    catch(x){ const sel=window.getSelection(), rg=document.createRange(); rg.selectNodeContents(document.getElementById("restext")); sel.removeAllRanges(); sel.addRange(rg); btn.textContent=UI.selectCopy; }
   };
   document.getElementById("retry").onclick = () => { renderTest(t); window.scrollTo(0,0); };
   document.getElementById("review").onclick = e => {
@@ -724,12 +769,12 @@ function renderTestResult(t, r){
     const box = document.getElementById("reviewbox");
     box.innerHTML = t.sections.map((s,si)=>`
       <section class="panel tsec">
-        <h2><span class="partno">Parte ${si+1}</span>${esc(s.title)}</h2>
+        <h2><span class="partno">${UI.part(si+1)}</span>${esc(s.title)}</h2>
         ${s.text?`<div class="reading">${s.text.map(p=>`<p>${esc(p)}</p>`).join("")}</div>`:""}
         ${s.q.map((q,qi)=>{ n++; const a=(r.ans||{})[`${si}.${qi}`]; return `
           <div class="q">
             <p><small>${n}</small>${esc(q[0])}</p>
-            ${q[1].map((o,oi)=>`<div class="opt ${oi===q[2]?"ok":(oi===a?"no":"")}"><i>${"abcd"[oi]}</i>${esc(o)}${oi===a&&oi!==q[2]?' <span class="tag">tu respuesta</span>':""}</div>`).join("")}
+            ${q[1].map((o,oi)=>`<div class="opt ${oi===q[2]?"ok":(oi===a?"no":"")}"><i>${"abcd"[oi]}</i>${esc(o)}${oi===a&&oi!==q[2]?' <span class="tag">${UI.yourAnswer}</span>':""}</div>`).join("")}
           </div>`; }).join("")}
       </section>`).join("");
     box.scrollIntoView({block:"start", behavior:"smooth"});

@@ -10,7 +10,7 @@ Spanish listening practice from A1 to C1: a recording or device voice, a transcr
 ## How access works
 Every listening is encrypted (AES-256-GCM) with its own key. A student link ends in `#<lesson-id>~<key>`, and that key opens only that one listening. The part after `#` never reaches the server.
 
-Each tutor has a profile, `tutors/<username>.json`, holding their own master secret and lesson list, encrypted with their password. Usernames and passwords live in `private/tutors.json`; lessons and tests carry an `owner` (default: the first tutor). The first profile is Margarita (Spanish). To add a tutor, add a line to `private/tutors.json`, give their lessons `"owner": "<username>"`, and run the build.
+Each tutor has a profile, `tutors/<username>.json`, holding their own master secret and lesson list, encrypted with their password. Usernames and passwords live in `private/tutors.json`; lessons and tests carry an `owner` (default: the first tutor). Profiles: Margarita (Spanish) and Manushak (French). Each lesson and test has a `lang` (or takes the tutor's `language`), and the student page shows its buttons and messages in that language (Spanish or French). To add a tutor, add a line to `private/tutors.json`, give their lessons `"owner": "<username>"`, and run the build.
 
 Limits of a site with no server:
 - Anyone who has a link can open that listening, so links should go only to the student.

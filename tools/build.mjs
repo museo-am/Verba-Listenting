@@ -141,7 +141,7 @@ async function main() {
         if (writeIfChanged(P("audio", `${l.id}.bin`), await seal(key, new Uint8Array(fs.readFileSync(mp3))))) changed++;
         keep.add(`audio/${l.id}.bin`);
       }
-      const data = { id: l.id, level: l.level, title: l.title, topic: l.topic, summary: l.summary,
+      const data = { id: l.id, lang: l.lang || tu.language || "es", level: l.level, title: l.title, topic: l.topic, summary: l.summary,
         narrator: l.narrator, sents, gloss: l.gloss, q: l.q, rec };
       if (writeIfChanged(P("content", `${l.id}.bin`), await seal(key, enc(JSON.stringify(data))))) changed++;
       keep.add(`content/${l.id}.bin`);
@@ -164,7 +164,7 @@ async function main() {
         }
         sections.push({ title: s.title, intro: s.intro, ...(s.text ? { text: s.text } : {}), q });
       }
-      const data = { id: t.id, kind: "test", level: t.level, title: t.title, topic: t.topic,
+      const data = { id: t.id, kind: "test", lang: t.lang || tu.language || "es", level: t.level, title: t.title, topic: t.topic,
         pass: t.pass || 0.7, minutes: t.minutes || 20, sections };
       if (writeIfChanged(P("content", `${t.id}.bin`), await seal(key, enc(JSON.stringify(data))))) changed++;
       keep.add(`content/${t.id}.bin`);
