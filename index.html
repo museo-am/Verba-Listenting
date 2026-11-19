@@ -261,7 +261,27 @@ const UI_STR = {
   markNote:(need,total)=>`Le repère indique le minimum pour réussir (${need} sur ${total}).`,byPart:"Par partie",
   holdHint:"Maintenez un mot appuyé pour voir sa traduction.",
   sendTitle:"Envoyez le résultat à votre professeur",copyRes:"Copier le résultat",review:"Voir les réponses",retryTest:"Refaire le test",yourAnswer:"votre réponse",
-  locale:"fr-FR"}
+  locale:"fr-FR"},
+ en:{recGroup:"Recording",mainVoice:"★ Main voice",deviceGroup:"Device voices",deviceVoice:"English device voice",
+  sentence:(i,n)=>`Sentence ${i} / ${n}`,mainNote:"★ Main voice: natural reading. Tap any sentence to listen from there.",
+  words:"words",narrF:"Narrator",narrM:"Narrator",speed:"Speed",slow:"Slow",normal:"Normal",fast:"Fast",restart:"↺ From the start",voice:"Voice",
+  loadingRec:"Loading the recording…",tapNote:"Tap any sentence to listen from there.",
+  noAudio:"⚠️ Sound doesn't work in this view. Open the page in <b>Chrome</b>, <b>Safari</b> or <b>Edge</b>.",
+  transcript:"Transcript",show:"Show text",hide:"Hide text",quizTitle:"Did you understand the text?",check:"Check",
+  answered:(a,n)=>`${a} / ${n} answered`,answerAll:(a,n)=>`Answer all the questions (${a} / ${n})`,correct:(a,n)=>`${a} / ${n} correct`,
+  retryQuiz:"Try again",vocab:"Vocabulary",copied:"Copied ✓",selectCopy:"Select and copy",
+  testLabel:"Level test",before:"Before you start",qInParts:(p,names)=>`questions in ${p} parts: ${names}`,and:", ",approx:"about",
+  toPass:p=>`to pass (${p} %)`,yourName:"Your name",namePh:"First and last name",
+  nameErr:"Write your name so your teacher knows whose result it is.",start:"Start the test",lastResult:"Your last result",
+  passedW:"Passed",failedW:"Not passed",seeResult:"See the result",part:i=>`Part ${i}`,answeredBar:"answered",finish:"Finish the test",
+  missing:n=>n===1?"1 question is missing":`${n} questions are missing`,
+  resStudent:"Student",resResult:"Result",resPASS:"PASSED",resFAIL:"NOT PASSED",resDate:"Date",resTime:"Time",
+  passH:"Passed!",failH:"Not yet",passLede:lv=>`You have passed level ${lv}.`,
+  failLede:(lv,need,total)=>`You haven't passed level ${lv} yet. You need ${need} correct answers out of ${total}.`,
+  markNote:(need,total)=>`The mark shows the minimum to pass (${need} out of ${total}).`,byPart:"By part",
+  holdHint:"Press and hold a word to see its translation.",
+  sendTitle:"Send the result to your teacher",copyRes:"Copy the result",review:"See the answers",retryTest:"Take the test again",yourAnswer:"your answer",
+  locale:"en-GB"}
 };
 let UI = UI_STR.es, CLANG = "es";
 function setContentLang(lang){ CLANG = UI_STR[lang] ? lang : "es"; UI = UI_STR[CLANG]; document.documentElement.lang = CLANG; loadVoices(); }
@@ -425,7 +445,7 @@ async function openLesson(link){
     l = dec(await openFile(k, `c/${encodeURIComponent(short)}.bin`));
   }catch(e){
     if(token!==openToken) return;
-    renderState("bad","Este enlace no funciona · Ce lien ne fonctionne pas","Pide un enlace nuevo a tu profesor/a. · Demandez un nouveau lien à votre professeur.");
+    renderState("bad","Este enlace no funciona · Ce lien ne fonctionne pas · This link doesn't work","Pide un enlace nuevo a tu profesor/a. · Demandez un nouveau lien à votre professeur. · Ask your teacher for a new link.");
     return;
   }
   if(token!==openToken) return;

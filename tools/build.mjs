@@ -202,7 +202,7 @@ async function main() {
       keep.add(`c/${l.short}.bin`);
       if (writeIfChanged(P("content", `${l.id}.bin`), await seal(longKey, redirectBytes(l.short, code)))) changed++;
       keep.add(`content/${l.id}.bin`);
-      catalog.push({ id: l.id, short: l.short, v, level: l.level, title: l.title, topic: l.topic, narrator: l.narrator, audio: !!rec });
+      catalog.push({ id: l.id, short: l.short, lang, v, level: l.level, title: l.title, topic: l.topic, narrator: l.narrator, audio: !!rec });
     }
 
     // level tests: options are written correct-first and shuffled here with a fixed seed per question
@@ -230,7 +230,7 @@ async function main() {
       keep.add(`c/${t.short}.bin`);
       if (writeIfChanged(P("content", `${t.id}.bin`), await seal(longKey, redirectBytes(t.short, code)))) changed++;
       keep.add(`content/${t.id}.bin`);
-      catalog.push({ id: t.id, short: t.short, v, kind: "test", level: t.level, title: t.title, topic: t.topic, questions: qn, pass: data.pass, audio: false });
+      catalog.push({ id: t.id, short: t.short, lang: data.lang, v, kind: "test", level: t.level, title: t.title, topic: t.topic, questions: qn, pass: data.pass, audio: false });
     }
 
     const innerObj = { username: tu.username, language: tu.language || null, master: b64(master), lessons: catalog, ...(gh ? { gh } : {}) };

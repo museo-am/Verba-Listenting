@@ -414,7 +414,7 @@ function renderTests(box){
       <div class="row-l" data-id="${esc(l.id)}">
         <span class="lv ${lvClass(l.level)}">${esc(l.level)}</span>
         <div style="min-width:0">
-          <h3 lang="es">${esc(l.title)}</h3>
+          <h3 lang="${l.lang||"es"}">${esc(l.title)}</h3>
           <div class="meta"><span>${t("questionsN", l.questions)}</span><span>· ${t("passMark", Math.round((l.pass||0.7)*100))}</span></div>
         </div>
         <div class="acts"></div>
@@ -448,8 +448,8 @@ function renderListenings(box){
       <div class="row-l" data-id="${esc(l.id)}">
         <span class="lv ${lvClass(l.level)}">${esc(l.level)}</span>
         <div style="min-width:0">
-          <h3 lang="es">${esc(l.title)}</h3>
-          <div class="meta"><span lang="es">${esc(l.topic)}</span><span>· ${l.narrator==="f"?t("narrF"):t("narrM")}</span>
+          <h3 lang="${l.lang||"es"}">${esc(l.title)}</h3>
+          <div class="meta"><span lang="${l.lang||"es"}">${esc(l.topic)}</span><span>· ${l.narrator==="f"?t("narrF"):t("narrM")}</span>
             <span class="chip ${l.audio?"rec":""}">${l.audio?t("chipRec"):t("chipTts")}</span></div>
         </div>
         <div class="acts"></div>
