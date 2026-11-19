@@ -760,7 +760,7 @@ function renderTestResult(t, r){
         ${s.q.map((q,qi)=>{ n++; const a=(r.ans||{})[`${si}.${qi}`]; return `
           <div class="q">
             <p><small>${n}</small>${esc(q[0])}</p>
-            ${q[1].map((o,oi)=>`<div class="opt ${oi===q[2]?"ok":(oi===a?"no":"")}"><i>${"abcd"[oi]}</i>${esc(o)}${oi===a&&oi!==q[2]?' <span class="tag">${UI.yourAnswer}</span>':""}</div>`).join("")}
+            ${q[1].map((o,oi)=>`<div class="opt ${oi===q[2]?"ok":(oi===a?"no":"")}"><i>${"abcd"[oi]}</i>${esc(o)}${oi===a&&oi!==q[2]?' <span class="tag">'+UI.yourAnswer+'</span>':""}</div>`).join("")}
           </div>`; }).join("")}
       </section>`).join("");
     box.scrollIntoView({block:"start", behavior:"smooth"});
