@@ -164,6 +164,8 @@ ${LANGS.map((x) => `    <xhtml:link rel="alternate" hreflang="${x.code}" href="$
 Allow: /
 Disallow: /admin.html
 Disallow: /tutors/
+Disallow: /c/
+Disallow: /a/
 Disallow: /content/
 Disallow: /audio/
 Disallow: /tools/

@@ -26,7 +26,7 @@
 <meta name="theme-color" content="#b62827">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"EducationalOrganization","@id":"https://verba-school.online/#school","name":"Verba School","alternateName":["Verba","Verba School Armenia","Վերբա"],"url":"https://verba-school.online/","logo":"https://verba-school.online/img/logo.png","image":"https://verba-school.online/img/og.png","description":"Verba School՝ լեզուների առցանց դպրոց։ Իսպաներենի, անգլերենի և ֆրանսերենի դասեր A1-ից մինչև C1, բացատրությունները՝ հայերենով։ Խմբային և անհատական դասեր, դասընթացի ավարտին՝ հավաստագիր։","telephone":"+37477308525","sameAs":["https://www.instagram.com/verba.school_/"],"areaServed":{"@type":"Country","name":"Armenia"},"knowsLanguage":["es","en","fr","hy"],"hasOfferCatalog":{"@type":"OfferCatalog","name":"Բոլոր դասերը՝ առցանց","itemListElement":[{"@type":"Offer","name":"Խմբային դասեր","description":"Սովորեք այլ աշակերտների հետ միասին։","price":25000,"priceCurrency":"AMD","priceSpecification":{"@type":"UnitPriceSpecification","price":25000,"priceCurrency":"AMD","unitText":"MONTH"}},{"@type":"Offer","name":"Անհատական դասեր","description":"Դասեր՝ մեկը մեկին, ձեր տեմպով։","price":30000,"priceCurrency":"AMD","priceSpecification":{"@type":"UnitPriceSpecification","price":30000,"priceCurrency":"AMD","unitText":"MONTH"}}]}},{"@type":"WebSite","@id":"https://verba-school.online/#website","name":"Verba School","alternateName":"Verba","url":"https://verba-school.online/","inLanguage":"hy","publisher":{"@id":"https://verba-school.online/#school"}},{"@type":"Course","@id":"https://verba-school.online/#course-es","name":"Իսպաներեն — Verba School","description":"Սկսնակից մինչև առաջադեմ մակարդակ։ Սկսնակների համար՝ Español desde cero դասընթացը և լսողական հարթակը։","inLanguage":"es","educationalLevel":"A1–C1 (CEFR)","provider":{"@id":"https://verba-school.online/#school"},"hasCourseInstance":[{"@type":"CourseInstance","courseMode":"online","courseWorkload":"PT1H"}],"offers":[{"@type":"Offer","category":"Group","price":25000,"priceCurrency":"AMD","url":"https://verba-school.online/"},{"@type":"Offer","category":"Private","price":30000,"priceCurrency":"AMD","url":"https://verba-school.online/"}]},{"@type":"Course","@id":"https://verba-school.online/#course-en","name":"Անգլերեն — Verba School","description":"Սկսնակից մինչև առաջադեմ մակարդակ՝ խմբային կամ անհատական դասերով։","inLanguage":"en","educationalLevel":"A1–C1 (CEFR)","provider":{"@id":"https://verba-school.online/#school"},"hasCourseInstance":[{"@type":"CourseInstance","courseMode":"online","courseWorkload":"PT1H"}],"offers":[{"@type":"Offer","category":"Group","price":25000,"priceCurrency":"AMD","url":"https://verba-school.online/"},{"@type":"Offer","category":"Private","price":30000,"priceCurrency":"AMD","url":"https://verba-school.online/"}]},{"@type":"Course","@id":"https://verba-school.online/#course-fr","name":"Ֆրանսերեն — Verba School","description":"Սկսնակից մինչև առաջադեմ մակարդակ՝ խմբային կամ անհատական դասերով, լսողական առաջադրանքներով և թեստերով։","inLanguage":"fr","educationalLevel":"A1–C1 (CEFR)","provider":{"@id":"https://verba-school.online/#school"},"hasCourseInstance":[{"@type":"CourseInstance","courseMode":"online","courseWorkload":"PT1H"}],"offers":[{"@type":"Offer","category":"Group","price":25000,"priceCurrency":"AMD","url":"https://verba-school.online/"},{"@type":"Offer","category":"Private","price":30000,"priceCurrency":"AMD","url":"https://verba-school.online/"}]}]}</script>
 <!--seo:end-->
-<script>if(/^#[a-z0-9-]+~[A-Za-z0-9_-]{43}$/.test(decodeURIComponent(location.hash)))document.documentElement.classList.add("is-link");</script>
+<script>if(/^#([a-z0-9-]+~[A-Za-z0-9_-]{43}|[a-z0-9-]+-[a-z2-9]{4}-[a-z2-9]{4}-[a-z2-9]{4})$/i.test(decodeURIComponent(location.hash)))document.documentElement.classList.add("is-link");</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Noto+Sans+Armenian:wght@400;600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
 <link rel="stylesheet" href="style.css?v=e36b5f6b">
@@ -190,8 +190,9 @@
 </div>
 
 <script>
-/* Each listening is encrypted. A student link looks like  #<lesson-id>~<key>
-   and the key opens that one lesson only. Keys never leave the browser
+/* Each listening is encrypted. A student link looks like  #lucia-k7pq-2xma-9wrt :
+   a short name and a 12-letter code that opens that one lesson only.
+   Old links (#<lesson-id>~<key>) open a small pointer to the short link. Keys never leave the browser
    (the part after # is not sent to the server). */
 const $app = document.getElementById("app");
 const store = {
@@ -205,12 +206,17 @@ const ICON_LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 
 /* ---------- crypto ---------- */
 function unb64u(s){ s=s.replace(/-/g,"+").replace(/_/g,"/"); while(s.length%4) s+="="; return Uint8Array.from(atob(s),c=>c.charCodeAt(0)); }
-async function openFile(keyB64u, url){
+async function openFile(rawKey, url){
   const r = await fetch(url,{cache:"no-cache"});
   if(!r.ok) throw new Error("missing");
   const buf = new Uint8Array(await r.arrayBuffer());
-  const k = await crypto.subtle.importKey("raw", unb64u(keyB64u), "AES-GCM", false, ["decrypt"]);
+  const k = await crypto.subtle.importKey("raw", rawKey, "AES-GCM", false, ["decrypt"]);
   return new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM", iv:buf.slice(0,12)}, k, buf.slice(12)));
+}
+/* must match shortAesKey() in tools/build.mjs */
+async function shortAesKey(short, code){
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(code), "PBKDF2", false, ["deriveBits"]);
+  return new Uint8Array(await crypto.subtle.deriveBits({name:"PBKDF2", salt:new TextEncoder().encode("verba:"+short), iterations:100000, hash:"SHA-256"}, base, 256));
 }
 try{ localStorage.removeItem("vs-vault"); }catch(e){}   // old shared list, no longer used
 
@@ -402,13 +408,21 @@ function renderState(kind, title, text){
 }
 
 let openToken = 0;
-async function openLesson(id, k){
+const dec = b => JSON.parse(new TextDecoder().decode(b));
+async function openLesson(link){
   const token = ++openToken;
   showLanding(false); document.documentElement.lang = "es"; document.title = "Verba School";
   renderState("load","");
-  let l;
+  let l, k, short;
   try{
-    l = JSON.parse(new TextDecoder().decode(await openFile(k, `content/${encodeURIComponent(id)}.bin`)));
+    if(link.old){            // old long link: read the pointer and switch the address to the short link
+      const p = dec(await openFile(unb64u(link.key), `content/${encodeURIComponent(link.id)}.bin`)).redirect;
+      if(token!==openToken) return;
+      short = p.s; link.code = p.k;
+      history.replaceState(history.state, "", "#"+short+"-"+p.k.match(/.{4}/g).join("-"));
+    } else short = link.short;
+    k = await shortAesKey(short, link.code);
+    l = dec(await openFile(k, `c/${encodeURIComponent(short)}.bin`));
   }catch(e){
     if(token!==openToken) return;
     renderState("bad","Este enlace no funciona · Ce lien ne fonctionne pas","Pide un enlace nuevo a tu profesor/a. · Demandez un nouveau lien à votre professeur.");
@@ -422,7 +436,7 @@ async function openLesson(id, k){
   renderLesson(l);
   if(l.rec){
     try{
-      const bytes = await openFile(k, `audio/${encodeURIComponent(id)}.bin`);
+      const bytes = await openFile(k, `a/${encodeURIComponent(short)}.bin`);
       if(token!==openToken) return;
       rec = l.rec; recUrl = URL.createObjectURL(new Blob([bytes],{type:"audio/mpeg"}));
       fillVoiceSelect();
@@ -772,14 +786,17 @@ function renderTestResult(t, r){
 function nextSeq(){ try{ const n = (+sessionStorage.getItem("vs-seq")||0)+1; sessionStorage.setItem("vs-seq",n); return n; }catch(e){ return Date.now(); } }
 let shownSeq = 0;
 function route(){
-  const m = decodeURIComponent(location.hash.slice(1)).match(/^([a-z0-9-]+)~([A-Za-z0-9_-]{43})$/);
+  const h = decodeURIComponent(location.hash.slice(1)).trim();
+  let m = h.match(/^([a-z0-9-]+)~([A-Za-z0-9_-]{43})$/), link = null;
+  if(m) link = {old:true, id:m[1], key:m[2]};
+  else if((m = h.toLowerCase().match(/^([a-z0-9-]+)-([a-z2-9]{4})-([a-z2-9]{4})-([a-z2-9]{4})$/))) link = {short:m[1], code:m[2]+m[3]+m[4]};
   let st = history.state;
   if(!st || !st.seq){ st = {seq: nextSeq()}; history.replaceState(st, "", location.href); }
   if(st.seq < shownSeq){        // came back from a later link: leave instead
     stop(true); openToken++; $app.innerHTML = ""; history.back(); return;
   }
   shownSeq = st.seq;
-  if(m) openLesson(m[1], m[2]);
+  if(link) openLesson(link);
   else { openToken++; renderHome(); }
   window.scrollTo(0,0);
 }

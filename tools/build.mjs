@@ -3,8 +3,9 @@
 //   node tools/build.mjs
 //
 // Reads   private/lessons.json, private/audio/<id>.mp3 + <id>.json (from tools/align.py)
-// Writes  content/<id>.bin   lesson text, questions and sentence timings (AES-256-GCM)
-//         audio/<id>.bin     recording (AES-256-GCM)
+// Writes  c/<short>.bin       lesson text, questions and sentence timings (AES-256-GCM)
+//         a/<short>.bin       recording (AES-256-GCM)
+//         content/<id>.bin    small pointer that sends old long links to the short one
 //         tutors/<user>.json each tutor's master secret + their lesson list, locked with their password
 // Tutors and their passwords live in private/tutors.json.
 //
@@ -61,6 +62,28 @@ async function hmac(keyBytes, data) {
 export async function lessonKey(master, id, v) {
   return hmac(master, enc(`${id}:${v}`));
 }
+
+// Short links:  verba-school.online/#<short>-xxxx-xxxx-xxxx
+// The 12-letter code comes from the master secret (31 letters and digits, no 0/o/1/l/i look-alikes,
+// about 59 bits) and is stretched with PBKDF2 into the AES key, so guessing stays out of reach.
+// Must match shortCode()/shortAesKey() in admin.html and index.html.
+export const CODE_ABC = "23456789abcdefghjkmnpqrstuvwxyz";
+export const SHORT_ITER = 100000;
+export async function shortCode(master, id, v) {
+  let out = "", n = 0;
+  while (out.length < 12) {
+    for (const b of await hmac(master, enc(`short:${id}:${v}:${n++}`)))
+      if (b < 248 && out.length < 12) out += CODE_ABC[b % 31];   // 248 = 31*8: no bias
+  }
+  return out;
+}
+export async function shortAesKey(short, code) {
+  const base = await subtle.importKey("raw", enc(code), "PBKDF2", false, ["deriveBits"]);
+  return new Uint8Array(await subtle.deriveBits({ name: "PBKDF2", salt: enc(`verba:${short}`), iterations: SHORT_ITER, hash: "SHA-256" }, base, 256));
+}
+export const groupCode = (c) => c.match(/.{4}/g).join("-");
+// Old long links (#<id>~<key>) open a tiny file that points to the short one.
+const redirectBytes = (short, code) => enc(JSON.stringify({ redirect: { s: short, k: code } }));
 // Deterministic IV (derived from key + plaintext) so unchanged files stay byte-identical between builds.
 async function seal(rawKey, plain) {
   const iv = (await hmac(rawKey, plain)).slice(0, 12);
@@ -125,6 +148,10 @@ async function main() {
   for (const x of [...lessons, ...tests]) if (!tutors.some((t) => slugify(t.username) === ownerOf(x)))
     throw new Error(`${x.id}: owner "${x.owner}" is not in private/tutors.json`);
 
+  const shorts = [...lessons, ...tests].map((x) => x.short);
+  const dup = shorts.find((s, i) => shorts.indexOf(s) !== i);
+  if (dup) throw new Error(`Two items share the short name "${dup}".`);
+
   const keep = new Set();
   let changed = 0, lessonsChanged = false, testsChanged = false;
   const report = [], links = [];
@@ -154,7 +181,10 @@ async function main() {
     for (const l of lessons.filter((x) => ownerOf(x) === slug)) {
       const v = Math.max(l.v || 1, adminV[l.id] || 1);
       if (v !== l.v) { l.v = v; lessonsChanged = true; }
-      const key = await lessonKey(master, l.id, v);
+      if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(l.short || "")) throw new Error(`${l.id}: needs a "short" name (a-z, 0-9, -)`);
+      const longKey = await lessonKey(master, l.id, v);
+      const code = await shortCode(master, l.id, v);
+      const key = await shortAesKey(l.short, code);
       const sents = l.text.map(splitSentences);
       const count = sents.flat().length;
       let rec = null;
@@ -162,22 +192,27 @@ async function main() {
       if (fs.existsSync(tj) && fs.existsSync(mp3)) {
         rec = JSON.parse(fs.readFileSync(tj, "utf8"));
         if (rec.starts.length !== count) throw new Error(`${l.id}: timings have ${rec.starts.length} sentences, text has ${count}. Re-run tools/align.py.`);
-        if (writeIfChanged(P("audio", `${l.id}.bin`), await seal(key, new Uint8Array(fs.readFileSync(mp3))))) changed++;
-        keep.add(`audio/${l.id}.bin`);
+        if (writeIfChanged(P("a", `${l.short}.bin`), await seal(key, new Uint8Array(fs.readFileSync(mp3))))) changed++;
+        keep.add(`a/${l.short}.bin`);
       }
       const lang = l.lang || tu.language || "es";
       const data = { id: l.id, lang, level: l.level, title: l.title, topic: l.topic, summary: l.summary,
         narrator: l.narrator, sents, gloss: l.gloss, q: l.q, rec, dict: lessonDict(l, lang) };
-      if (writeIfChanged(P("content", `${l.id}.bin`), await seal(key, enc(JSON.stringify(data))))) changed++;
+      if (writeIfChanged(P("c", `${l.short}.bin`), await seal(key, enc(JSON.stringify(data))))) changed++;
+      keep.add(`c/${l.short}.bin`);
+      if (writeIfChanged(P("content", `${l.id}.bin`), await seal(longKey, redirectBytes(l.short, code)))) changed++;
       keep.add(`content/${l.id}.bin`);
-      catalog.push({ id: l.id, v, level: l.level, title: l.title, topic: l.topic, narrator: l.narrator, audio: !!rec });
+      catalog.push({ id: l.id, short: l.short, v, level: l.level, title: l.title, topic: l.topic, narrator: l.narrator, audio: !!rec });
     }
 
     // level tests: options are written correct-first and shuffled here with a fixed seed per question
     for (const t of tests.filter((x) => ownerOf(x) === slug)) {
       const v = Math.max(t.v || 1, adminV[t.id] || 1);
       if (v !== t.v) { t.v = v; testsChanged = true; }
-      const key = await lessonKey(master, t.id, v);
+      if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(t.short || "")) throw new Error(`${t.id}: needs a "short" name (a-z, 0-9, -)`);
+      const longKey = await lessonKey(master, t.id, v);
+      const code = await shortCode(master, t.id, v);
+      const key = await shortAesKey(t.short, code);
       let qn = 0;
       const sections = [];
       for (const [si, s] of t.sections.entries()) {
@@ -191,16 +226,18 @@ async function main() {
       }
       const data = { id: t.id, kind: "test", lang: t.lang || tu.language || "es", level: t.level, title: t.title, topic: t.topic,
         pass: t.pass || 0.7, minutes: t.minutes || 20, sections };
-      if (writeIfChanged(P("content", `${t.id}.bin`), await seal(key, enc(JSON.stringify(data))))) changed++;
+      if (writeIfChanged(P("c", `${t.short}.bin`), await seal(key, enc(JSON.stringify(data))))) changed++;
+      keep.add(`c/${t.short}.bin`);
+      if (writeIfChanged(P("content", `${t.id}.bin`), await seal(longKey, redirectBytes(t.short, code)))) changed++;
       keep.add(`content/${t.id}.bin`);
-      catalog.push({ id: t.id, v, kind: "test", level: t.level, title: t.title, topic: t.topic, questions: qn, pass: data.pass, audio: false });
+      catalog.push({ id: t.id, short: t.short, v, kind: "test", level: t.level, title: t.title, topic: t.topic, questions: qn, pass: data.pass, audio: false });
     }
 
     const innerObj = { username: tu.username, language: tu.language || null, master: b64(master), lessons: catalog, ...(gh ? { gh } : {}) };
     if (await writeProfile(file, pw, salt, master, innerObj)) changed++;
     keep.add(`tutors/${slug}.json`);
     report.push(`${tu.username}: ${catalog.filter((c) => c.kind !== "test").length} listenings (${catalog.filter((c) => c.audio).length} recorded), ${catalog.filter((c) => c.kind === "test").length} tests`);
-    for (const c of catalog) links.push(`${c.id}~${b64u(await lessonKey(master, c.id, c.v))}`);
+    for (const c of catalog) links.push(`${c.short}-${groupCode(await shortCode(master, c.id, c.v))}   (old: ${c.id}~${b64u(await lessonKey(master, c.id, c.v))})`);
   }
 
   if (lessonsChanged) fs.writeFileSync(P("private/lessons.json"), JSON.stringify(lessons, null, 1));
@@ -208,7 +245,7 @@ async function main() {
   if (fs.existsSync(P("admin.json"))) { fs.unlinkSync(P("admin.json")); changed++; console.log("Moved admin.json into tutors/."); }
 
   // remove files for lessons, tests or tutors that no longer exist
-  for (const dir of ["content", "audio", "tutors"]) {
+  for (const dir of ["c", "a", "content", "audio", "tutors"]) {
     if (!fs.existsSync(P(dir))) continue;
     for (const f of fs.readdirSync(P(dir))) if (!keep.has(`${dir}/${f}`)) { fs.unlinkSync(P(dir, f)); changed++; }
   }

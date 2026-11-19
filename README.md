@@ -8,7 +8,7 @@ Spanish listening practice from A1 to C1: a recording or device voice, a transcr
 - **Tutor panel:** https://verba-school.online/admin.html (username + password; each tutor sees only their own listenings and tests), in English, Armenian or Spanish. Two sections: **Listenings** and **Tests**, each item with **Copy link**, **Open** and **New link**.
 
 ## How access works
-Every listening is encrypted (AES-256-GCM) with its own key. A student link ends in `#<lesson-id>~<key>`, and that key opens only that one listening. The part after `#` never reaches the server.
+Every listening is encrypted (AES-256-GCM) with its own key. A student link looks like `verba-school.online/#lucia-k7pq-2xma-9wrt`: a short name and a 12-letter code (no look-alike characters) that opens only that one listening. The code is stretched with PBKDF2 into the AES key. Old long links (`#<lesson-id>~<key>`) still work: they open a small pointer and the page switches to the short link. The part after `#` never reaches the server.
 
 Each tutor has a profile, `tutors/<username>.json`, holding their own master secret and lesson list, encrypted with their password. Usernames and passwords live in `private/tutors.json`; lessons and tests carry an `owner` (default: the first tutor). Profiles: Margarita (Spanish) and Manushak (French). Each lesson and test has a `lang` (or takes the tutor's `language`), and the student page shows its buttons and messages in that language (Spanish or French). To add a tutor, add a line to `private/tutors.json`, give their lessons `"owner": "<username>"`, and run the build.
 
@@ -19,7 +19,7 @@ Limits of a site with no server:
 - `tools/build.mjs` keeps the higher version and the saved token, so a rebuild never brings back an old link.
 
 ## Public pages and SEO
-The landing page exists in four languages: `/` (Armenian), `/en/`, `/es/`, `/ru/`. Text lives in `tools/site-strings.json`, layout in `tools/landing.html`; `tools/site.mjs` (run by the build) writes the pages with their title, description, canonical and hreflang tags, schema.org data (school, courses, prices), `sitemap.xml` and `robots.txt`. The Armenian page shares `index.html` with the student player: student links (`#id~key`) hide the landing before it paints.
+The landing page exists in four languages: `/` (Armenian), `/en/`, `/es/`, `/ru/`. Text lives in `tools/site-strings.json`, layout in `tools/landing.html`; `tools/site.mjs` (run by the build) writes the pages with their title, description, canonical and hreflang tags, schema.org data (school, courses, prices), `sitemap.xml` and `robots.txt`. The Armenian page shares `index.html` with the student player: student links hide the landing before it paints.
 
 ## Word translations
 Students press and hold any word in a transcript to see its base form and Armenian translation. Translations live in `private/dict/es.json` and `fr.json` (word form → [base form, Armenian]); `private/dict/overrides.json` gives a different meaning for a word in one lesson. The build adds each lesson's words to its encrypted file and lists any word that has no translation yet.
@@ -29,8 +29,11 @@ Students press and hold any word in a transcript to see its base form and Armeni
 
 ## Files
 - `index.html`: student player. `admin.html`: tutor panel. `style.css`: shared styles.
-- `content/<id>.bin`: encrypted lesson text, questions and sentence timings.
-- `audio/<id>.bin`: encrypted recording.
+- `c/<short>.bin`: encrypted lesson text, questions and sentence timings.
+- `a/<short>.bin`: encrypted recording.
+- `content/<id>.bin`: pointer that forwards an old long link to the short one.
+
+Every lesson and test in `private/lessons.json` / `private/tests.json` needs a unique `short` name (a-z, 0-9, -).
 - `tutors/<username>.json`: each tutor's encrypted master secret and lesson list.
 - `tools/align.py`: finds where each sentence starts in a recording.
 - `tools/build.mjs`: encrypts everything in `private/` into the files above.
