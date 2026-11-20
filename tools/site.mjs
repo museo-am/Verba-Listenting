@@ -150,6 +150,8 @@ function extras(html, lang, jsVer) {
       </div>
     </div>
   </section>`;
+  const CL = { hy: "Դասընթացներ", ru: "Курсы", en: "Courses" }[R.ui];
+  html = html.replaceAll("{{CL_T}}", lang === "es" ? "Cursos" : CL).replaceAll("{{CL_es}}", R.items[0][1]).replaceAll("{{CL_en}}", R.items[1][1]).replaceAll("{{CL_fr}}", R.items[2][1]);
   return html.replaceAll("{{L_BLOG}}", R.blog).replaceAll("{{FOOTRES}}", foot).replace("{{RESOURCES}}", res).replaceAll("{{JSVER}}", jsVer)
     .replaceAll(/\{\{C_(\w\w)\}\}/g, (m, x) => R.course(x));
 }
