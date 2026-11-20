@@ -626,3 +626,17 @@ html{scroll-behavior:smooth}
 .ccard{color:#F4EDE5}
 .ccard small,.ccard .go{color:#A9A09A}
 .ccard:hover .go{color:#F4C653}
+
+/* call zoom */
+#callbox .cstage{position:absolute;inset:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);overflow:hidden}
+#callbox .cstage iframe{display:block;max-width:none}
+#callbox .zlayer{position:absolute;inset:0;z-index:2;touch-action:none;cursor:grab;background:transparent}
+#callbox .zbar{position:absolute;z-index:3;right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(96px + env(safe-area-inset-bottom,0px));display:flex}
+#callbox .zbar button{font:700 1.1rem var(--f-body);color:#fff;background:rgba(20,17,16,.78);border:1px solid rgba(255,255,255,.18);border-radius:12px;min-width:44px;height:44px;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#callbox .zbar .zgo svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+#callbox .zctl{display:flex;align-items:center;gap:6px;background:rgba(20,17,16,.78);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:5px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#callbox .zctl[hidden]{display:none}
+#callbox .zctl button{background:rgba(255,255,255,.08);border:0;min-width:40px;height:40px}
+#callbox .zctl .zdone{padding:0 12px;font-size:.9rem;background:#F06A5F;color:#1E0F0C}
+#callbox .zval{color:#fff;font:700 .85rem var(--f-mono);min-width:3.2em;text-align:center}
+#callbox{padding:0}

@@ -30,7 +30,7 @@
 <script>if(/^#([a-z0-9-]+~[A-Za-z0-9_-]{43}|[a-z0-9-]+-[a-z2-9]{4}-[a-z2-9]{4}-[a-z2-9]{4})$/i.test(decodeURIComponent(location.hash)))document.documentElement.classList.add("is-link");</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Armenian:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,500;1,600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=c5d1c8ed">
+<link rel="stylesheet" href="style.css?v=511ad4ff">
 </head>
 <body>
 
@@ -842,6 +842,56 @@ function loadJitsi(appId){
 }
 const VP = document.querySelector('meta[name="viewport"]'), VP_NORMAL = VP ? VP.content : "";
 function lockZoom(on){ if(VP) VP.content = on ? VP_NORMAL + ", maximum-scale=1, user-scalable=no" : VP_NORMAL; }
+/* Zoom for the call. Browsers can't zoom inside the video call, so we make the call itself bigger:
+   the call frame grows to 1–4× the screen (the call then also asks for a sharper picture) and the
+   student drags to look around. While zoomed, a clear layer on top takes the touches (pinch, drag,
+   double-tap); "1×" gives the call its buttons back. */
+function callZoom(box){
+  const ZI = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M11 8v6M8 11h6"/></svg>';
+  box.innerHTML = `<div class="cstage"></div><div class="zlayer" hidden></div>
+    <div class="zbar"><button type="button" class="zgo" aria-label="Zoom">${ZI}</button>
+      <span class="zctl" hidden><button type="button" data-z="-" aria-label="Zoom out">−</button><b class="zval">1×</b><button type="button" data-z="+" aria-label="Zoom in">+</button><button type="button" data-z="1" class="zdone" aria-label="Back to normal">1× ✕</button></span></div>`;
+  const stage = box.querySelector(".cstage"), layer = box.querySelector(".zlayer"), go = box.querySelector(".zgo"),
+        ctl = box.querySelector(".zctl"), val = box.querySelector(".zval");
+  let z = 1;
+  const frame = () => stage.querySelector("iframe");
+  function setZoom(nz, fx, fy){
+    nz = Math.max(1, Math.min(4, Math.round(nz * 20) / 20));
+    const f = frame(); if(!f) return;
+    const W = stage.clientWidth, H = stage.clientHeight;
+    fx = fx ?? W / 2; fy = fy ?? H / 2;
+    const cx = (stage.scrollLeft + fx) / z, cy = (stage.scrollTop + fy) / z;   // point under the fingers, at 1×
+    z = nz;
+    f.style.width = (W * z) + "px"; f.style.height = (H * z) + "px";
+    stage.scrollLeft = cx * z - fx; stage.scrollTop = cy * z - fy;
+    val.textContent = (Math.round(z * 10) / 10) + "×";
+  }
+  function mode(on){
+    layer.hidden = !on; ctl.hidden = !on; go.hidden = on;
+    if(!on){ setZoom(1); const f = frame(); if(f){ f.style.width = "100%"; f.style.height = "100%"; } }
+  }
+  go.onclick = () => { mode(true); setZoom(2); };
+  ctl.onclick = e => { const b = e.target.closest("[data-z]"); if(!b) return;
+    if(b.dataset.z === "1") mode(false); else setZoom(z * (b.dataset.z === "+" ? 1.5 : 1 / 1.5)); };
+  // gestures on the zoom layer: one finger drags, two fingers pinch, double-tap toggles 1× / 2.5×
+  const pts = new Map(); let pinch0 = null, lastTap = 0, raf = 0, pending = null;
+  const flush = () => { raf = 0; if(pending){ setZoom(...pending); pending = null; } };
+  layer.addEventListener("pointerdown", e => { layer.setPointerCapture(e.pointerId); pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if(pts.size === 2){ const [a, b] = [...pts.values()]; pinch0 = {d: Math.hypot(a.x - b.x, a.y - b.y), z}; }
+    if(pts.size === 1){ const now = Date.now(); if(now - lastTap < 300){ setZoom(z > 1.2 ? 1 : 2.5, e.clientX, e.clientY); } lastTap = now; } });
+  layer.addEventListener("pointermove", e => { const p = pts.get(e.pointerId); if(!p) return;
+    const nx = e.clientX, ny = e.clientY;
+    if(pts.size === 1){ stage.scrollLeft -= nx - p.x; stage.scrollTop -= ny - p.y; }
+    pts.set(e.pointerId, {x:nx, y:ny});
+    if(pts.size === 2 && pinch0){ const [a, b] = [...pts.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y);
+      const r = stage.getBoundingClientRect();
+      pending = [pinch0.z * d / pinch0.d, (a.x + b.x) / 2 - r.left, (a.y + b.y) / 2 - r.top]; if(!raf) raf = requestAnimationFrame(flush); } });
+  const up = e => { pts.delete(e.pointerId); if(pts.size < 2) pinch0 = null; };
+  layer.addEventListener("pointerup", up); layer.addEventListener("pointercancel", up);
+  layer.addEventListener("wheel", e => { e.preventDefault(); const r = stage.getBoundingClientRect(); setZoom(z * (e.deltaY < 0 ? 1.15 : 1 / 1.15), e.clientX - r.left, e.clientY - r.top); }, {passive:false});
+  window.addEventListener("resize", () => { if(z > 1) setZoom(z); });
+  return stage;
+}
 function leaveCall(){
   lockZoom(false);
   if(jitsiApi){ try{ jitsiApi.dispose(); }catch(e){} jitsiApi = null; }
@@ -874,8 +924,9 @@ function renderLive(l, msg){
     try{ await loadJitsi(l.appId); }catch(e){ btn.disabled = false; renderLive(l, UI.liveLoadErr); return; }
     const box = document.createElement("div"); box.id = "callbox";
     document.body.appendChild(box); document.body.classList.add("in-call"); lockZoom(true);
+    const stage = callZoom(box);
     jitsiApi = new JitsiMeetExternalAPI("8x8.vc", {
-      roomName: `${l.appId}/${l.room}`, jwt: l.jwt, parentNode: box, width: "100%", height: "100%",
+      roomName: `${l.appId}/${l.room}`, jwt: l.jwt, parentNode: stage, width: "100%", height: "100%",
       userInfo: {displayName: nm},
       configOverwrite: {prejoinConfig:{enabled:true}, disableDeepLinking:true, channelLastN:-1, disableScreensharingVirtualParticipant:false, tileView:{disabled:true}, defaultLanguage: l.lang==="fr"?"fr":l.lang==="es"?"es":"en"},
     });
