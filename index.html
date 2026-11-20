@@ -30,7 +30,7 @@
 <script>if(/^#([a-z0-9-]+~[A-Za-z0-9_-]{43}|[a-z0-9-]+-[a-z2-9]{4}-[a-z2-9]{4}-[a-z2-9]{4})$/i.test(decodeURIComponent(location.hash)))document.documentElement.classList.add("is-link");</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Armenian:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,500;1,600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=fd3fbbc6">
+<link rel="stylesheet" href="style.css?v=395705d0">
 </head>
 <body>
 
@@ -104,23 +104,26 @@
       </div>
       <div class="langs">
         <article class="lang es rv">
+          <a class="lang-link" href="/ispaneren/" aria-labelledby="lname-es"></a>
           <div class="lang-top"><span class="idx">01</span><span class="range">A1 → C1</span></div>
           <b class="native" lang="es">Español</b>
-          <span class="lname" data-t="lEs">Իսպաներեն</span>
+          <span class="lname" id="lname-es" data-t="lEs">Իսպաներեն</span>
           <p data-t="lEsText">Սկսնակից մինչև առաջադեմ մակարդակ։ Սկսնակների համար՝ <b lang="es">Español desde cero</b> դասընթացը և լսողական հարթակը։</p>
           <p class="phrases" lang="es" aria-hidden="true"><span>¡Hola!</span><span>¿Qué tal?</span><span>Gracias</span></p>
         </article>
         <article class="lang en rv">
+          <a class="lang-link" href="/angleren/" aria-labelledby="lname-en"></a>
           <div class="lang-top"><span class="idx">02</span><span class="range">A1 → C1</span></div>
           <b class="native" lang="en">English</b>
-          <span class="lname" data-t="lEn">Անգլերեն</span>
+          <span class="lname" id="lname-en" data-t="lEn">Անգլերեն</span>
           <p data-t="lEnText">Սկսնակից մինչև առաջադեմ մակարդակ՝ խմբային կամ անհատական դասերով։</p>
           <p class="phrases" lang="en" aria-hidden="true"><span>Hello!</span><span>How are you?</span><span>Thanks</span></p>
         </article>
         <article class="lang fr rv">
+          <a class="lang-link" href="/franseren/" aria-labelledby="lname-fr"></a>
           <div class="lang-top"><span class="idx">03</span><span class="range">A1 → C1</span></div>
           <b class="native" lang="fr">Français</b>
-          <span class="lname" data-t="lFr">Ֆրանսերեն</span>
+          <span class="lname" id="lname-fr" data-t="lFr">Ֆրանսերեն</span>
           <p data-t="lFrText">Սկսնակից մինչև առաջադեմ մակարդակ՝ խմբային կամ անհատական դասերով, լսողական առաջադրանքներով և թեստերով։</p>
           <p class="phrases" lang="fr" aria-hidden="true"><span>Bonjour !</span><span>Ça va ?</span><span>Merci</span></p>
         </article>
@@ -242,6 +245,16 @@
     </div>
   </section>
 
+  <section class="lsec" id="recursos">
+    <div class="lsec-in">
+      <div class="shead rv"><p class="eyebrow">Անվճար</p><h2>Սկսեք հիմա՝ առանց գրանցվելու</h2></div>
+      <div class="resgrid">
+        <article class="rescard test rv"><h3>Անվճար թեստ՝ իմացեք ձեր մակարդակը</h3><p>20 հարց՝ A1-ից մինչև C1, մոտ 10 րոպե։</p><div class="reslinks"><a class="btn ghost" href="/test/ispaneren/">Իսպաներեն</a><a class="btn ghost" href="/test/angleren/">Անգլերեն</a><a class="btn ghost" href="/test/franseren/">Ֆրանսերեն</a></div></article>
+        <article class="rescard rv"><h3>Կարդացեք նաև</h3><ul><li><a href="/blog/inchpes-darnal-poliglot/">Ինչպես դառնալ պոլիգլոտ. 8 գործնական խորհուրդ</a></li><li><a href="/blog/a1-c2-makardakner/">Ի՞նչ են նշանակում A1, A2, B1, B2, C1, C2 մակարդակները</a></li><li><a href="/blog/inchqan-zhamanak-e-petq/">Որքա՞ն ժամանակ է պետք օտար լեզու սովորելու համար</a></li><li><a href="/blog/ispaneren-te-franseren/">Իսպաներեն, թե ֆրանսերեն. ո՞րն ընտրել հայախոսին</a></li></ul><a class="resmore" href="/blog/">Բլոգ →</a></article>
+      </div>
+    </div>
+  </section>
+
   <section class="cta-band" id="contacto">
     <div class="lsec-in cta-grid">
       <div class="cta-copy rv">
@@ -276,6 +289,13 @@
         <a href="#precios" data-t="navPrices">Գներ</a>
         <a href="#plataforma" data-t="navPlatform">Հարթակ</a>
       </nav>
+      <nav class="foot-col" aria-label="Resources">
+        <a href="/ispaneren/">Իսպաներենի դասեր</a>
+        <a href="/angleren/">Անգլերենի դասեր</a>
+        <a href="/franseren/">Ֆրանսերենի դասեր</a>
+        <a href="/test/angleren/">Անվճար թեստ</a>
+        <a href="/blog/">Բլոգ</a>
+      </nav>
       <div class="foot-col">
         <a href="https://www.instagram.com/verba.school_/" target="_blank" rel="noopener">@verba.school_</a>
         <a class="tel" href="tel:+37477308525">+374 77 30 85 25</a>
@@ -285,85 +305,7 @@
     <div class="lsec-in foot-base"><span>© 2026 Verba School</span><span data-t="stOnlineLong">Բոլոր դասերը՝ առցանց</span></div>
   </footer>
 
-  <script>
-  (function(){
-    var nav = document.getElementById("lnav"), menu = document.getElementById("mmenu"), mb = nav && nav.querySelector(".menu-btn");
-    /* light / dark switch, remembered on this device */
-    document.addEventListener("click", function(ev){ if(!ev.target.closest("[data-theme-toggle]")) return; (function(){
-      var cur = document.documentElement.dataset.theme || (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
-      var next = cur === "light" ? "dark" : "light"; document.documentElement.dataset.theme = next;
-      try{ localStorage.setItem("vs-theme", next); }catch(e){}
-    })(); });
-    if(!nav) return;
-    var onScroll = function(){ nav.classList.toggle("scrolled", window.scrollY > 8); };
-    onScroll(); window.addEventListener("scroll", onScroll, {passive:true});
-    var setMenu = function(open){ mb.setAttribute("aria-expanded", open); menu.hidden = !open; nav.classList.toggle("menu-open", open); document.body.classList.toggle("noscroll", open); };
-    mb.addEventListener("click", function(){ setMenu(mb.getAttribute("aria-expanded") !== "true"); });
-    menu.addEventListener("click", function(e){ if(e.target.closest("a")) setMenu(false); });
-    document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !menu.hidden){ setMenu(false); mb.focus(); } });
-    window.addEventListener("resize", function(){ if(window.innerWidth > 900 && !menu.hidden) setMenu(false); });
-
-    /* scroll reveal (content stays visible without JS or with reduced motion) */
-    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var land = document.getElementById("landing");
-    if(!reduce && "IntersectionObserver" in window){
-      land.classList.add("reveal-on");
-      var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }); }, {rootMargin:"0px 0px -8% 0px", threshold:0.08});
-      land.querySelectorAll(".rv").forEach(function(el){ io.observe(el); });
-    }
-
-    /* hero cards follow the pointer a little */
-    var deck = land.querySelector(".deck");
-    if(deck && !reduce && window.matchMedia("(pointer:fine)").matches){
-      land.querySelector(".hero").addEventListener("pointermove", function(e){
-        var r = deck.getBoundingClientRect();
-        deck.style.setProperty("--px", ((e.clientX - r.left) / r.width - .5).toFixed(3));
-        deck.style.setProperty("--py", ((e.clientY - r.top) / r.height - .5).toFixed(3));
-      });
-    }
-
-    /* listening demo: a real excerpt with synced sentences, word translations and a question */
-    var demo = document.getElementById("demo");
-    if(!demo) return;
-    var au = demo.querySelector("audio"), btn = demo.querySelector(".demo-play"), wave = demo.querySelector(".wave"),
-        time = demo.querySelector(".demo-time"), sents = [].slice.call(demo.querySelectorAll(".s")), DUR = 17.25;
-    wave.innerHTML = wave.dataset.peaks.split(",").map(function(p){ return '<i style="--h:' + p + '%"></i>'; }).join("");
-    var bars = [].slice.call(wave.children);
-    var fmt = function(t){ t = Math.max(0, Math.floor(t)); return Math.floor(t/60) + ":" + ("0" + t % 60).slice(-2); };
-    var paint = function(){
-      var t = au.currentTime || 0, f = Math.min(1, t / DUR), n = Math.round(f * bars.length);
-      bars.forEach(function(b, i){ b.classList.toggle("on", i < n); });
-      wave.setAttribute("aria-valuenow", Math.round(f * 100));
-      time.textContent = fmt(t);
-      var cur = -1; sents.forEach(function(s, i){ if(t >= +s.dataset.t0 && t > 0) cur = i; });
-      sents.forEach(function(s, i){ s.classList.toggle("now", i === cur && !au.paused); s.classList.toggle("past", i < cur); });
-    };
-    var raf; var loop = function(){ paint(); if(!au.paused) raf = requestAnimationFrame(loop); };
-    btn.addEventListener("click", function(){ if(au.paused){ au.play().catch(function(){}); } else au.pause(); });
-    au.addEventListener("play", function(){ demo.classList.add("playing"); btn.setAttribute("aria-label", "Pause"); loop(); });
-    au.addEventListener("pause", function(){ demo.classList.remove("playing"); btn.setAttribute("aria-label", "Play"); cancelAnimationFrame(raf); paint(); });
-    au.addEventListener("ended", function(){ au.currentTime = 0; paint(); });
-    var seekTo = function(f){ var go = function(){ au.currentTime = Math.max(0, Math.min(DUR - .05, f * DUR)); paint(); };
-      if(au.readyState < 1){ au.preload = "auto"; au.addEventListener("loadedmetadata", go, {once:true}); au.load(); } else go(); };
-    wave.addEventListener("click", function(e){ var r = wave.getBoundingClientRect(); seekTo((e.clientX - r.left) / r.width); });
-    wave.addEventListener("keydown", function(e){ var d = e.key === "ArrowRight" ? 2 : e.key === "ArrowLeft" ? -2 : 0; if(d){ e.preventDefault(); seekTo(((au.currentTime || 0) + d) / DUR); } });
-    sents.forEach(function(s){ s.addEventListener("click", function(e){ if(e.target.closest(".v")) return; seekTo(+s.dataset.t0 / DUR + .001); if(au.paused) au.play().catch(function(){}); }); });
-    /* vocabulary: tap or focus a highlighted word to see its Armenian translation */
-    demo.querySelectorAll(".v").forEach(function(v){
-      var tip = document.createElement("span"); tip.className = "vtip"; tip.lang = "hy"; tip.textContent = v.dataset.hy; v.appendChild(tip);
-      v.addEventListener("click", function(e){ e.stopPropagation(); var on = !v.classList.contains("open"); demo.querySelectorAll(".v.open").forEach(function(x){ x.classList.remove("open"); }); v.classList.toggle("open", on); });
-    });
-    document.addEventListener("click", function(){ demo.querySelectorAll(".v.open").forEach(function(x){ x.classList.remove("open"); }); });
-    demo.querySelectorAll(".dopt").forEach(function(o){
-      o.addEventListener("click", function(){
-        demo.querySelectorAll(".dopt").forEach(function(x){ x.classList.remove("ok", "no", "hint"); x.removeAttribute("aria-pressed"); });
-        o.classList.add(o.hasAttribute("data-ok") ? "ok" : "no"); o.setAttribute("aria-pressed", "true");
-        if(!o.hasAttribute("data-ok")) demo.querySelector(".dopt[data-ok]").classList.add("hint");
-      });
-    });
-    paint();
-  })();
-  </script>
+  <script src="/site.js?v=2402ca34" defer></script>
 </div>
 <!--landing:end-->
 

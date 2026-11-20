@@ -47,3 +47,11 @@ node tools/build.mjs                                         # encrypt (password
 git add -A && git commit -m "Update lessons" && git push
 ```
 New lessons go in `private/lessons.json` with the same fields as the others (`id`, `v`, `level`, `title`, `topic`, `summary`, `narrator` "f" or "m", `text` paragraphs, `gloss`, `q`).
+
+## Public SEO pages
+
+`tools/site.mjs` also builds, from `tools/pages.mjs` and `tools/content/*.mjs`, in Armenian, Russian and English:
+- course pages (`/ispaneren/`, `/ru/ispanskiy/`, `/en/spanish/`, … for Spanish, English and French),
+- free 20-question placement tests (`/test/…`), separate from the tutors' private level tests,
+- the blog (`/blog/`, `/ru/blog/`, `/en/blog/`) with four articles.
+Shared header/footer: `tools/page.html`; shared script: `site.js`. Every page is in `sitemap.xml` with hreflang alternates.
