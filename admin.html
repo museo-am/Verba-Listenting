@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="img/icon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Armenian:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,500;1,600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=511ad4ff">
+<link rel="stylesheet" href="style.css?v=fd3fbbc6">
 </head>
 <body>
 
@@ -48,6 +48,7 @@ const STR = {
   loginTitle:"Tutor panel", loginText:"Enter your username and password.", username:"Username", langNames:{es:"Spanish",en:"English",fr:"French"},
   password:"Password", login:"Log in", checking:"Checking…",
   wrongPw:"Wrong username or password. Try again.", noFile:"Panel settings not found.",
+  recStart:"Record", recStop:"Stop", recSaving:"Saving…", recSaved:"Recording saved to Downloads.", recNoAudio:"No tab sound: students' voices won't be in the recording. Stop, press Record again and keep \"Also share tab audio\" on.", recFail:"Recording didn't start.", recNoSupport:"Recording works in Chrome or Edge on a computer.", recNotice:"🔴 This lesson is being recorded · Դասը ձայնագրվում է", recEnd:"⏹ Recording stopped · Ձայնագրությունն ավարտվեց", recPick:"In the window that opens, choose <b>this tab</b> and keep <b>Also share tab audio</b> on.",
   secLive:"Online lesson", liveH:"Your lesson room", liveIntro:"Students join your video lessons right on the Verba website, from their phone or computer. Nothing to install.", liveStep1:"Send students the link below. It stays the same for every lesson.", liveStep2:"Press <b>Start lesson</b>. Students wait in the waiting room until you let them in.", liveStart:"Start lesson", liveLinkT:"Student link", liveLinkHint:"<b>New link</b> stops the current link working. Use it if the link got into the wrong hands.", liveLoadErr:"The video call couldn't load. Check your connection and try again.", liveLeft:"You have left the lesson.",
   secListen:"Listenings", secTests:"Tests", allLevels:"All", levelsNav:"Levels",
   countLine:(n,r)=>`${n} listenings · ${r} with recording`,
@@ -79,6 +80,7 @@ const STR = {
   loginTitle:"Ուսուցչի վահանակ", loginText:"Մուտքագրեք ձեր օգտանունը և գաղտնաբառը։", username:"Օգտանուն", langNames:{es:"Իսպաներեն",en:"Անգլերեն",fr:"Ֆրանսերեն"},
   password:"Գաղտնաբառ", login:"Մուտք", checking:"Ստուգվում է…",
   wrongPw:"Սխալ օգտանուն կամ գաղտնաբառ։ Փորձեք կրկին։", noFile:"Վահանակի կարգավորումները չեն գտնվել։",
+  recStart:"Ձայնագրել", recStop:"Կանգնեցնել", recSaving:"Պահպանվում է…", recSaved:"Ձայնագրությունը պահվեց Downloads պանակում։", recNoAudio:"Ներդիրի ձայն չկա․ աշակերտների ձայնը չի ձայնագրվի։ Կանգնեցրեք, նորից սեղմեք Ձայնագրել և թողեք «Also share tab audio»-ն միացված։", recFail:"Ձայնագրությունը չսկսվեց։", recNoSupport:"Ձայնագրումն աշխատում է համակարգչի Chrome-ում կամ Edge-ում։", recNotice:"🔴 Դասը ձայնագրվում է · This lesson is being recorded", recEnd:"⏹ Ձայնագրությունն ավարտվեց · Recording stopped", recPick:"Բացվող պատուհանում ընտրեք <b>այս ներդիրը</b> և թողեք <b>Also share tab audio</b>-ն միացված։",
   secLive:"Առցանց դաս", liveH:"Ձեր դասասենյակը", liveIntro:"Աշակերտները միանում են տեսադասերին հենց Verba կայքում՝ հեռախոսից կամ համակարգչից։ Ոչինչ տեղադրել պետք չէ։", liveStep1:"Ուղարկեք աշակերտներին ստորև նշված հղումը։ Այն նույնն է բոլոր դասերի համար։", liveStep2:"Սեղմեք <b>Սկսել դասը</b>։ Աշակերտները սպասում են սպասասրահում, մինչև դուք նրանց ներս թողնեք։", liveStart:"Սկսել դասը", liveLinkT:"Աշակերտի հղում", liveLinkHint:"<b>Նոր հղում</b>-ը անջատում է ընթացիկ հղումը։ Օգտագործեք, եթե հղումը հայտնվել է օտար ձեռքերում։", liveLoadErr:"Տեսազանգը չբեռնվեց։ Ստուգեք կապը և նորից փորձեք։", liveLeft:"Դուք դուրս եկաք դասից։",
   secListen:"Լսողություն", secTests:"Թեստեր", allLevels:"Բոլորը", levelsNav:"Մակարդակներ",
   countLine:(n,r)=>`${n} առաջադրանք · ${r}-ը՝ ձայնագրությամբ`,
@@ -110,6 +112,7 @@ const STR = {
   loginTitle:"Panel del profesor", loginText:"Introduce tu usuario y contraseña.", username:"Usuario", langNames:{es:"Español",en:"Inglés",fr:"Francés"},
   password:"Contraseña", login:"Entrar", checking:"Comprobando…",
   wrongPw:"Usuario o contraseña incorrectos. Inténtalo de nuevo.", noFile:"No se encontró la configuración del panel.",
+  recStart:"Grabar", recStop:"Detener", recSaving:"Guardando…", recSaved:"Grabación guardada en Descargas.", recNoAudio:"Sin sonido de la pestaña: las voces de los alumnos no quedarán grabadas. Detén, pulsa Grabar otra vez y deja activado \"Compartir también el audio de la pestaña\".", recFail:"La grabación no empezó.", recNoSupport:"La grabación funciona en Chrome o Edge en un ordenador.", recNotice:"🔴 Esta clase se está grabando · Դասը ձայնագրվում է", recEnd:"⏹ Grabación terminada · Ձայնագրությունն ավարտվեց", recPick:"En la ventana que se abre, elige <b>esta pestaña</b> y deja activado <b>Compartir también el audio</b>.",
   secLive:"Clase online", liveH:"Tu aula", liveIntro:"Los alumnos entran a tus clases por vídeo directamente en la web de Verba, desde el móvil o el ordenador. No hay que instalar nada.", liveStep1:"Envía a los alumnos el enlace de abajo. Es el mismo para todas las clases.", liveStep2:"Pulsa <b>Empezar la clase</b>. Los alumnos esperan en la sala de espera hasta que les dejes pasar.", liveStart:"Empezar la clase", liveLinkT:"Enlace para alumnos", liveLinkHint:"<b>Nuevo enlace</b> desactiva el enlace actual. Úsalo si el enlace ha llegado a quien no debía.", liveLoadErr:"No se pudo cargar la videollamada. Revisa tu conexión e inténtalo de nuevo.", liveLeft:"Has salido de la clase.",
   secListen:"Audiciones", secTests:"Tests", allLevels:"Todos", levelsNav:"Niveles",
   countLine:(n,r)=>`${n} audiciones · ${r} con grabación`,
@@ -471,9 +474,64 @@ function loadJitsi(appId){
   return new Promise((ok, bad) => { const sc = document.createElement("script"); sc.src = `https://8x8.vc/${appId}/external_api.js`; sc.onload = ok; sc.onerror = bad; document.head.appendChild(sc); });
 }
 function endCall(){
+  if(rec && rec.state !== "inactive") rec.stop();
   if(jitsiApi){ try{ jitsiApi.dispose(); }catch(e){} jitsiApi = null; }
   document.getElementById("callbox")?.remove(); document.body.classList.remove("in-call");
 }
+/* ---------- recording the lesson (tutor's computer, Chrome/Edge) ----------
+   Captures this tab (the call: video + everyone's sound) plus the tutor's microphone, mixes the sound
+   and saves a video file to Downloads when stopped. Nothing is uploaded anywhere. */
+let rec = null;
+function recButton(box){
+  const ok = navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia && window.MediaRecorder && !/Android|iPhone|iPad/i.test(navigator.userAgent);
+  const bar = document.createElement("div"); bar.className = "recbar";
+  bar.innerHTML = `<button type="button" class="recbtn"><i></i><span>${t("recStart")}</span><time hidden>0:00</time></button><p class="recmsg" hidden></p>`;
+  box.appendChild(bar);
+  const btn = bar.querySelector(".recbtn"), lab = btn.querySelector("span"), clock = btn.querySelector("time"), msg = bar.querySelector(".recmsg");
+  const say = (html, ms) => { msg.innerHTML = html; msg.hidden = !html; if(ms) setTimeout(() => { if(msg.innerHTML === html) msg.hidden = true; }, ms); };
+  if(!ok){ btn.onclick = () => say(t("recNoSupport"), 5000); return; }
+  let tracks = [], chunks = [], t0 = 0, tick = 0, actx = null, mime = "", ext = "webm";
+  btn.onclick = async () => {
+    if(rec && rec.state === "recording"){ rec.stop(); return; }
+    say(t("recPick"));
+    let disp;
+    try{
+      disp = await navigator.mediaDevices.getDisplayMedia({video:{frameRate:24}, audio:{suppressLocalAudioPlayback:false},
+        preferCurrentTab:true, selfBrowserSurface:"include", surfaceSwitching:"exclude", systemAudio:"include"});
+    }catch(e){ say(e && e.name === "NotAllowedError" ? "" : t("recFail"), 4000); return; }
+    let mic = null;
+    try{ mic = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true, noiseSuppression:true}}); }catch(e){}
+    actx = new AudioContext(); const dest = actx.createMediaStreamDestination();
+    if(disp.getAudioTracks().length) actx.createMediaStreamSource(new MediaStream(disp.getAudioTracks())).connect(dest);
+    if(mic) actx.createMediaStreamSource(mic).connect(dest);
+    tracks = [...disp.getTracks(), ...(mic ? mic.getTracks() : [])];
+    const out = new MediaStream([...disp.getVideoTracks(), ...dest.stream.getAudioTracks()]);
+    mime = ["video/mp4;codecs=avc1,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm"].find(m => MediaRecorder.isTypeSupported(m)) || "";
+    ext = mime.startsWith("video/mp4") ? "mp4" : "webm";
+    chunks = [];
+    rec = new MediaRecorder(out, {mimeType: mime || undefined, videoBitsPerSecond: 1200000, audioBitsPerSecond: 128000});
+    rec.ondataavailable = e => { if(e.data && e.data.size) chunks.push(e.data); };
+    rec.onstop = () => {
+      clearInterval(tick); tracks.forEach(tr => tr.stop()); try{ actx.close(); }catch(e){}
+      btn.classList.remove("on"); lab.textContent = t("recStart"); clock.hidden = true;
+      const blob = new Blob(chunks, {type: mime || "video/webm"}); chunks = [];
+      const d = new Date(), pad = n => String(n).padStart(2, "0");
+      const name = `Verba-${session.username}-${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}.${ext}`;
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 60000);
+      say(t("recSaved"), 6000);
+      try{ jitsiApi && jitsiApi.executeCommand("sendChatMessage", t("recEnd")); }catch(e){}
+    };
+    disp.getVideoTracks()[0].addEventListener("ended", () => { if(rec && rec.state === "recording") rec.stop(); });
+    rec.start(1000);
+    t0 = Date.now(); btn.classList.add("on"); lab.textContent = t("recStop"); clock.hidden = false;
+    tick = setInterval(() => { const s = Math.floor((Date.now() - t0) / 1000); clock.textContent = `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; }, 500);
+    say(disp.getAudioTracks().length ? "" : t("recNoAudio"), disp.getAudioTracks().length ? 0 : 12000);
+    try{ jitsiApi && jitsiApi.executeCommand("sendChatMessage", t("recNotice")); }catch(e){}
+  };
+}
+window.addEventListener("beforeunload", e => { if(rec && rec.state === "recording"){ e.preventDefault(); e.returnValue = ""; } });
+
 async function startCall(){
   const L = session.live;
   await loadJitsi(L.appId);
@@ -496,6 +554,7 @@ async function startCall(){
         else jitsiApi.executeCommand("pinParticipant", null);
       }catch(x){}
     });
+  recButton(box);
   jitsiApi.addListener("readyToClose", () => { endCall(); if(section==="live") renderLive(document.getElementById("sec"), t("liveLeft")); });
 }
 
