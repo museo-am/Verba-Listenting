@@ -171,11 +171,15 @@ async function main() {
   const testsFile = P("private/tests.json");
   const tests = fs.existsSync(testsFile) ? JSON.parse(fs.readFileSync(testsFile, "utf8")) : [];
   const firstSlug = slugify(tutors[0].username);
-  const ownerOf = (x) => slugify(x.owner || firstSlug);
-  for (const x of [...lessons, ...tests]) if (!tutors.some((t) => slugify(t.username) === ownerOf(x)))
-    throw new Error(`${x.id}: owner "${x.owner}" is not in private/tutors.json`);
+  // "owner" is one username or a list; the first owner keeps the plain short name and old links,
+  // every other owner gets her own copy with "<short>-<owner>" and her own link versions ("v_<owner>").
+  const owners = (x) => (Array.isArray(x.owner) ? x.owner : [x.owner || firstSlug]).map(slugify);
+  const shortFor = (x, slug) => owners(x)[0] === slug ? x.short : `${x.short}-${slug}`;
+  const vKey = (x, slug) => owners(x)[0] === slug ? "v" : `v_${slug}`;
+  for (const x of [...lessons, ...tests]) for (const o of owners(x)) if (!tutors.some((t) => slugify(t.username) === o))
+    throw new Error(`${x.id}: owner "${o}" is not in private/tutors.json`);
 
-  const shorts = [...lessons, ...tests].map((x) => x.short);
+  const shorts = [...lessons, ...tests].flatMap((x) => owners(x).map((o) => shortFor(x, o)));
   const dup = shorts.find((s, i) => shorts.indexOf(s) !== i);
   if (dup) throw new Error(`Two items share the short name "${dup}".`);
 
@@ -210,13 +214,14 @@ async function main() {
     }
 
     const catalog = [];
-    for (const l of lessons.filter((x) => ownerOf(x) === slug)) {
-      const v = Math.max(l.v || 1, adminV[l.id] || 1);
-      if (v !== l.v) { l.v = v; lessonsChanged = true; }
+    for (const l of lessons.filter((x) => owners(x).includes(slug))) {
+      const primary = owners(l)[0] === slug, short = shortFor(l, slug), vk = vKey(l, slug);
+      const v = Math.max(l[vk] || 1, adminV[l.id] || 1);
+      if (v !== l[vk]) { l[vk] = v; lessonsChanged = true; }
       if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(l.short || "")) throw new Error(`${l.id}: needs a "short" name (a-z, 0-9, -)`);
       const longKey = await lessonKey(master, l.id, v);
       const code = await shortCode(master, l.id, v);
-      const key = await shortAesKey(l.short, code);
+      const key = await shortAesKey(short, code);
       const sents = l.text.map(splitSentences);
       const count = sents.flat().length;
       let rec = null;
@@ -224,27 +229,30 @@ async function main() {
       if (fs.existsSync(tj) && fs.existsSync(mp3)) {
         rec = JSON.parse(fs.readFileSync(tj, "utf8"));
         if (rec.starts.length !== count) throw new Error(`${l.id}: timings have ${rec.starts.length} sentences, text has ${count}. Re-run tools/align.py.`);
-        if (writeIfChanged(P("a", `${l.short}.bin`), await seal(key, new Uint8Array(fs.readFileSync(mp3))))) changed++;
-        keep.add(`a/${l.short}.bin`);
+        if (writeIfChanged(P("a", `${short}.bin`), await seal(key, new Uint8Array(fs.readFileSync(mp3))))) changed++;
+        keep.add(`a/${short}.bin`);
       }
       const lang = l.lang || tu.language || "es";
       const data = { id: l.id, lang, level: l.level, title: l.title, topic: l.topic, summary: l.summary,
         narrator: l.narrator, sents, gloss: l.gloss, q: l.q, rec, dict: lessonDict(l, lang) };
-      if (writeIfChanged(P("c", `${l.short}.bin`), await seal(key, enc(JSON.stringify(data))))) changed++;
-      keep.add(`c/${l.short}.bin`);
-      if (writeIfChanged(P("content", `${l.id}.bin`), await seal(longKey, redirectBytes(l.short, code)))) changed++;
-      keep.add(`content/${l.id}.bin`);
-      catalog.push({ id: l.id, short: l.short, lang, v, level: l.level, title: l.title, topic: l.topic, narrator: l.narrator, audio: !!rec });
+      if (writeIfChanged(P("c", `${short}.bin`), await seal(key, enc(JSON.stringify(data))))) changed++;
+      keep.add(`c/${short}.bin`);
+      if (primary) {
+        if (writeIfChanged(P("content", `${l.id}.bin`), await seal(longKey, redirectBytes(short, code)))) changed++;
+        keep.add(`content/${l.id}.bin`);
+      }
+      catalog.push({ id: l.id, short: short, ...(primary ? {} : { legacy: false }), lang, v, level: l.level, title: l.title, topic: l.topic, narrator: l.narrator, audio: !!rec });
     }
 
     // level tests: options are written correct-first and shuffled here with a fixed seed per question
-    for (const t of tests.filter((x) => ownerOf(x) === slug)) {
-      const v = Math.max(t.v || 1, adminV[t.id] || 1);
-      if (v !== t.v) { t.v = v; testsChanged = true; }
+    for (const t of tests.filter((x) => owners(x).includes(slug))) {
+      const primary = owners(t)[0] === slug, short = shortFor(t, slug), vk = vKey(t, slug);
+      const v = Math.max(t[vk] || 1, adminV[t.id] || 1);
+      if (v !== t[vk]) { t[vk] = v; testsChanged = true; }
       if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(t.short || "")) throw new Error(`${t.id}: needs a "short" name (a-z, 0-9, -)`);
       const longKey = await lessonKey(master, t.id, v);
       const code = await shortCode(master, t.id, v);
-      const key = await shortAesKey(t.short, code);
+      const key = await shortAesKey(short, code);
       let qn = 0;
       const sections = [];
       for (const [si, s] of t.sections.entries()) {
@@ -258,11 +266,13 @@ async function main() {
       }
       const data = { id: t.id, kind: "test", lang: t.lang || tu.language || "es", level: t.level, title: t.title, topic: t.topic,
         pass: t.pass || 0.7, minutes: t.minutes || 20, sections };
-      if (writeIfChanged(P("c", `${t.short}.bin`), await seal(key, enc(JSON.stringify(data))))) changed++;
-      keep.add(`c/${t.short}.bin`);
-      if (writeIfChanged(P("content", `${t.id}.bin`), await seal(longKey, redirectBytes(t.short, code)))) changed++;
-      keep.add(`content/${t.id}.bin`);
-      catalog.push({ id: t.id, short: t.short, lang: data.lang, v, kind: "test", level: t.level, title: t.title, topic: t.topic, questions: qn, pass: data.pass, audio: false });
+      if (writeIfChanged(P("c", `${short}.bin`), await seal(key, enc(JSON.stringify(data))))) changed++;
+      keep.add(`c/${short}.bin`);
+      if (primary) {
+        if (writeIfChanged(P("content", `${t.id}.bin`), await seal(longKey, redirectBytes(short, code)))) changed++;
+        keep.add(`content/${t.id}.bin`);
+      }
+      catalog.push({ id: t.id, short: short, ...(primary ? {} : { legacy: false }), lang: data.lang, v, kind: "test", level: t.level, title: t.title, topic: t.topic, questions: qn, pass: data.pass, audio: false });
     }
 
     let live = null;

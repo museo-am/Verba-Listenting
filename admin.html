@@ -324,8 +324,8 @@ async function newLink(l){
     const code = await shortCode(l, newV), newKey = await shortAesKey(l.short, code);
     for(const path of [`c/${l.short}.bin`, ...(l.audio ? [`a/${l.short}.bin`] : [])])
       files[path] = await seal(newKey, await unseal(oldKey, await ghRaw(path)));
-    // the old long link's pointer now opens only with a key nobody has
-    files[`content/${l.id}.bin`] = await seal(await lessonKey(l, newV), enc(JSON.stringify({redirect:{s:l.short, k:code}})));
+    // the old long link's pointer now opens only with a key nobody has (copies shared with another tutor have none)
+    if(l.legacy !== false) files[`content/${l.id}.bin`] = await seal(await lessonKey(l, newV), enc(JSON.stringify({redirect:{s:l.short, k:code}})));
   } else {
     const oldKey = await lessonKey(l), newKey = await lessonKey(l, newV);
     for(const path of [`content/${l.id}.bin`, ...(l.audio ? [`audio/${l.id}.bin`] : [])])
