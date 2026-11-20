@@ -262,12 +262,12 @@ async function signJaas(payload){
   return head + "." + b64uBytes(new Uint8Array(await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, enc(head))));
 }
 const studentPass = exp => ({aud:"jitsi", iss:"chat", sub:session.live.appId, room:session.live.room, exp, nbf:1700000000,
-  context:{user:{id:`student-${session.live.room}`, name:"", avatar:"", email:"", moderator:"false"},
-    features:{livestreaming:"false", recording:"false", transcription:"false", "outbound-call":"false"}}});
+  context:{user:{id:`student-${session.live.room}`, name:"", avatar:"", email:"", moderator:false},
+    features:{livestreaming:false, recording:false, transcription:false, "outbound-call":false}}});
 const tutorPass = () => { const now = Math.floor(Date.now()/1000); return {aud:"jitsi", iss:"chat", sub:session.live.appId, room:session.live.room,
   exp: now + 6*3600, nbf: now - 300,
-  context:{user:{id:`tutor-${session.slug}`, name:session.username, avatar:"", email:"", moderator:"true"},
-    features:{livestreaming:"false", recording:"false", transcription:"false", "outbound-call":"false"}}}; };
+  context:{user:{id:`tutor-${session.slug}`, name:session.username, avatar:"", email:"", moderator:true},
+    features:{livestreaming:false, recording:false, transcription:false, "outbound-call":false}}}; };
 
 async function linkFor(l){
   if(!l.short) return `${SITE}#${l.id}~${b64u(await lessonKey(l))}`;

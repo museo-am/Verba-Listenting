@@ -139,8 +139,8 @@ export async function signJaas(pkcs8, kid, payload) {
 }
 export const studentPass = (appId, room, exp) => ({
   aud: "jitsi", iss: "chat", sub: appId, room, exp, nbf: 1700000000,
-  context: { user: { id: `student-${room}`, name: "", avatar: "", email: "", moderator: "false" },
-    features: { livestreaming: "false", recording: "false", transcription: "false", "outbound-call": "false" } },
+  context: { user: { id: `student-${room}`, name: "", avatar: "", email: "", moderator: false },
+    features: { livestreaming: false, recording: false, transcription: false, "outbound-call": false } },
 });
 function jaasConfig() {
   const cf = P("private/jaas/config.json"), kf = P("private/jaas/jaas-private.pem");
