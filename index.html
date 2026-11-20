@@ -486,7 +486,15 @@ let recUrl = null;   // blob: URL of the decrypted recording
 function loadVoices(){ if(!synth) return; voices = synth.getVoices().filter(v=>v.lang.toLowerCase().startsWith(CLANG)).sort((a,b)=>vScore(b)-vScore(a)); fillVoiceSelect(); }
 if(synth){ loadVoices(); synth.onvoiceschanged = loadVoices; }
 
-function effectiveVoice(){ return (player.voice.startsWith("r:") && !recUrl) ? (voices[0]?voices[0].name:"") : player.voice; }
+/* The recording always wins when it exists, unless the student picked a device voice that this browser
+   really has. (A voice remembered from another browser or app must not silently replace the recording.) */
+function effectiveVoice(){
+  const v = player.voice;
+  if(recUrl) return (!v.startsWith("r:") && voices.some(x=>x.name===v)) ? v : "r:main";
+  if(v.startsWith("r:")) return voices[0] ? voices[0].name : "";
+  return v;
+}
+let recLoading = false, playWhenReady = null;
 function fillVoiceSelect(){
   const sel = document.getElementById("voice"); if(!sel) return;
   const cur = effectiveVoice();
@@ -506,6 +514,7 @@ function speakFrom(i){
   halt();
   player.idx = i; player.playing = true; player.paused = false; updatePlayerUI();
   if(!player.sentences[i]){ stop(true); return; }
+  if(recLoading && !recUrl){ playWhenReady = i; note(UI.loadingRec); return; }   // wait for the recording instead of a device voice
   if(effectiveVoice().startsWith("r:")) playRec(i); else doSpeak(i);
 }
 function recIndex(t){ let k=0; for(let j=0;j<rec.starts.length;j++){ if(t>=rec.starts[j]-0.02) k=j; else break; } return k; }
@@ -645,7 +654,9 @@ async function openLesson(link){
   if(recUrl){ URL.revokeObjectURL(recUrl); recUrl=null; }
   rec = null; audio.removeAttribute("src");
   renderLesson(l);
+  playWhenReady = null;
   if(l.rec){
+    recLoading = true;
     try{
       const bytes = await openFile(k, `a/${encodeURIComponent(short)}.bin`);
       if(token!==openToken) return;
@@ -653,7 +664,11 @@ async function openLesson(link){
       fillVoiceSelect();
       note(UI.mainNote);
     }catch(e){}
-  }
+    if(token===openToken){
+      recLoading = false;
+      if(playWhenReady !== null && player.playing){ const i = playWhenReady; playWhenReady = null; speakFrom(i); }
+    }
+  } else recLoading = false;
 }
 
 
