@@ -764,12 +764,10 @@ html{scroll-behavior:smooth}
 .landing .post-head,.landing .post-body{max-width:calc(820px + 40px)}
 .ticks li > span{display:block}
 .ticks li span span{display:inline}
-/* mobile menu: a solid sheet, nothing from the page shows through */
-.lnav.menu-open{background:var(--bg);backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom-color:var(--line)}
-.lnav.menu-open .mmenu{position:fixed;left:0;right:0;top:calc(72px + env(safe-area-inset-top,0px));bottom:0;height:auto;max-width:none;background:var(--bg);z-index:39;
-  padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));padding-bottom:calc(28px + env(safe-area-inset-bottom,0px));animation:mopen .22s var(--ease)}
-.lnav.menu-open .mmenu > *{width:100%;max-width:680px;margin-inline:auto}
-@keyframes mopen{from{opacity:0;transform:translateY(-6px)}}
-@media (prefers-reduced-motion:reduce){.lnav.menu-open .mmenu{animation:none}}
-.mmenu nav a{transition:color .15s,padding-left .2s var(--ease)}
-.mmenu nav a:hover{color:var(--accent);padding-left:6px}
+.mmenu .mcourses{display:flex;flex-wrap:wrap;gap:8px}
+.mmenu .mcourses a{font:italic 600 1.05rem var(--f-serif);color:var(--ink);text-decoration:none;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:color-mix(in srgb,var(--bg2) 70%,transparent)}
+.lnav-links a.hl{color:var(--accent)}
+.hero-free{display:inline-flex;align-items:center;gap:8px;color:var(--ink);font-weight:700;text-decoration:none;border-bottom:1.5px solid var(--accent);padding-bottom:2px}
+.hero-free:hover{color:var(--accent)}
+.lnav-links a{white-space:nowrap}
+@media (max-width:1300px){.lnav-links a[href$="#plataforma"]{display:none}}

@@ -13,7 +13,16 @@
     onScroll(); window.addEventListener("scroll", onScroll, {passive:true});
     var setMenu = function(open){ mb.setAttribute("aria-expanded", open); menu.hidden = !open; nav.classList.toggle("menu-open", open); document.body.classList.toggle("noscroll", open); };
     mb.addEventListener("click", function(){ setMenu(mb.getAttribute("aria-expanded") !== "true"); });
-    menu.addEventListener("click", function(e){ if(e.target.closest("a")) setMenu(false); });
+    menu.addEventListener("click", function(e){
+      var a = e.target.closest("a"); if(!a) return;
+      var u = new URL(a.href, location.href);
+      setMenu(false);
+      // same-page section: close the menu first, then scroll (scrolling while the page is locked lands in the wrong place)
+      if(u.pathname === location.pathname && u.hash && document.querySelector(u.hash)){
+        e.preventDefault();
+        requestAnimationFrame(function(){ document.querySelector(u.hash).scrollIntoView({behavior:"smooth", block:"start"}); history.replaceState(history.state, "", u.hash); });
+      }
+    });
     document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !menu.hidden){ setMenu(false); mb.focus(); } });
     window.addEventListener("resize", function(){ if(window.innerWidth > 900 && !menu.hidden) setMenu(false); });
 

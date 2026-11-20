@@ -150,8 +150,8 @@ function extras(html, lang, jsVer) {
       </div>
     </div>
   </section>`;
-  return html.replaceAll("{{FOOTRES}}", foot).replace("{{RESOURCES}}", res).replaceAll("{{JSVER}}", jsVer)
-    .replace(/\{\{C_(\w\w)\}\}/g, (m, x) => R.course(x));
+  return html.replaceAll("{{L_BLOG}}", R.blog).replaceAll("{{FOOTRES}}", foot).replace("{{RESOURCES}}", res).replaceAll("{{JSVER}}", jsVer)
+    .replaceAll(/\{\{C_(\w\w)\}\}/g, (m, x) => R.course(x));
 }
 
 function crumbsHtml(crumbs) {

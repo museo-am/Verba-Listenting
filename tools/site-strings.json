@@ -83,7 +83,10 @@
   "fHold": "Թարգմանություն՝ մեկ հպումով",
   "fLive": "Առցանց դասեր հենց կայքում",
   "phoneLabel": "Հեռախոս",
-  "themeLabel": "Լուսավոր / մուգ տեսք"
+  "themeLabel": "Լուսավոր / մուգ տեսք",
+  "navTest": "Անվճար թեստ",
+  "navBlog": "Բլոգ",
+  "heroTest": "Անվճար թեստ՝ իմացեք ձեր մակարդակը"
  },
  "en": {
   "navLangs": "Languages",
@@ -169,7 +172,10 @@
   "fHold": "Translation in one tap",
   "fLive": "Online lessons right on the site",
   "phoneLabel": "Phone",
-  "themeLabel": "Light / dark mode"
+  "themeLabel": "Light / dark mode",
+  "navTest": "Free test",
+  "navBlog": "Blog",
+  "heroTest": "Free test: find your level"
  },
  "es": {
   "navLangs": "Idiomas",
@@ -255,7 +261,10 @@
   "fHold": "Traducción con un toque",
   "fLive": "Clases online en la propia web",
   "phoneLabel": "Teléfono",
-  "themeLabel": "Modo claro / oscuro"
+  "themeLabel": "Modo claro / oscuro",
+  "navTest": "Test gratis",
+  "navBlog": "Blog",
+  "heroTest": "Test gratis: descubre tu nivel"
  },
  "ru": {
   "navLangs": "Языки",
@@ -341,6 +350,9 @@
   "fHold": "Перевод одним касанием",
   "fLive": "Онлайн-занятия прямо на сайте",
   "phoneLabel": "Телефон",
-  "themeLabel": "Светлая / тёмная тема"
+  "themeLabel": "Светлая / тёмная тема",
+  "navTest": "Бесплатный тест",
+  "navBlog": "Блог",
+  "heroTest": "Бесплатный тест: узнайте свой уровень"
  }
 }
