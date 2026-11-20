@@ -413,7 +413,8 @@ const UI_STR = {
   sentence:(i,n)=>`Frase ${i} / ${n}`,mainNote:"★ Voz principal: lectura natural. Toca cualquier frase para escucharla desde ahí.",
   words:"palabras",narrF:"Narradora",narrM:"Narrador",speed:"Velocidad",slow:"Lenta",normal:"Normal",fast:"Rápida",restart:"↺ Desde el inicio",voice:"Voz",
   loadingRec:"Cargando la grabación…",tapNote:"Toca cualquier frase para escucharla desde ahí.",
-  noAudio:'⚠️ El audio no funciona dentro de esta vista. Abre la página en <b>Chrome</b>, <b>Safari</b> o <b>Edge</b>.',
+  noAudio:'⚠️ La voz del dispositivo no responde en este navegador. Prueba otra voz o abre la página en <b>Chrome</b> o <b>Safari</b>.',
+  ttsFallback:'La voz del dispositivo no responde en este teléfono, así que suena la ★ Voz principal.',
   transcript:"Transcripción",show:"Mostrar texto",hide:"Ocultar texto",quizTitle:"¿Has entendido el texto?",check:"Comprobar",
   answered:(a,n)=>`${a} / ${n} respondidas`,answerAll:(a,n)=>`Responde todas las preguntas (${a} / ${n})`,correct:(a,n)=>`${a} / ${n} correctas`,
   retryQuiz:"Intentar de nuevo",vocab:"Vocabulario",copied:"Copiado ✓",selectCopy:"Selecciona y copia",
@@ -434,7 +435,8 @@ const UI_STR = {
   sentence:(i,n)=>`Phrase ${i} / ${n}`,mainNote:"★ Voix principale : lecture naturelle. Touchez une phrase pour l'écouter à partir de là.",
   words:"mots",narrF:"Narratrice",narrM:"Narrateur",speed:"Vitesse",slow:"Lente",normal:"Normale",fast:"Rapide",restart:"↺ Depuis le début",voice:"Voix",
   loadingRec:"Chargement de l'enregistrement…",tapNote:"Touchez une phrase pour l'écouter à partir de là.",
-  noAudio:"⚠️ Le son ne fonctionne pas dans cette vue. Ouvrez la page dans <b>Chrome</b>, <b>Safari</b> ou <b>Edge</b>.",
+  noAudio:"⚠️ La voix de l'appareil ne répond pas dans ce navigateur. Essayez une autre voix ou ouvrez la page dans <b>Chrome</b> ou <b>Safari</b>.",
+  ttsFallback:"La voix de l'appareil ne répond pas sur ce téléphone : c'est la ★ Voix principale qui joue.",
   transcript:"Transcription",show:"Afficher le texte",hide:"Masquer le texte",quizTitle:"Avez-vous compris le texte ?",check:"Vérifier",
   answered:(a,n)=>`${a} / ${n} répondues`,answerAll:(a,n)=>`Répondez à toutes les questions (${a} / ${n})`,correct:(a,n)=>`${a} / ${n} correctes`,
   retryQuiz:"Réessayer",vocab:"Vocabulaire",copied:"Copié ✓",selectCopy:"Sélectionnez et copiez",
@@ -455,7 +457,8 @@ const UI_STR = {
   sentence:(i,n)=>`Sentence ${i} / ${n}`,mainNote:"★ Main voice: natural reading. Tap any sentence to listen from there.",
   words:"words",narrF:"Narrator",narrM:"Narrator",speed:"Speed",slow:"Slow",normal:"Normal",fast:"Fast",restart:"↺ From the start",voice:"Voice",
   loadingRec:"Loading the recording…",tapNote:"Tap any sentence to listen from there.",
-  noAudio:"⚠️ Sound doesn't work in this view. Open the page in <b>Chrome</b>, <b>Safari</b> or <b>Edge</b>.",
+  noAudio:"⚠️ The device voice isn't responding in this browser. Try another voice or open the page in <b>Chrome</b> or <b>Safari</b>.",
+  ttsFallback:"The device voice isn't responding on this phone, so the ★ Main voice is playing.",
   transcript:"Transcript",show:"Show text",hide:"Hide text",quizTitle:"Did you understand the text?",check:"Check",
   answered:(a,n)=>`${a} / ${n} answered`,answerAll:(a,n)=>`Answer all the questions (${a} / ${n})`,correct:(a,n)=>`${a} / ${n} correct`,
   retryQuiz:"Try again",vocab:"Vocabulary",copied:"Copied ✓",selectCopy:"Select and copy",
@@ -535,6 +538,13 @@ function playRec(i){
 
 let audioOK=false, watchdog=null;
 function noAudio(){
+  // a device voice that doesn't answer: go back to the recording when the lesson has one
+  if(recUrl && mode === "tts"){
+    player.voice = "r:main"; store.set("vs-voice5", player.voice); fillVoiceSelect();
+    note(UI.ttsFallback);
+    if(player.playing) playRec(player.idx);
+    return;
+  }
   player.playing=false; updatePlayerUI();
   note(UI.noAudio,true);
 }
@@ -549,12 +559,12 @@ function doSpeak(i){
     const u = new SpeechSynthesisUtterance(player.sentences[i].text);
     u.lang = UI.locale; u.rate = player.rate;
     const v = voices.find(v=>v.name===effectiveVoice()) || voices[0];
-    if(v){ u.voice = v; u.lang = v.lang; }
+    if(v){ u.voice = v; u.lang = String(v.lang).replace("_","-"); }   // Android lists "es_ES"
     u.onstart = () => { audioOK=true; clearTimeout(watchdog); };
     u.onend = () => { if(player.playing && player.idx===i) speakFrom(i+1); };
-    u.onerror = (e) => { if(!audioOK && e.error!=='interrupted' && e.error!=='canceled') noAudio(); };
+    u.onerror = (e) => { if(e.error!=='interrupted' && e.error!=='canceled' && player.playing && player.idx===i) noAudio(); };
     clearTimeout(watchdog);
-    if(!audioOK) watchdog=setTimeout(()=>{ if(!audioOK && player.playing){ synth.cancel(); noAudio(); } },2500);
+    if(!audioOK) watchdog=setTimeout(()=>{ if(!audioOK && player.playing){ synth.cancel(); noAudio(); } },6000);   // Android can take a few seconds to wake its voice
     synth.speak(u);
   };
   if(busy) setTimeout(go,80); else go();
