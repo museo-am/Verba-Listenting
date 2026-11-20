@@ -22,111 +22,170 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" sizes="32x32" href="/img/icon-32.png">
 <link rel="apple-touch-icon" href="/img/icon-180.png">
-<meta name="theme-color" content="#b62827">
+<meta name="theme-color" content="#141110">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"EducationalOrganization","@id":"https://verba-school.online/#school","name":"Verba School","alternateName":["Verba","Verba School Armenia","Վերբա"],"url":"https://verba-school.online/","logo":"https://verba-school.online/img/logo.png","image":"https://verba-school.online/img/og.png","description":"Verba School is an online language school. Spanish, English and French lessons from A1 to C1, explained in Armenian. Group and private lessons, with a certificate at the end of the course.","telephone":"+37477308525","sameAs":["https://www.instagram.com/verba.school_/"],"areaServed":{"@type":"Country","name":"Armenia"},"knowsLanguage":["es","en","fr","hy"],"hasOfferCatalog":{"@type":"OfferCatalog","name":"All lessons are online","itemListElement":[{"@type":"Offer","name":"Group lessons","description":"Learn together with other students.","price":25000,"priceCurrency":"AMD","priceSpecification":{"@type":"UnitPriceSpecification","price":25000,"priceCurrency":"AMD","unitText":"MONTH"}},{"@type":"Offer","name":"Private lessons","description":"One-on-one lessons at your own pace.","price":30000,"priceCurrency":"AMD","priceSpecification":{"@type":"UnitPriceSpecification","price":30000,"priceCurrency":"AMD","unitText":"MONTH"}}]}},{"@type":"WebSite","@id":"https://verba-school.online/#website","name":"Verba School","alternateName":"Verba","url":"https://verba-school.online/","inLanguage":"en","publisher":{"@id":"https://verba-school.online/#school"}},{"@type":"Course","@id":"https://verba-school.online/#course-es","name":"Spanish — Verba School","description":"From beginner to advanced. For beginners: our Español desde cero course and the listening platform.","inLanguage":"es","educationalLevel":"A1–C1 (CEFR)","provider":{"@id":"https://verba-school.online/#school"},"hasCourseInstance":[{"@type":"CourseInstance","courseMode":"online","courseWorkload":"PT1H"}],"offers":[{"@type":"Offer","category":"Group","price":25000,"priceCurrency":"AMD","url":"https://verba-school.online/"},{"@type":"Offer","category":"Private","price":30000,"priceCurrency":"AMD","url":"https://verba-school.online/"}]},{"@type":"Course","@id":"https://verba-school.online/#course-en","name":"English — Verba School","description":"From beginner to advanced, in group or private lessons.","inLanguage":"en","educationalLevel":"A1–C1 (CEFR)","provider":{"@id":"https://verba-school.online/#school"},"hasCourseInstance":[{"@type":"CourseInstance","courseMode":"online","courseWorkload":"PT1H"}],"offers":[{"@type":"Offer","category":"Group","price":25000,"priceCurrency":"AMD","url":"https://verba-school.online/"},{"@type":"Offer","category":"Private","price":30000,"priceCurrency":"AMD","url":"https://verba-school.online/"}]},{"@type":"Course","@id":"https://verba-school.online/#course-fr","name":"French — Verba School","description":"From beginner to advanced, in group or private lessons, with listening tasks and level tests.","inLanguage":"fr","educationalLevel":"A1–C1 (CEFR)","provider":{"@id":"https://verba-school.online/#school"},"hasCourseInstance":[{"@type":"CourseInstance","courseMode":"online","courseWorkload":"PT1H"}],"offers":[{"@type":"Offer","category":"Group","price":25000,"priceCurrency":"AMD","url":"https://verba-school.online/"},{"@type":"Offer","category":"Private","price":30000,"priceCurrency":"AMD","url":"https://verba-school.online/"}]}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Noto+Sans+Armenian:wght@400;600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="/style.css?v=e3a0b78c">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Armenian:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,500;1,600&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="/style.css?v=233800c1">
 </head>
 <body class="is-landing">
 <div id="landing" class="landing">
-  <header class="lnav">
+  <header class="lnav" id="lnav">
     <div class="lnav-in">
-      <span class="brand"><img class="logo" src="/img/logo.png" alt="" width="40" height="40"><b>Verba<span>.</span>School</b></span>
+      <a class="brand" href="#top" aria-label="Verba School"><img class="logo" src="/img/logo.png" alt="" width="40" height="40"><b>Verba<span>.</span>School</b></a>
       <nav class="lnav-links" aria-label="Sections">
         <a href="#idiomas" data-t="navLangs">Languages</a>
         <a href="#niveles" data-t="navLevels">Levels</a>
         <a href="#precios" data-t="navPrices">Prices</a>
         <a href="#plataforma" data-t="navPlatform">Platform</a>
       </nav>
-      <nav class="langtabs" id="sitelangs" aria-label="Language">
+      <div class="lnav-end">
+        <nav class="langtabs" id="sitelangs" aria-label="Language">
         <a href="/" hreflang="hy" lang="hy">ՀՅ</a>
         <a href="/en/" hreflang="en" lang="en" class="on" aria-current="page">EN</a>
         <a href="/es/" hreflang="es" lang="es">ES</a>
         <a href="/ru/" hreflang="ru" lang="ru">RU</a>
       </nav>
+        <a class="btn pill" href="https://www.instagram.com/verba.school_/" target="_blank" rel="noopener" data-t="signUp">Sign up</a>
+        <button class="menu-btn" type="button" aria-expanded="false" aria-controls="mmenu"><span class="sr" data-t="menu">Menu</span><i></i><i></i></button>
+      </div>
+    </div>
+    <div class="mmenu" id="mmenu" hidden>
+      <nav aria-label="Sections">
+        <a href="#idiomas" data-t="navLangs">Languages</a>
+        <a href="#niveles" data-t="navLevels">Levels</a>
+        <a href="#precios" data-t="navPrices">Prices</a>
+        <a href="#plataforma" data-t="navPlatform">Platform</a>
+        <a href="#contacto" data-t="navContact">Contact</a>
+      </nav>
+      <nav class="langlinks" aria-label="Language"><a href="/" hreflang="hy" lang="hy">ՀՅ</a><a href="/en/" hreflang="en" lang="en" class="on" aria-current="page">EN</a><a href="/es/" hreflang="es" lang="es">ES</a><a href="/ru/" hreflang="ru" lang="ru">RU</a></nav>
+      <a class="btn big" href="https://www.instagram.com/verba.school_/" target="_blank" rel="noopener" data-t="ctaIg">Message us on Instagram</a>
     </div>
   </header>
 
-  <section class="hero">
+  <section class="hero" id="top">
     <div class="hero-in">
-      <div class="hero-copy">
-        <p class="eyebrow" data-t="eyebrow">Language school · online</p>
-        <h1 data-t="h1">Spanish, English and French, from zero to fluent</h1>
+      <div class="hero-copy rv">
+        <p class="eyebrow chipline"><span class="pulse" aria-hidden="true"></span><span data-t="eyebrow">Language school · online</span></p>
+        <h1 data-t="h1">Spanish, English and French, <em>from zero to fluent</em></h1>
         <p class="lede" data-t="lede">Online lessons from A1 to C1, in a group or one-on-one, with a certificate at the end of the course. We explain grammar in Armenian and build your listening and speaking with real texts.</p>
         <div class="hero-cta">
-          <a class="btn big" href="https://www.instagram.com/verba.school_/" target="_blank" rel="noopener" data-t="ctaIg">Message us on Instagram</a>
-          <a class="btn big ghost" href="#precios" data-t="ctaPrices">See prices</a>
+          <a class="btn big" href="https://www.instagram.com/verba.school_/" target="_blank" rel="noopener"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg><span data-t="ctaIg">Message us on Instagram</span></a>
+          <a class="btn big ghost" href="#precios"><span data-t="ctaPrices">See prices</span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
+        <dl class="stats">
+          <div><dt>3</dt><dd data-t="stLangs">languages</dd></div>
+          <div><dt>A1–C1</dt><dd data-t="stLevels">levels</dd></div>
+          <div><dt>100%</dt><dd data-t="stOnline">online</dd></div>
+          <div><dt><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 14 7 22l5-3 5 3-1.5-8"/></svg></dt><dd data-t="stCert">certificate</dd></div>
+        </dl>
       </div>
-      <div class="words" aria-hidden="true">
-        <div class="word w1"><span class="pos">ES · verbo</span><b lang="es">hablar</b><span class="tr" data-t="wSpeak">to speak</span></div>
-        <div class="word w2"><span class="pos">EN · verb</span><b lang="en">listen</b><span class="tr" data-t="wListen">to listen</span></div>
-        <div class="word w3"><span class="pos">FR · verbe</span><b lang="fr">comprendre</b><span class="tr" data-t="wUnderstand">to understand</span></div>
-        <div class="word w4"><span class="pos" data-t="wLatin">Latin</span><b lang="la">verba</b><span class="tr" data-t="wWords">words</span></div>
+      <div class="deck" aria-hidden="true">
+        <div class="card-w c-es"><span class="pos">ES · verbo</span><b lang="es">hablar</b><span class="tr" data-t="wSpeak">to speak</span><span class="mark">¡</span></div>
+        <div class="card-w c-en"><span class="pos">EN · verb</span><b lang="en">listen</b><span class="tr" data-t="wListen">to listen</span><span class="mark">“</span></div>
+        <div class="card-w c-fr"><span class="pos">FR · verbe</span><b lang="fr">comprendre</b><span class="tr" data-t="wUnderstand">to understand</span><span class="mark">«</span></div>
+        <div class="card-w c-hy"><span class="pos">HY</span><b lang="hy">բառեր</b><span class="tr"><i lang="la">verba</i> · <span data-t="wLatin">Latin</span></span><span class="mark">Ա</span></div>
       </div>
     </div>
   </section>
 
   <section class="lsec" id="idiomas">
     <div class="lsec-in">
-      <p class="eyebrow" data-t="langsEyebrow">Languages</p>
-      <h2 data-t="langsTitle">Three languages, one school</h2>
+      <div class="shead rv">
+        <p class="eyebrow" data-t="langsEyebrow">Languages</p>
+        <h2 data-t="langsTitle">Three languages, one school</h2>
+      </div>
       <div class="langs">
-        <article class="lang es"><b lang="es">Español</b><span class="lname" data-t="lEs">Spanish</span><p data-t="lEsText">From beginner to advanced. For beginners: our <b lang="es">Español desde cero</b> course and the listening platform.</p></article>
-        <article class="lang en"><b lang="en">English</b><span class="lname" data-t="lEn">English</span><p data-t="lEnText">From beginner to advanced, in group or private lessons.</p></article>
-        <article class="lang fr"><b lang="fr">Français</b><span class="lname" data-t="lFr">French</span><p data-t="lFrText">From beginner to advanced, in group or private lessons, with listening tasks and level tests.</p></article>
+        <article class="lang es rv">
+          <div class="lang-top"><span class="idx">01</span><span class="range">A1 → C1</span></div>
+          <b class="native" lang="es">Español</b>
+          <span class="lname" data-t="lEs">Spanish</span>
+          <p data-t="lEsText">From beginner to advanced. For beginners: our <b lang="es">Español desde cero</b> course and the listening platform.</p>
+          <p class="phrases" lang="es" aria-hidden="true"><span>¡Hola!</span><span>¿Qué tal?</span><span>Gracias</span></p>
+        </article>
+        <article class="lang en rv">
+          <div class="lang-top"><span class="idx">02</span><span class="range">A1 → C1</span></div>
+          <b class="native" lang="en">English</b>
+          <span class="lname" data-t="lEn">English</span>
+          <p data-t="lEnText">From beginner to advanced, in group or private lessons.</p>
+          <p class="phrases" lang="en" aria-hidden="true"><span>Hello!</span><span>How are you?</span><span>Thanks</span></p>
+        </article>
+        <article class="lang fr rv">
+          <div class="lang-top"><span class="idx">03</span><span class="range">A1 → C1</span></div>
+          <b class="native" lang="fr">Français</b>
+          <span class="lname" data-t="lFr">French</span>
+          <p data-t="lFrText">From beginner to advanced, in group or private lessons, with listening tasks and level tests.</p>
+          <p class="phrases" lang="fr" aria-hidden="true"><span>Bonjour !</span><span>Ça va ?</span><span>Merci</span></p>
+        </article>
       </div>
     </div>
   </section>
 
   <section class="lsec alt" id="niveles">
     <div class="lsec-in">
-      <p class="eyebrow">CEFR</p>
-      <h2 data-t="levelsTitle">Five levels, from A1 to C1</h2>
-      <p class="lede" data-t="levelsLede">Lessons in every language follow the European language levels (CEFR). At the end of each level, a test shows whether you're ready for the next one.</p>
-      <ol class="stairs">
-        <li><span class="lv">A1</span><b data-t="n1">Beginner</b><span data-t="a1">Introduce yourself, order a coffee, talk about your family.</span></li>
-        <li><span class="lv">A2</span><b data-t="n2">Elementary</b><span data-t="a2">Talk about the past, travel, go shopping.</span></li>
-        <li><span class="lv b">B1</span><b data-t="n3">Intermediate</b><span data-t="b1">Talk about work, plans and opinions.</span></li>
-        <li><span class="lv b">B2</span><b data-t="n4">Upper intermediate</b><span data-t="b2">Debate, watch films, read articles.</span></li>
-        <li><span class="lv c">C1</span><b data-t="n5">Advanced</b><span data-t="c1">Speak freely and with nuance on any topic.</span></li>
+      <div class="shead rv">
+        <p class="eyebrow">CEFR</p>
+        <h2 data-t="levelsTitle">Five levels, from A1 to C1</h2>
+        <p class="lede" data-t="levelsLede">Lessons in every language follow the European language levels (CEFR). At the end of each level, a test shows whether you're ready for the next one.</p>
+      </div>
+      <ol class="journey rv" style="--n:5">
+        <li class="step"><span class="node">A1</span><div class="sbody"><b data-t="n1">Beginner</b><p data-t="d1">First steps in the language</p><p class="skills" data-t="a1"><span>Introduce yourself</span><span>Order a coffee</span><span>Talk about your family</span></p></div></li>
+        <li class="step"><span class="node">A2</span><div class="sbody"><b data-t="n2">Elementary</b><p data-t="d2">Everyday situations</p><p class="skills" data-t="a2"><span>Talk about the past</span><span>Travel</span><span>Go shopping</span></p></div></li>
+        <li class="step"><span class="node">B1</span><div class="sbody"><b data-t="n3">Intermediate</b><p data-t="d3">Speaking on your own</p><p class="skills" data-t="b1"><span>Talk about work</span><span>Plans</span><span>Opinions</span></p></div></li>
+        <li class="step"><span class="node">B2</span><div class="sbody"><b data-t="n4">Upper intermediate</b><p data-t="d4">Confident, rich language</p><p class="skills" data-t="b2"><span>Debate</span><span>Watch films</span><span>Read articles</span></p></div></li>
+        <li class="step"><span class="node">C1</span><div class="sbody"><b data-t="n5">Advanced</b><p data-t="d5">Fluent command</p><p class="skills" data-t="c1"><span>Speak freely</span><span>With nuance</span><span>On any topic</span></p></div></li>
       </ol>
     </div>
   </section>
 
   <section class="lsec" id="metodo">
     <div class="lsec-in">
-      <p class="eyebrow" data-t="methodEyebrow">Method</p>
-      <h2 data-t="methodTitle">How we teach</h2>
+      <div class="shead rv">
+        <p class="eyebrow" data-t="methodEyebrow">Method</p>
+        <h2 data-t="methodTitle">How we teach</h2>
+      </div>
       <div class="pillars">
-        <article><h3 data-t="p1t">Explanations in Armenian</h3><p data-t="p1">Grammar makes sense when it's explained in your own language. The examples are in the language you're learning.</p></article>
-        <article><h3 data-t="p2t">Listening practice</h3><p data-t="p2">Recorded texts for your level, with the transcript, vocabulary and questions.</p></article>
-        <article><h3 data-t="p3t">Level tests</h3><p data-t="p3">Check whether you've passed a level, and see which part still needs work.</p></article>
-        <article class="cert"><h3 data-t="p4t">Certificate</h3><p data-t="p4">At the end of the course you receive a Verba School certificate.</p></article>
+        <article class="rv"><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 10.5h7M8.5 13.5h4"/></svg></span><h3 data-t="p1t">Explanations in Armenian</h3><p data-t="p1">Grammar makes sense when it's explained in your own language. The examples are in the language you're learning.</p></article>
+        <article class="rv"><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><rect x="2.5" y="14" width="4" height="7" rx="1.5"/><rect x="17.5" y="14" width="4" height="7" rx="1.5"/></svg></span><h3 data-t="p2t">Listening practice</h3><p data-t="p2">Recorded texts for your level, with the transcript, vocabulary and questions.</p></article>
+        <article class="rv"><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6M9 4a1 1 0 0 0-1 1v1h8V5a1 1 0 0 0-1-1"/><rect x="5" y="5" width="14" height="16" rx="2"/><path d="m9 13 2 2 4-4"/></svg></span><h3 data-t="p3t">Level tests</h3><p data-t="p3">Check whether you've passed a level, and see which part still needs work.</p></article>
+        <article class="rv cert"><span class="pic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 14 7 22l5-3 5 3-1.5-8"/></svg></span><h3 data-t="p4t">Certificate</h3><p data-t="p4">At the end of the course you receive a Verba School certificate.</p></article>
       </div>
     </div>
   </section>
 
   <section class="lsec alt" id="precios">
     <div class="lsec-in">
-      <p class="eyebrow" data-t="pricesEyebrow">Format and prices</p>
-      <h2 data-t="pricesTitle">All lessons are online</h2>
-      <p class="lede" data-t="pricesLede">Learn from home, without wasting time on the road. Choose the format that suits you.</p>
+      <div class="shead rv">
+        <p class="eyebrow" data-t="pricesEyebrow">Format and prices</p>
+        <h2 data-t="pricesTitle">All lessons are online</h2>
+        <p class="lede" data-t="pricesLede">Learn from home, without wasting time on the road. Choose the format that suits you.</p>
+      </div>
       <div class="prices">
-        <article class="price">
-          <h3 data-t="groupT">Group lessons</h3>
+        <article class="price rv">
+          <div class="ptop"><span class="picon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="16.5" cy="9" r="2.5"/><path d="M2.5 20a5.5 5.5 0 0 1 11 0M13.5 19.5a4 4 0 0 1 8 0"/></svg></span><h3 data-t="groupT">Group lessons</h3></div>
+          <p class="pdesc" data-t="groupD">Learn together with other students.</p>
           <p class="amount"><b data-t="groupP">25,000 ֏</b><span data-t="perMonth">per month</span></p>
-          <p data-t="groupD">Learn together with other students.</p>
-          <p class="incl" data-t="certIncl">Certificate at the end of the course</p>
-          <a class="btn" href="https://www.instagram.com/verba.school_/" target="_blank" rel="noopener" data-t="signUp">Sign up</a>
+          <ul class="incl">
+            <li data-t="stOnlineLong">All lessons online</li>
+            <li data-t="p1t">Explanations in Armenian</li>
+            <li data-t="p2t">Listening practice</li>
+            <li data-t="p3t">Level tests</li>
+            <li data-t="certIncl">Certificate at the end of the course</li>
+          </ul>
+          <a class="btn big" href="https://www.instagram.com/verba.school_/" target="_blank" rel="noopener" data-t="signUp">Sign up</a>
         </article>
-        <article class="price main">
-          <h3 data-t="privT">Private lessons</h3>
+        <article class="price solo rv">
+          <div class="ptop"><span class="picon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20.5a7 7 0 0 1 14 0"/></svg></span><h3 data-t="privT">Private lessons</h3><span class="one">1 : 1</span></div>
+          <p class="pdesc" data-t="privD">One-on-one lessons at your own pace.</p>
           <p class="amount"><b data-t="privP">30,000 ֏</b><span data-t="perMonth">per month</span></p>
-          <p data-t="privD">One-on-one lessons at your own pace.</p>
-          <p class="incl" data-t="certIncl">Certificate at the end of the course</p>
-          <a class="btn" href="https://www.instagram.com/verba.school_/" target="_blank" rel="noopener" data-t="signUp">Sign up</a>
+          <ul class="incl">
+            <li data-t="stOnlineLong">All lessons online</li>
+            <li data-t="p1t">Explanations in Armenian</li>
+            <li data-t="p2t">Listening practice</li>
+            <li data-t="p3t">Level tests</li>
+            <li data-t="certIncl">Certificate at the end of the course</li>
+          </ul>
+          <a class="btn big" href="https://www.instagram.com/verba.school_/" target="_blank" rel="noopener" data-t="signUp">Sign up</a>
         </article>
       </div>
     </div>
@@ -134,45 +193,164 @@
 
   <section class="lsec" id="plataforma">
     <div class="lsec-in split">
-      <div>
+      <div class="plat-copy rv">
         <p class="eyebrow">Verba Listenings</p>
         <h2 data-t="platTitle">Our platform</h2>
-        <p class="lede" data-t="platLede">Spanish and French students get personal links to listening tasks and tests.</p>
-        <ul class="ticks">
+        <p class="lede" data-t="platLede">Our students get personal links to listening tasks, level tests and online lessons. Try it yourself: this is a real excerpt.</p>
+        <ol class="ticks">
           <li data-t="t1">Listen to the recording, first without the text</li>
           <li data-t="t2">Open the transcript and follow it sentence by sentence</li>
           <li data-t="t3">Answer the questions and check yourself</li>
-        </ul>
+        </ol>
+        <p class="feat"><span data-t="fTests">Level tests</span><span data-t="fHold">Translation in one tap</span><span data-t="fLive">Online lessons right on the site</span></p>
       </div>
-      <div class="mock" aria-hidden="true">
-        <div class="mock-head"><span class="lv">A1</span><span>Presentarse · Narradora</span></div>
-        <b class="mock-title">Me llamo Lucía</b>
-        <div class="mock-player"><span class="mock-play"></span><span class="mock-bar"><i></i></span><small>Frase 4 / 13</small></div>
-        <p class="mock-text"><span>Vivo en un piso pequeño con mi hermana Marta.</span> <mark>Soy estudiante.</mark> <span>Estudio Medicina en la universidad.</span></p>
-        <div class="mock-q"><b>¿Qué estudia Lucía?</b><span class="ok">a&nbsp; Medicina</span><span>b&nbsp; Derecho</span></div>
+      <div class="demo rv" id="demo" lang="es">
+        <div class="demo-head">
+          <span class="lvb">A1</span><span class="demo-meta">Presentarse · Narradora</span>
+          <span class="demo-live"><i></i>Verba Listenings</span>
+        </div>
+        <b class="demo-title">Me llamo Lucía</b>
+        <div class="demo-player">
+          <button class="demo-play" type="button" aria-label="Play"><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg></button>
+          <div class="wave" data-peaks="8,86,70,8,22,88,78,48,47,17,8,48,73,100,62,55,41,11,8,8,54,76,73,44,8,16,70,69,67,68,57,58,63,46,55,42,8,8,8,8,82,76,70,55,58,54,68,62,55,48,18,8,8,8,8,75,61,68,32,8,8,55,64,77,61,78,64,56,38,13,8,8" role="slider" aria-label="Progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"></div>
+          <span class="demo-time">0:00</span>
+        </div>
+        <p class="demo-text">
+          <span class="s" data-t0="0">Hola, me llamo Lucía y tengo <mark class="v" tabindex="0" data-hy="քսաներկու">veintidós</mark> años.</span>
+          <span class="s" data-t0="4.80">Soy de Valencia, una ciudad grande en el este de España.</span>
+          <span class="s" data-t0="9.55">Vivo en un <mark class="v" tabindex="0" data-hy="բնակարան">piso</mark> pequeño con mi <mark class="v" tabindex="0" data-hy="քույր">hermana</mark> Marta.</span>
+          <span class="s" data-t0="13.12">Soy estudiante.</span>
+          <span class="s" data-t0="14.58">Estudio Medicina en la universidad.</span>
+        </p>
+        <div class="demo-q">
+          <b>¿Con quién vive Lucía?</b>
+          <div class="opts">
+            <button type="button" class="dopt"><i>a</i>Con sus padres</button>
+            <button type="button" class="dopt" data-ok><i>b</i>Con su hermana</button>
+            <button type="button" class="dopt"><i>c</i>Sola</button>
+          </div>
+        </div>
+        <audio preload="none" src="/demo/lucia.mp3"></audio>
       </div>
     </div>
   </section>
 
   <section class="cta-band" id="contacto">
-    <div class="lsec-in">
-      <img class="cta-logo" src="/img/logo.png" alt="" width="72" height="72">
-      <h2 data-t="ctaTitle">Ready to start?</h2>
-      <p class="lede" data-t="ctaText">Message us on Instagram or call us. We'll help you find your level and choose your lessons.</p>
-      <div class="contacts">
-        <a class="igbtn" href="https://www.instagram.com/verba.school_/" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
-          @verba.school_
+    <div class="lsec-in cta-grid">
+      <div class="cta-copy rv">
+        <h2 data-t="ctaTitle">Ready to start?</h2>
+        <p class="lede" data-t="ctaText">Message us on Instagram or call us. We'll help you find your level and choose your lessons.</p>
+      </div>
+      <div class="contacts rv">
+        <a class="ccard" href="https://www.instagram.com/verba.school_/" target="_blank" rel="noopener">
+          <span class="cic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></span>
+          <span><small>Instagram</small><b>@verba.school_</b></span>
+          <svg class="go" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
         </a>
-        <a class="igbtn ghost" href="tel:+37477308525">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
-          <span class="tel">+374 77 30 85 25</span>
+        <a class="ccard" href="tel:+37477308525">
+          <span class="cic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></span>
+          <span><small data-t="phoneLabel">Phone</small><b class="tel">+374 77 30 85 25</b></span>
+          <svg class="go" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
         </a>
       </div>
+      <img class="cta-mark" src="/img/logo.png" alt="" width="220" height="220" loading="lazy">
     </div>
   </section>
 
-  <footer class="lfoot"><div class="lsec-in"><span class="brand"><img class="logo" src="/img/logo.png" alt="" width="28" height="28"><b>Verba<span>.</span>School</b></span><span data-t="foot">Language school · Spanish, English, French</span><span class="tel">+374 77 30 85 25</span><span>© 2026</span></div></footer>
+  <footer class="lfoot">
+    <div class="lsec-in foot-grid">
+      <div class="foot-brand">
+        <span class="brand"><img class="logo" src="/img/logo.png" alt="" width="32" height="32" loading="lazy"><b>Verba<span>.</span>School</b></span>
+        <p data-t="foot">Language school · Spanish, English, French</p>
+      </div>
+      <nav class="foot-col" aria-label="Sections">
+        <a href="#idiomas" data-t="navLangs">Languages</a>
+        <a href="#niveles" data-t="navLevels">Levels</a>
+        <a href="#precios" data-t="navPrices">Prices</a>
+        <a href="#plataforma" data-t="navPlatform">Platform</a>
+      </nav>
+      <div class="foot-col">
+        <a href="https://www.instagram.com/verba.school_/" target="_blank" rel="noopener">@verba.school_</a>
+        <a class="tel" href="tel:+37477308525">+374 77 30 85 25</a>
+        <nav class="langlinks" aria-label="Language"><a href="/" hreflang="hy" lang="hy">ՀՅ</a><a href="/en/" hreflang="en" lang="en" class="on" aria-current="page">EN</a><a href="/es/" hreflang="es" lang="es">ES</a><a href="/ru/" hreflang="ru" lang="ru">RU</a></nav>
+      </div>
+    </div>
+    <div class="lsec-in foot-base"><span>© 2026 Verba School</span><span data-t="stOnlineLong">All lessons online</span></div>
+  </footer>
+
+  <script>
+  (function(){
+    var nav = document.getElementById("lnav"), menu = document.getElementById("mmenu"), mb = nav && nav.querySelector(".menu-btn");
+    if(!nav) return;
+    var onScroll = function(){ nav.classList.toggle("scrolled", window.scrollY > 8); };
+    onScroll(); window.addEventListener("scroll", onScroll, {passive:true});
+    var setMenu = function(open){ mb.setAttribute("aria-expanded", open); menu.hidden = !open; nav.classList.toggle("menu-open", open); document.body.classList.toggle("noscroll", open); };
+    mb.addEventListener("click", function(){ setMenu(mb.getAttribute("aria-expanded") !== "true"); });
+    menu.addEventListener("click", function(e){ if(e.target.closest("a")) setMenu(false); });
+    document.addEventListener("keydown", function(e){ if(e.key === "Escape" && !menu.hidden){ setMenu(false); mb.focus(); } });
+    window.addEventListener("resize", function(){ if(window.innerWidth > 900 && !menu.hidden) setMenu(false); });
+
+    /* scroll reveal (content stays visible without JS or with reduced motion) */
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var land = document.getElementById("landing");
+    if(!reduce && "IntersectionObserver" in window){
+      land.classList.add("reveal-on");
+      var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }); }, {rootMargin:"0px 0px -8% 0px", threshold:0.08});
+      land.querySelectorAll(".rv").forEach(function(el){ io.observe(el); });
+    }
+
+    /* hero cards follow the pointer a little */
+    var deck = land.querySelector(".deck");
+    if(deck && !reduce && window.matchMedia("(pointer:fine)").matches){
+      land.querySelector(".hero").addEventListener("pointermove", function(e){
+        var r = deck.getBoundingClientRect();
+        deck.style.setProperty("--px", ((e.clientX - r.left) / r.width - .5).toFixed(3));
+        deck.style.setProperty("--py", ((e.clientY - r.top) / r.height - .5).toFixed(3));
+      });
+    }
+
+    /* listening demo: a real excerpt with synced sentences, word translations and a question */
+    var demo = document.getElementById("demo");
+    if(!demo) return;
+    var au = demo.querySelector("audio"), btn = demo.querySelector(".demo-play"), wave = demo.querySelector(".wave"),
+        time = demo.querySelector(".demo-time"), sents = [].slice.call(demo.querySelectorAll(".s")), DUR = 17.25;
+    wave.innerHTML = wave.dataset.peaks.split(",").map(function(p){ return '<i style="--h:' + p + '%"></i>'; }).join("");
+    var bars = [].slice.call(wave.children);
+    var fmt = function(t){ t = Math.max(0, Math.floor(t)); return Math.floor(t/60) + ":" + ("0" + t % 60).slice(-2); };
+    var paint = function(){
+      var t = au.currentTime || 0, f = Math.min(1, t / DUR), n = Math.round(f * bars.length);
+      bars.forEach(function(b, i){ b.classList.toggle("on", i < n); });
+      wave.setAttribute("aria-valuenow", Math.round(f * 100));
+      time.textContent = fmt(t);
+      var cur = -1; sents.forEach(function(s, i){ if(t >= +s.dataset.t0 && t > 0) cur = i; });
+      sents.forEach(function(s, i){ s.classList.toggle("now", i === cur && !au.paused); s.classList.toggle("past", i < cur); });
+    };
+    var raf; var loop = function(){ paint(); if(!au.paused) raf = requestAnimationFrame(loop); };
+    btn.addEventListener("click", function(){ if(au.paused){ au.play().catch(function(){}); } else au.pause(); });
+    au.addEventListener("play", function(){ demo.classList.add("playing"); btn.setAttribute("aria-label", "Pause"); loop(); });
+    au.addEventListener("pause", function(){ demo.classList.remove("playing"); btn.setAttribute("aria-label", "Play"); cancelAnimationFrame(raf); paint(); });
+    au.addEventListener("ended", function(){ au.currentTime = 0; paint(); });
+    var seekTo = function(f){ var go = function(){ au.currentTime = Math.max(0, Math.min(DUR - .05, f * DUR)); paint(); };
+      if(au.readyState < 1){ au.preload = "auto"; au.addEventListener("loadedmetadata", go, {once:true}); au.load(); } else go(); };
+    wave.addEventListener("click", function(e){ var r = wave.getBoundingClientRect(); seekTo((e.clientX - r.left) / r.width); });
+    wave.addEventListener("keydown", function(e){ var d = e.key === "ArrowRight" ? 2 : e.key === "ArrowLeft" ? -2 : 0; if(d){ e.preventDefault(); seekTo(((au.currentTime || 0) + d) / DUR); } });
+    sents.forEach(function(s){ s.addEventListener("click", function(e){ if(e.target.closest(".v")) return; seekTo(+s.dataset.t0 / DUR + .001); if(au.paused) au.play().catch(function(){}); }); });
+    /* vocabulary: tap or focus a highlighted word to see its Armenian translation */
+    demo.querySelectorAll(".v").forEach(function(v){
+      var tip = document.createElement("span"); tip.className = "vtip"; tip.lang = "hy"; tip.textContent = v.dataset.hy; v.appendChild(tip);
+      v.addEventListener("click", function(e){ e.stopPropagation(); var on = !v.classList.contains("open"); demo.querySelectorAll(".v.open").forEach(function(x){ x.classList.remove("open"); }); v.classList.toggle("open", on); });
+    });
+    document.addEventListener("click", function(){ demo.querySelectorAll(".v.open").forEach(function(x){ x.classList.remove("open"); }); });
+    demo.querySelectorAll(".dopt").forEach(function(o){
+      o.addEventListener("click", function(){
+        demo.querySelectorAll(".dopt").forEach(function(x){ x.classList.remove("ok", "no", "hint"); x.removeAttribute("aria-pressed"); });
+        o.classList.add(o.hasAttribute("data-ok") ? "ok" : "no"); o.setAttribute("aria-pressed", "true");
+        if(!o.hasAttribute("data-ok")) demo.querySelector(".dopt[data-ok]").classList.add("hint");
+      });
+    });
+    paint();
+  })();
+  </script>
 </div>
 </body>
 </html>

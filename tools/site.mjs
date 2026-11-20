@@ -28,7 +28,9 @@ function fill(tpl, S, root, current) {
   const nav = `<nav class="langtabs" id="sitelangs" aria-label="Language">\n` + LANGS.map((l) =>
     `        <a href="/${l.dir}" hreflang="${l.code}" lang="${l.code}"${l.code === current ? ' class="on" aria-current="page"' : ""}>${l.label}</a>`
   ).join("\n") + `\n      </nav>`;
-  return html.replace("{{LANGNAV}}", nav).replaceAll("{{ROOT}}", root);
+  const links = `<nav class="langlinks" aria-label="Language">` + LANGS.map((l) =>
+    `<a href="/${l.dir}" hreflang="${l.code}" lang="${l.code}"${l.code === current ? ' class="on" aria-current="page"' : ""}>${l.label}</a>`).join("") + `</nav>`;
+  return html.replace("{{LANGNAV}}", nav).replaceAll("{{LANGLINKS}}", links).replaceAll("{{ROOT}}", root);
 }
 
 function jsonLd(S, lang) {
@@ -99,7 +101,7 @@ function head(S, l) {
     `<meta name="twitter:card" content="summary_large_image">`,
     `<link rel="icon" type="image/png" sizes="32x32" href="/img/icon-32.png">`,
     `<link rel="apple-touch-icon" href="/img/icon-180.png">`,
-    `<meta name="theme-color" content="#b62827">`,
+    `<meta name="theme-color" content="#141110">`,
     `<script type="application/ld+json">${JSON.stringify(jsonLd(S, l.code))}</script>`,
   ].join("\n");
 }
@@ -113,7 +115,7 @@ function pageShell(S, l, body, cssVer) {
 <script>if(location.protocol==="http:"&&!/^(localhost|127\\.)/.test(location.hostname))location.replace("https:"+location.href.slice(5));</script>
 ${head(S, l)}
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Noto+Sans+Armenian:wght@400;600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Armenian:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,500;1,600&family=JetBrains+Mono:wght@500;700&display=swap">
 <link rel="stylesheet" href="/style.css?v=${cssVer}">
 </head>
 <body class="is-landing">
