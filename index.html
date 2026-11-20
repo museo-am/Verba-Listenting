@@ -840,7 +840,10 @@ function loadJitsi(appId){
     document.head.appendChild(sc);
   });
 }
+const VP = document.querySelector('meta[name="viewport"]'), VP_NORMAL = VP ? VP.content : "";
+function lockZoom(on){ if(VP) VP.content = on ? VP_NORMAL + ", maximum-scale=1, user-scalable=no" : VP_NORMAL; }
 function leaveCall(){
+  lockZoom(false);
   if(jitsiApi){ try{ jitsiApi.dispose(); }catch(e){} jitsiApi = null; }
   document.getElementById("callbox")?.remove();
   document.body.classList.remove("in-call");
@@ -870,19 +873,29 @@ function renderLive(l, msg){
     const btn = ev.target.querySelector("button"); btn.disabled = true;
     try{ await loadJitsi(l.appId); }catch(e){ btn.disabled = false; renderLive(l, UI.liveLoadErr); return; }
     const box = document.createElement("div"); box.id = "callbox";
-    document.body.appendChild(box); document.body.classList.add("in-call");
+    document.body.appendChild(box); document.body.classList.add("in-call"); lockZoom(true);
     jitsiApi = new JitsiMeetExternalAPI("8x8.vc", {
       roomName: `${l.appId}/${l.room}`, jwt: l.jwt, parentNode: box, width: "100%", height: "100%",
       userInfo: {displayName: nm},
-      configOverwrite: {prejoinConfig:{enabled:true}, disableDeepLinking:true, channelLastN:-1, disableScreensharingVirtualParticipant:false, defaultLanguage: l.lang==="fr"?"fr":l.lang==="es"?"es":"en"},
+      configOverwrite: {prejoinConfig:{enabled:true}, disableDeepLinking:true, channelLastN:-1, disableScreensharingVirtualParticipant:false, tileView:{disabled:true}, defaultLanguage: l.lang==="fr"?"fr":l.lang==="es"?"es":"en"},
     });
 
     // when someone shares a screen, show it big (phones otherwise keep it as a small tile or skip it)
+    // On a phone, a shared screen fills the call: no tiles, filmstrip hidden while it lasts.
+    let stripOn = true, hidStrip = false;
+    jitsiApi.addListener("filmstripDisplayChanged", e => { stripOn = !!(e && e.visible); });
     jitsiApi.addListener("contentSharingParticipantsChanged", e => {
-      const ids = (e && e.data) || [];
+      const ids = (e && e.data) || [], phone = window.innerWidth < 760;
       try{
-        if(ids.length){ jitsiApi.executeCommand("setTileView", false); jitsiApi.executeCommand("pinParticipant", ids[ids.length-1], "desktop"); }
-        else jitsiApi.executeCommand("pinParticipant", null);
+        if(ids.length){
+          jitsiApi.executeCommand("setTileView", false);
+          jitsiApi.executeCommand("pinParticipant", ids[ids.length-1], "desktop");
+          if(phone && stripOn){ jitsiApi.executeCommand("toggleFilmStrip"); hidStrip = true; }
+        } else {
+          jitsiApi.executeCommand("pinParticipant", null);
+          if(hidStrip && !stripOn){ jitsiApi.executeCommand("toggleFilmStrip"); }
+          hidStrip = false;
+        }
       }catch(x){}
     });
     jitsiApi.addListener("readyToClose", () => { leaveCall(); renderLive(l, UI.liveEnded); });
