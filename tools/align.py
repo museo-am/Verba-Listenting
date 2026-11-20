@@ -34,6 +34,23 @@ def pauses(path, noise="-35dB", min_d=0.18):
     ends = [float(x) for x in re.findall(r"silence_end: ([\d.]+)", log)]
     return list(zip(starts, ends + [None] * (len(starts) - len(ends))))
 
+def dips(path, t0, t1, taken, want, hop=0.01):
+    """Quietest short moments (local loudness minima) between t0 and t1, away from known pauses."""
+    import numpy as np
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-ac", "1", "-ar", "16000", "-f", "s16le", "-"], capture_output=True, check=True).stdout
+    x = np.frombuffer(raw, dtype=np.int16).astype(np.float32)
+    w = int(16000 * hop)
+    e = np.sqrt(np.convolve(x[: len(x) // w * w].reshape(-1, w).astype(np.float64).__pow__(2).mean(1), np.ones(8) / 8, mode="same"))
+    out = []
+    for i in np.argsort(e):
+        t = i * hop
+        if not (t0 + 0.3 < t < t1 - 0.3): continue
+        if any(a - 0.35 < t < b + 0.35 for a, b in taken + out): continue
+        if not (e[max(0, i - 8):i + 9].min() >= e[i]): continue
+        out.append((t - 0.02, t + 0.02))
+        if len(out) >= want: break
+    return out
+
 def align(path, paras):
     sents = [(s, pi) for pi, p in enumerate(paras) for s in p]
     n = len(sents)
@@ -47,6 +64,11 @@ def align(path, paras):
     cands = [(a, b) for a, b in sil if b is not None and speech_start < a and b < speech_end]
     if n == 1:
         return [round(speech_start, 3)], total, 1.0
+    if len(cands) < n - 1:
+        # fast readers sometimes leave no real silence between sentences: add the deepest dips in loudness
+        extra = dips(path, speech_start, speech_end, cands, want=2 * (n - 1 - len(cands)) + 4)
+        cands = sorted(cands + extra)
+        print(f"  note: only {len(cands) - len(extra)} clear pauses; added {len(extra)} quieter moments")
     if len(cands) < n - 1:
         raise SystemExit(f"{path}: only {len(cands)} pauses for {n} sentences; record with a short pause after each sentence")
     chars = [len(s) for s, _ in sents]
