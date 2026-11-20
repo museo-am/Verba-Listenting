@@ -29,7 +29,7 @@
 <script>if(/^#([a-z0-9-]+~[A-Za-z0-9_-]{43}|[a-z0-9-]+-[a-z2-9]{4}-[a-z2-9]{4}-[a-z2-9]{4})$/i.test(decodeURIComponent(location.hash)))document.documentElement.classList.add("is-link");</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Noto+Sans+Armenian:wght@400;600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=8dfddec0">
+<link rel="stylesheet" href="style.css?v=e3a0b78c">
 </head>
 <body>
 
@@ -239,6 +239,7 @@ const UI_STR = {
   passH:"¡Aprobado!",failH:"Todavía no",passLede:lv=>`Has superado el nivel ${lv}.`,
   failLede:(lv,need,total)=>`Todavía no has superado el nivel ${lv}. Necesitas ${need} respuestas correctas de ${total}.`,
   markNote:(need,total)=>`La marca indica el mínimo para aprobar (${need} de ${total}).`,byPart:"Por partes",
+  liveLabel:"Clase online",liveTitle:n=>`Clase con ${n}`,liveText:"Escribe tu nombre y entra. Tu profesor/a te dejará pasar desde la sala de espera.",liveName:"Tu nombre",liveJoin:"Entrar en la clase",liveTip:"Permite el acceso a la cámara y al micrófono cuando el navegador lo pida.",liveEnded:"Has salido de la clase",liveRejoin:"Volver a entrar",liveLoadErr:"No se pudo cargar la videollamada. Revisa tu conexión e inténtalo de nuevo.",
   holdHint:"Mantén pulsada una palabra para ver su traducción.",
   sendTitle:"Envía el resultado a tu profesor/a",copyRes:"Copiar resultado",review:"Ver respuestas",retryTest:"Repetir el test",yourAnswer:"tu respuesta",
   locale:"es-ES"},
@@ -259,6 +260,7 @@ const UI_STR = {
   passH:"Réussi !",failH:"Pas encore",passLede:lv=>`Vous avez validé le niveau ${lv}.`,
   failLede:(lv,need,total)=>`Vous n'avez pas encore validé le niveau ${lv}. Il faut ${need} bonnes réponses sur ${total}.`,
   markNote:(need,total)=>`Le repère indique le minimum pour réussir (${need} sur ${total}).`,byPart:"Par partie",
+  liveLabel:"Cours en ligne",liveTitle:n=>`Cours avec ${n}`,liveText:"Écrivez votre nom et entrez. Votre professeur vous fera entrer depuis la salle d'attente.",liveName:"Votre nom",liveJoin:"Rejoindre le cours",liveTip:"Autorisez la caméra et le micro quand le navigateur le demande.",liveEnded:"Vous avez quitté le cours",liveRejoin:"Revenir dans le cours",liveLoadErr:"Impossible de charger l'appel vidéo. Vérifiez votre connexion et réessayez.",
   holdHint:"Maintenez un mot appuyé pour voir sa traduction.",
   sendTitle:"Envoyez le résultat à votre professeur",copyRes:"Copier le résultat",review:"Voir les réponses",retryTest:"Refaire le test",yourAnswer:"votre réponse",
   locale:"fr-FR"},
@@ -279,6 +281,7 @@ const UI_STR = {
   passH:"Passed!",failH:"Not yet",passLede:lv=>`You have passed level ${lv}.`,
   failLede:(lv,need,total)=>`You haven't passed level ${lv} yet. You need ${need} correct answers out of ${total}.`,
   markNote:(need,total)=>`The mark shows the minimum to pass (${need} out of ${total}).`,byPart:"By part",
+  liveLabel:"Online lesson",liveTitle:n=>`Lesson with ${n}`,liveText:"Type your name and join. Your teacher will let you in from the waiting room.",liveName:"Your name",liveJoin:"Join the lesson",liveTip:"Allow the camera and microphone when your browser asks.",liveEnded:"You have left the lesson",liveRejoin:"Join again",liveLoadErr:"The video call couldn't load. Check your connection and try again.",
   holdHint:"Press and hold a word to see its translation.",
   sendTitle:"Send the result to your teacher",copyRes:"Copy the result",review:"See the answers",retryTest:"Take the test again",yourAnswer:"your answer",
   locale:"en-GB"}
@@ -451,6 +454,7 @@ async function openLesson(link){
   if(token!==openToken) return;
   setContentLang(l.lang || "es");
   if(l.kind==="test"){ stop(true); renderTest(l); return; }
+  if(l.kind==="live"){ stop(true); renderLive(l); return; }
   if(recUrl){ URL.revokeObjectURL(recUrl); recUrl=null; }
   rec = null; audio.removeAttribute("src");
   renderLesson(l);
@@ -638,6 +642,57 @@ function saveDraft(t, d){ const all = store.get("vs-tests-draft",{}); if(d) all[
 function flatQ(t){ const out=[]; t.sections.forEach((s,si)=>s.q.forEach((q,qi)=>out.push({si,qi,q}))); return out; }
 const needed = t => Math.ceil(t.pass*flatQ(t).length - 1e-9);
 
+/* ---------- online lesson (Jitsi, 8x8.vc) ---------- */
+const HY_LIVE = {text:"Գրեք ձեր անունը և մտեք։ Ուսուցիչը ձեզ կթողնի սպասասրահից։", tip:"Թույլատրեք տեսախցիկը և խոսափողը, երբ դիտարկիչը հարցնի։"};
+let jitsiApi = null;
+function loadJitsi(appId){
+  if(window.JitsiMeetExternalAPI) return Promise.resolve();
+  return new Promise((ok, bad) => {
+    const sc = document.createElement("script");
+    sc.src = `https://8x8.vc/${appId}/external_api.js`; sc.onload = ok; sc.onerror = bad;
+    document.head.appendChild(sc);
+  });
+}
+function leaveCall(){
+  if(jitsiApi){ try{ jitsiApi.dispose(); }catch(e){} jitsiApi = null; }
+  document.getElementById("callbox")?.remove();
+  document.body.classList.remove("in-call");
+}
+function renderLive(l, msg){
+  leaveCall();
+  document.title = UI.liveTitle(l.tutor) + " · Verba School";
+  let name = ""; try{ name = localStorage.getItem("vs-live-name") || ""; }catch(e){}
+  $app.innerHTML = `
+  <section class="live">
+    <div class="lkicker"><span class="dot" aria-hidden="true"></span>${esc(UI.liveLabel)}</div>
+    <h1>${esc(UI.liveTitle(l.tutor))}</h1>
+    ${msg?`<p class="livemsg">${esc(msg)}</p>`:""}
+    <p class="lede">${esc(UI.liveText)}<br><span lang="hy">${HY_LIVE.text}</span></p>
+    <form class="panel livejoin" id="livejoin">
+      <label for="lname">${esc(UI.liveName)}</label>
+      <input class="input" id="lname" autocomplete="name" maxlength="40" required value="${esc(name)}">
+      <button class="btn primary" type="submit">${esc(UI.liveJoin)}</button>
+      <p class="hint">${esc(UI.liveTip)}<br><span lang="hy">${HY_LIVE.tip}</span></p>
+    </form>
+  </section>`;
+  document.getElementById("livejoin").onsubmit = async ev => {
+    ev.preventDefault();
+    const nm = document.getElementById("lname").value.trim();
+    if(!nm) return;
+    try{ localStorage.setItem("vs-live-name", nm); }catch(e){}
+    const btn = ev.target.querySelector("button"); btn.disabled = true;
+    try{ await loadJitsi(l.appId); }catch(e){ btn.disabled = false; renderLive(l, UI.liveLoadErr); return; }
+    const box = document.createElement("div"); box.id = "callbox";
+    document.body.appendChild(box); document.body.classList.add("in-call");
+    jitsiApi = new JitsiMeetExternalAPI("8x8.vc", {
+      roomName: `${l.appId}/${l.room}`, jwt: l.jwt, parentNode: box, width: "100%", height: "100%",
+      userInfo: {displayName: nm},
+      configOverwrite: {prejoinConfig:{enabled:true}, disableDeepLinking:true, defaultLanguage: l.lang==="fr"?"fr":l.lang==="es"?"es":"en"},
+    });
+    jitsiApi.addListener("readyToClose", () => { leaveCall(); renderLive(l, UI.liveEnded); });
+  };
+}
+
 function renderTest(t){
   const draft = testState(t);
   if(draft && !draft.finished) return renderTestRun(t, draft);
@@ -806,6 +861,7 @@ function renderTestResult(t, r){
 function nextSeq(){ try{ const n = (+sessionStorage.getItem("vs-seq")||0)+1; sessionStorage.setItem("vs-seq",n); return n; }catch(e){ return Date.now(); } }
 let shownSeq = 0;
 function route(){
+  leaveCall();
   const h = decodeURIComponent(location.hash.slice(1)).trim();
   let m = h.match(/^([a-z0-9-]+)~([A-Za-z0-9_-]{43})$/), link = null;
   if(m) link = {old:true, id:m[1], key:m[2]};

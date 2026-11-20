@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="img/icon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Noto+Sans+Armenian:wght@400;600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=8dfddec0">
+<link rel="stylesheet" href="style.css?v=e3a0b78c">
 </head>
 <body>
 
@@ -46,6 +46,7 @@ const STR = {
   loginTitle:"Tutor panel", loginText:"Enter your username and password.", username:"Username", langNames:{es:"Spanish",en:"English",fr:"French"},
   password:"Password", login:"Log in", checking:"Checking…",
   wrongPw:"Wrong username or password. Try again.", noFile:"Panel settings not found.",
+  secLive:"Online lesson", liveH:"Your lesson room", liveIntro:"Students join your video lessons right on the Verba website, from their phone or computer. Nothing to install.", liveStep1:"Send students the link below. It stays the same for every lesson.", liveStep2:"Press <b>Start lesson</b>. Students wait in the waiting room until you let them in.", liveStart:"Start lesson", liveLinkT:"Student link", liveLinkHint:"<b>New link</b> stops the current link working. Use it if the link got into the wrong hands.", liveLoadErr:"The video call couldn't load. Check your connection and try again.", liveLeft:"You have left the lesson.",
   secListen:"Listenings", secTests:"Tests", allLevels:"All", levelsNav:"Levels",
   countLine:(n,r)=>`${n} listenings · ${r} with recording`,
   intro:"Each link opens only that listening. <b>New link</b> cancels the current link for everyone who has it and creates another one.",
@@ -76,6 +77,7 @@ const STR = {
   loginTitle:"Ուսուցչի վահանակ", loginText:"Մուտքագրեք ձեր օգտանունը և գաղտնաբառը։", username:"Օգտանուն", langNames:{es:"Իսպաներեն",en:"Անգլերեն",fr:"Ֆրանսերեն"},
   password:"Գաղտնաբառ", login:"Մուտք", checking:"Ստուգվում է…",
   wrongPw:"Սխալ օգտանուն կամ գաղտնաբառ։ Փորձեք կրկին։", noFile:"Վահանակի կարգավորումները չեն գտնվել։",
+  secLive:"Առցանց դաս", liveH:"Ձեր դասասենյակը", liveIntro:"Աշակերտները միանում են տեսադասերին հենց Verba կայքում՝ հեռախոսից կամ համակարգչից։ Ոչինչ տեղադրել պետք չէ։", liveStep1:"Ուղարկեք աշակերտներին ստորև նշված հղումը։ Այն նույնն է բոլոր դասերի համար։", liveStep2:"Սեղմեք <b>Սկսել դասը</b>։ Աշակերտները սպասում են սպասասրահում, մինչև դուք նրանց ներս թողնեք։", liveStart:"Սկսել դասը", liveLinkT:"Աշակերտի հղում", liveLinkHint:"<b>Նոր հղում</b>-ը անջատում է ընթացիկ հղումը։ Օգտագործեք, եթե հղումը հայտնվել է օտար ձեռքերում։", liveLoadErr:"Տեսազանգը չբեռնվեց։ Ստուգեք կապը և նորից փորձեք։", liveLeft:"Դուք դուրս եկաք դասից։",
   secListen:"Լսողություն", secTests:"Թեստեր", allLevels:"Բոլորը", levelsNav:"Մակարդակներ",
   countLine:(n,r)=>`${n} առաջադրանք · ${r}-ը՝ ձայնագրությամբ`,
   intro:"Յուրաքանչյուր հղում բացում է միայն այդ առաջադրանքը։ <b>Նոր հղում</b> կոճակը չեղարկում է ընթացիկ հղումը բոլորի համար և ստեղծում նորը։",
@@ -106,6 +108,7 @@ const STR = {
   loginTitle:"Panel del profesor", loginText:"Introduce tu usuario y contraseña.", username:"Usuario", langNames:{es:"Español",en:"Inglés",fr:"Francés"},
   password:"Contraseña", login:"Entrar", checking:"Comprobando…",
   wrongPw:"Usuario o contraseña incorrectos. Inténtalo de nuevo.", noFile:"No se encontró la configuración del panel.",
+  secLive:"Clase online", liveH:"Tu aula", liveIntro:"Los alumnos entran a tus clases por vídeo directamente en la web de Verba, desde el móvil o el ordenador. No hay que instalar nada.", liveStep1:"Envía a los alumnos el enlace de abajo. Es el mismo para todas las clases.", liveStep2:"Pulsa <b>Empezar la clase</b>. Los alumnos esperan en la sala de espera hasta que les dejes pasar.", liveStart:"Empezar la clase", liveLinkT:"Enlace para alumnos", liveLinkHint:"<b>Nuevo enlace</b> desactiva el enlace actual. Úsalo si el enlace ha llegado a quien no debía.", liveLoadErr:"No se pudo cargar la videollamada. Revisa tu conexión e inténtalo de nuevo.", liveLeft:"Has salido de la clase.",
   secListen:"Audiciones", secTests:"Tests", allLevels:"Todos", levelsNav:"Niveles",
   countLine:(n,r)=>`${n} audiciones · ${r} con grabación`,
   intro:"Cada enlace abre solo esa audición. <b>Nuevo enlace</b> anula el enlace actual para todos los que lo tengan y crea otro.",
@@ -208,7 +211,7 @@ async function openWith(a, wrapKey, slug){
   const plain = await crypto.subtle.decrypt({name:"AES-GCM", iv:unb64(a.iv)}, wrapKey, unb64(a.ct));
   const inner = JSON.parse(new TextDecoder().decode(plain));
   return {slug, username: inner.username || slug, language: inner.language || null,
-    master: unb64(inner.master), lessons: inner.lessons, gh: inner.gh || null, wrapKey, meta:{iter:a.iter, salt:a.salt}};
+    master: unb64(inner.master), lessons: inner.lessons, live: inner.live || null, gh: inner.gh || null, wrapKey, meta:{iter:a.iter, salt:a.salt}};
 }
 async function unlock(username, pw){
   const slug = slugify(username);
@@ -244,11 +247,28 @@ async function resume(){
 }
 
 async function adminJsonBytes(){
-  const inner = enc(JSON.stringify({username:session.username, language:session.language, master:b64(session.master), lessons:session.lessons, ...(session.gh?{gh:session.gh}:{})}));
+  const inner = enc(JSON.stringify({username:session.username, language:session.language, master:b64(session.master), lessons:session.lessons, ...(session.live?{live:session.live}:{}), ...(session.gh?{gh:session.gh}:{})}));
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const ct = new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM", iv}, session.wrapKey, inner));
   return enc(JSON.stringify({v:1, iter:session.meta.iter, salt:session.meta.salt, iv:b64(iv), ct:b64(ct)}, null, 1)+"\n");
 }
+/* online lessons: JaaS passes, signed here with the key kept in the encrypted profile
+   (must match signJaas/studentPass in tools/build.mjs) */
+const b64uBytes = u8 => b64(u8).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+async function signJaas(payload){
+  const L = session.live;
+  const key = await crypto.subtle.importKey("pkcs8", unb64(L.key), {name:"RSASSA-PKCS1-v1_5", hash:"SHA-256"}, false, ["sign"]);
+  const head = b64uBytes(enc(JSON.stringify({alg:"RS256", kid:L.kid, typ:"JWT"}))) + "." + b64uBytes(enc(JSON.stringify(payload)));
+  return head + "." + b64uBytes(new Uint8Array(await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, enc(head))));
+}
+const studentPass = exp => ({aud:"jitsi", iss:"chat", sub:session.live.appId, room:session.live.room, exp, nbf:1700000000,
+  context:{user:{id:`student-${session.live.room}`, name:"", avatar:"", email:"", moderator:"false"},
+    features:{livestreaming:"false", recording:"false", transcription:"false", "outbound-call":"false"}}});
+const tutorPass = () => { const now = Math.floor(Date.now()/1000); return {aud:"jitsi", iss:"chat", sub:session.live.appId, room:session.live.room,
+  exp: now + 6*3600, nbf: now - 300,
+  context:{user:{id:`tutor-${session.slug}`, name:session.username, avatar:"", email:"", moderator:"true"},
+    features:{livestreaming:"false", recording:"false", transcription:"false", "outbound-call":"false"}}}; };
+
 async function linkFor(l){
   if(!l.short) return `${SITE}#${l.id}~${b64u(await lessonKey(l))}`;
   return `${SITE}#${l.short}-${(await shortCode(l)).match(/.{4}/g).join("-")}`;
@@ -289,7 +309,12 @@ function ghError(e){
 /* ---------- new link for one listening ---------- */
 async function newLink(l){
   const newV = l.v + 1, files = {};
-  if(l.short){
+  if(l === session.live){
+    const code = await shortCode(l, newV);
+    const jwt = await signJaas(studentPass(l.exp));
+    const data = {id:l.id, kind:"live", lang:session.language||"es", tutor:session.username, appId:l.appId, room:l.room, jwt};
+    files[`c/${l.short}.bin`] = await seal(await shortAesKey(l.short, code), enc(JSON.stringify(data)));
+  } else if(l.short){
     const oldKey = await shortAesKey(l.short, await shortCode(l));
     const code = await shortCode(l, newV), newKey = await shortAesKey(l.short, code);
     for(const path of [`c/${l.short}.bin`, ...(l.audio ? [`a/${l.short}.bin`] : [])])
@@ -394,23 +419,73 @@ function levelTabs(items, key){
   const groups = present.filter(lv => sel === "all" || lv === sel).map(lv => [lv, items.filter(l => l.level === lv)]);
   return {html, groups, wire(box, redraw){ box.querySelectorAll("[data-lv]").forEach(b => b.onclick = () => { store.set(key, b.dataset.lv); redraw(); }); }};
 }
-const SECTIONS = ["listenings","tests"];
+const SECTIONS = ["listenings","tests","live"];
 const listenings = () => session.lessons.filter(l=>l.kind!=="test");
 const tests = () => session.lessons.filter(l=>l.kind==="test");
 function renderPanel(){
   currentView = renderPanel;
   applyChrome();
   document.getElementById("lock").hidden = false;
-  if(!SECTIONS.includes(section)) section = "listenings";
+  if(!SECTIONS.includes(section) || (section==="live" && !session.live)) section = "listenings";
   $app.innerHTML = `
   <nav class="sections" role="tablist" aria-label="Sections">
     <button type="button" role="tab" data-sec="listenings" aria-selected="${section==="listenings"}">${t("secListen")}<span class="count">${listenings().length}</span></button>
     <button type="button" role="tab" data-sec="tests" aria-selected="${section==="tests"}">${t("secTests")}${tests().length?`<span class="count">${tests().length}</span>`:`<span class="count soon">${t("testsSoon")}</span>`}</button>
+    ${session.live?`<button type="button" role="tab" data-sec="live" aria-selected="${section==="live"}"><span class="livedot" aria-hidden="true"></span>${t("secLive")}</button>`:""}
   </nav>
   <div id="sec" role="tabpanel"></div>`;
   $app.querySelectorAll("[data-sec]").forEach(b=>b.onclick=()=>{ section=b.dataset.sec; store.set("vs-admin-section",section); renderPanel(); });
   const box = document.getElementById("sec");
-  if(section==="tests") renderTests(box); else renderListenings(box);
+  if(section==="tests") renderTests(box); else if(section==="live") renderLive(box); else renderListenings(box);
+}
+
+function renderLive(box, msg){
+  box.innerHTML = `
+  <div class="toolbar"><h1>${t("liveH")}</h1></div>
+  <p class="hint">${t("liveIntro")}</p>
+  ${msg?`<p class="rowmsg good">${esc(msg)}</p>`:""}
+  <ol class="livesteps"><li>${t("liveStep1")}</li><li>${t("liveStep2")}</li></ol>
+  <button type="button" class="btn livestart" id="livestart"><span class="livedot" aria-hidden="true"></span>${t("liveStart")}</button>
+  <section class="panel connect" id="connect" hidden></section>
+  <h2 class="section-title">${t("liveLinkT")}</h2>
+  <div class="rows">
+    <div class="row-l" data-id="live">
+      <span class="lv live-ic" aria-hidden="true">●</span>
+      <div style="min-width:0"><h3>${esc(session.username)} · ${t("secLive")}</h3><div class="meta"><span>${t("liveLinkHint")}</span></div></div>
+      <div class="acts"></div>
+      <p class="rowmsg" hidden></p>
+    </div>
+  </div>`;
+  renderActs(box.querySelector(".row-l"));
+  box.querySelector("#livestart").onclick = async (e) => {
+    const btn = e.currentTarget; btn.disabled = true;
+    try{ await startCall(); }
+    catch(x){ btn.disabled = false; renderLive(box); const m = box.querySelector(".rowmsg"); m.hidden = false; m.className = "rowmsg bad"; m.textContent = t("liveLoadErr"); }
+  };
+}
+let jitsiApi = null;
+function loadJitsi(appId){
+  if(window.JitsiMeetExternalAPI) return Promise.resolve();
+  return new Promise((ok, bad) => { const sc = document.createElement("script"); sc.src = `https://8x8.vc/${appId}/external_api.js`; sc.onload = ok; sc.onerror = bad; document.head.appendChild(sc); });
+}
+function endCall(){
+  if(jitsiApi){ try{ jitsiApi.dispose(); }catch(e){} jitsiApi = null; }
+  document.getElementById("callbox")?.remove(); document.body.classList.remove("in-call");
+}
+async function startCall(){
+  const L = session.live;
+  await loadJitsi(L.appId);
+  const jwt = await signJaas(tutorPass());
+  const box = document.createElement("div"); box.id = "callbox";
+  document.body.appendChild(box); document.body.classList.add("in-call");
+  jitsiApi = new JitsiMeetExternalAPI("8x8.vc", {
+    roomName: `${L.appId}/${L.room}`, jwt, parentNode: box, width: "100%", height: "100%",
+    userInfo: {displayName: session.username},
+    configOverwrite: {prejoinConfig:{enabled:true}, disableDeepLinking:true, defaultLanguage: lang==="hy"?"hy":lang==="es"?"es":"en"},
+  });
+  // students wait in the lobby until the tutor lets them in
+  jitsiApi.addListener("videoConferenceJoined", () => { try{ jitsiApi.executeCommand("toggleLobby", true); }catch(e){} });
+  jitsiApi.addListener("readyToClose", () => { endCall(); if(section==="live") renderLive(document.getElementById("sec"), t("liveLeft")); });
 }
 
 function renderTests(box){
@@ -483,7 +558,7 @@ function rowMsg(row, text, kind){
   m.hidden = !text; m.textContent = text || ""; m.className = "rowmsg" + (kind ? " "+kind : "");
 }
 async function renderActs(row){
-  const l = session.lessons.find(x=>x.id===row.dataset.id);
+  const l = row.dataset.id === "live" ? session.live : session.lessons.find(x=>x.id===row.dataset.id);
   const acts = row.querySelector(".acts");
   const url = await linkFor(l);
   acts.innerHTML = `

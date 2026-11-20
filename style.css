@@ -368,3 +368,27 @@ body.is-landing{background:var(--bg)}
 .lvtabs button[aria-selected="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
 .lvtabs button[aria-selected="true"] .n{color:var(--accent)}
 .lvtabs .lv{margin:0}
+
+/* online lesson */
+.live{max-width:560px;margin:0 auto;padding-block:8px 40px}
+.live h1{font:800 clamp(1.8rem,6vw,2.4rem)/1.1 var(--f-display);letter-spacing:-.02em;margin:10px 0 12px;text-wrap:balance}
+.lkicker{display:inline-flex;align-items:center;gap:8px;font:600 .8rem var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.lkicker .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.live .lede{color:var(--muted);line-height:1.55;margin:0 0 20px}
+.live .lede span,.live .hint span{display:inline-block;margin-top:6px}
+.livemsg{background:var(--sun-soft);border-radius:10px;padding:10px 14px;margin:0 0 14px;font-weight:600}
+.livejoin{display:grid;gap:10px;padding:20px}
+.livejoin label{font-weight:700}
+.livejoin .btn{justify-self:start}
+.livejoin .hint{margin:4px 0 0;color:var(--muted);font-size:.88rem;line-height:1.5}
+body.in-call{overflow:hidden}
+#callbox{position:fixed;inset:0;z-index:100;background:#111;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+#callbox iframe{width:100%;height:100%;border:0;display:block}
+
+/* tutor panel: online lesson */
+.livedot{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;flex:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.livesteps{margin:6px 0 18px;padding-left:1.3em;display:grid;gap:6px;line-height:1.5}
+.livestart{display:inline-flex;align-items:center;gap:10px;font-size:1.05rem;padding:13px 22px}
+.livestart .livedot{background:var(--surface);box-shadow:0 0 0 3px rgba(255,255,255,.25)}
+.live-ic{color:var(--accent);background:var(--accent-soft)}
+@media (max-width:440px){.sections{gap:0}.sections button{padding:10px 10px 9px;font-size:.95rem}}

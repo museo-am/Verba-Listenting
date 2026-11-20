@@ -126,6 +126,33 @@ function writeIfChanged(file, bytes) {
 // usernames are matched without case; the file name is the lower-case form
 export const slugify = (u) => String(u).trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
+// ---------- online lessons (Jitsi as a Service, 8x8.vc) ----------
+// private/jaas/config.json: { "appId": "vpaas-magic-cookie-…", "kid": "vpaas-magic-cookie-…/abc123" }
+// private/jaas/jaas-private.pem: the private key whose public half is uploaded in the JaaS console.
+// Each tutor gets a room; the student link (#live-<tutor>-xxxx-xxxx-xxxx) opens a guest pass for it,
+// and the tutor panel signs the tutor's own moderator pass when a lesson starts.
+const b64uStr = (u8) => Buffer.from(u8).toString("base64url");
+export async function signJaas(pkcs8, kid, payload) {
+  const key = await subtle.importKey("pkcs8", pkcs8, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]);
+  const head = b64uStr(enc(JSON.stringify({ alg: "RS256", kid, typ: "JWT" }))) + "." + b64uStr(enc(JSON.stringify(payload)));
+  return head + "." + b64uStr(new Uint8Array(await subtle.sign("RSASSA-PKCS1-v1_5", key, enc(head))));
+}
+export const studentPass = (appId, room, exp) => ({
+  aud: "jitsi", iss: "chat", sub: appId, room, exp, nbf: 1700000000,
+  context: { user: { id: `student-${room}`, name: "", avatar: "", email: "", moderator: "false" },
+    features: { livestreaming: "false", recording: "false", transcription: "false", "outbound-call": "false" } },
+});
+function jaasConfig() {
+  const cf = P("private/jaas/config.json"), kf = P("private/jaas/jaas-private.pem");
+  if (!fs.existsSync(cf) || !fs.existsSync(kf)) return null;
+  const c = JSON.parse(fs.readFileSync(cf, "utf8"));
+  if (!/^vpaas-magic-cookie-[0-9a-f]+$/.test(c.appId || "") || !String(c.kid || "").startsWith(c.appId + "/"))
+    throw new Error("private/jaas/config.json: appId must be vpaas-magic-cookie-… and kid must start with the appId and a slash.");
+  const pem = fs.readFileSync(kf, "utf8");
+  const der = Buffer.from(pem.replace(/-----[^-]+-----|\s+/g, ""), "base64");
+  return { appId: c.appId, kid: c.kid, pkcs8: new Uint8Array(der), key: der.toString("base64") };
+}
+
 async function writeProfile(file, pw, salt, master, innerObj) {
   const inner = enc(JSON.stringify(innerObj));
   const k = await pwKey(pw, salt, ITER);
@@ -152,6 +179,10 @@ async function main() {
   const dup = shorts.find((s, i) => shorts.indexOf(s) !== i);
   if (dup) throw new Error(`Two items share the short name "${dup}".`);
 
+  const jaas = jaasConfig();
+  // guest passes last until the end of next year, so a rebuild in the same year changes nothing
+  const passExp = Math.floor(Date.UTC(new Date().getUTCFullYear() + 2, 0, 1) / 1000);
+
   const keep = new Set();
   let changed = 0, lessonsChanged = false, testsChanged = false;
   const report = [], links = [];
@@ -163,7 +194,7 @@ async function main() {
     const file = P("tutors", `${slug}.json`);
     // the first tutor inherits the old single admin.json, so links already sent keep working
     const src = fs.existsSync(file) ? file : (slug === firstSlug && fs.existsSync(P("admin.json")) ? P("admin.json") : null);
-    let master, salt, gh = null, adminV = {};
+    let master, salt, gh = null, adminV = {}, liveV = 1;
     if (src) {
       let inner;
       try { inner = await openAdmin(JSON.parse(fs.readFileSync(src, "utf8")), pw); }
@@ -171,6 +202,7 @@ async function main() {
       master = unb64(inner.master); salt = unb64(JSON.parse(fs.readFileSync(src, "utf8")).salt);
       gh = inner.gh || null;                                   // GitHub key saved from the tutor panel
       for (const c of inner.lessons || []) adminV[c.id] = c.v; // link versions changed from the panel
+      if (inner.live) liveV = inner.live.v || 1;
     } else {
       master = crypto.getRandomValues(new Uint8Array(32));
       salt = crypto.getRandomValues(new Uint8Array(16));
@@ -233,7 +265,19 @@ async function main() {
       catalog.push({ id: t.id, short: t.short, lang: data.lang, v, kind: "test", level: t.level, title: t.title, topic: t.topic, questions: qn, pass: data.pass, audio: false });
     }
 
-    const innerObj = { username: tu.username, language: tu.language || null, master: b64(master), lessons: catalog, ...(gh ? { gh } : {}) };
+    let live = null;
+    if (jaas) {
+      const short = `live-${slug}`, id = `live:${slug}`;
+      const code = await shortCode(master, id, liveV);
+      const jwt = await signJaas(jaas.pkcs8, jaas.kid, studentPass(jaas.appId, slug, passExp));
+      const data = { id, kind: "live", lang: tu.language || "es", tutor: tu.username, appId: jaas.appId, room: slug, jwt };
+      if (writeIfChanged(P("c", `${short}.bin`), await seal(await shortAesKey(short, code), enc(JSON.stringify(data))))) changed++;
+      keep.add(`c/${short}.bin`);
+      live = { id, short, v: liveV, appId: jaas.appId, kid: jaas.kid, room: slug, key: jaas.key, exp: passExp };
+      links.push(`${short}-${groupCode(code)}   (online lesson)`);
+    }
+
+    const innerObj = { username: tu.username, language: tu.language || null, master: b64(master), lessons: catalog, ...(live ? { live } : {}), ...(gh ? { gh } : {}) };
     if (await writeProfile(file, pw, salt, master, innerObj)) changed++;
     keep.add(`tutors/${slug}.json`);
     report.push(`${tu.username}: ${catalog.filter((c) => c.kind !== "test").length} listenings (${catalog.filter((c) => c.audio).length} recorded), ${catalog.filter((c) => c.kind === "test").length} tests`);
