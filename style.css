@@ -786,7 +786,7 @@ html{scroll-behavior:smooth}
 .refforms{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px;align-items:start}
 .refform{gap:16px;padding:24px}
 .refform h2{font-size:1.35rem}
-.refform .pmsg{margin:0;min-height:1.2em;color:var(--sun);font-weight:600}
+.refform .pmsg{margin:0;min-height:1.2em;color:var(--ink);font-weight:600}
 .refout{display:grid;gap:10px;border-top:1px dashed var(--line);padding-top:16px}
 .refout .eyebrow{margin:0}
 .refcode-big{margin:0;font:800 clamp(2rem,7vw,2.8rem)/1.1 var(--f-mono);letter-spacing:.06em;color:var(--accent)}
@@ -809,3 +809,5 @@ html{scroll-behavior:smooth}
 .mref .ic{width:18px;height:18px;color:var(--accent)}
 .hero-links{display:flex;flex-wrap:wrap;gap:12px 24px}
 .norefbar .refbar{display:none}
+.refgo{display:grid;gap:12px;border-top:1px dashed var(--line);padding-top:16px}
+.refmsg{margin:0;padding:12px 14px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);font-size:.92rem;line-height:1.5;user-select:all;-webkit-user-select:all;white-space:pre-wrap}

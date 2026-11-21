@@ -137,11 +137,9 @@
     document.body.appendChild(t); t.focus(); t.select(); try { t.setSelectionRange(0, text.length); ok = document.execCommand("copy"); } catch(e){} document.body.removeChild(t);
     try { if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(text).catch(function(){}); ok = true; } } catch(e){}
     return ok; }
-  /* open the Instagram chat in the same tap (opening a blank tab first and redirecting it later fails in phone in-app browsers) */
-  function sendMsg(form, text){ var msg = form.querySelector(".pmsg");
-    msg.textContent = copy(text) ? box.dataset.copied : text;
-    var w = null; try { w = window.open(IG, "_blank"); } catch(e){}
-    if(w){ try { w.opener = null; } catch(e){} } else { location.href = IG; } }
+  /* the Instagram buttons are real links the visitor taps: phones hand those to the Instagram app,
+     while a tab opened by script often gets stuck on about:blank in in-app browsers */
+  function ready(form, text){ form.querySelector(".pmsg").textContent = copy(text) ? box.dataset.copied : ""; }
 
   var f1 = document.getElementById("refcode"), out = f1.querySelector(".refout"), val = document.getElementById("refcodeval"), code = "";
   f1.addEventListener("submit", function(e){ e.preventDefault(); var n = f1.querySelector("input").value.trim(), msg = f1.querySelector(".pmsg");
@@ -150,7 +148,7 @@
     if(!code){ code = makeCode(n); try { localStorage.setItem(key, code); } catch(err){} }
     val.textContent = code; out.hidden = false; });
   f1.querySelector("[data-ref-send]").addEventListener("click", function(){ var n = f1.querySelector("input").value.trim();
-    sendMsg(f1, f1.dataset.msg.replace("{n}", n).replace("{c}", code)); });
+    ready(f1, f1.dataset.msg.replace("{n}", n).replace("{c}", code)); });
   f1.querySelector("[data-ref-copy]").addEventListener("click", function(){ copy(code); f1.querySelector(".pmsg").textContent = box.dataset.codeCopied; });
 
   var f2 = document.getElementById("refinv"), iName = document.getElementById("invname"), iPhone = document.getElementById("invphone"), iCode = document.getElementById("invcode");
@@ -159,5 +157,6 @@
     if(!n){ msg.textContent = f2.dataset.need; iName.focus(); return; }
     var digits = p.replace(/\D/g, ""); if(digits.length < 8 || digits.length > 15 || /[^\d\s()+-]/.test(p)){ msg.textContent = f2.dataset.needPhone; iPhone.focus(); return; }
     if(!c){ msg.textContent = f2.dataset.needCode; iCode.focus(); return; }
-    sendMsg(f2, f2.dataset.msg.replace("{n}", n).replace("{p}", p).replace("{c}", c)); });
+    var text = f2.dataset.msg.replace("{n}", n).replace("{p}", p).replace("{c}", c), go = f2.querySelector(".refgo");
+    ready(f2, text); go.querySelector(".refmsg").textContent = text; go.hidden = false; go.querySelector("a").focus({preventScroll:true}); go.scrollIntoView({behavior:"smooth", block:"nearest"}); });
 })();

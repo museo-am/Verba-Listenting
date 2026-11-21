@@ -29,6 +29,8 @@ export const REF_T = {
     make: "Ստեղծել կոդը",
     yourCode: "Քո կոդը",
     send: "Ուղարկել Instagram-ով",
+    openIg: "Բացել Instagram-ի չաթը",
+    ready: "Հաղորդագրությունը պատճենված է։ Բացիր չաթը և տեղադրիր այն (երկար սեղմիր → Տեղադրել)։",
     copy: "Պատճենել կոդը",
     copied: "Հաղորդագրությունը պատճենված է։ Տեղադրիր այն Instagram-ի չաթում։",
     codeCopied: "Կոդը պատճենված է։",
@@ -78,6 +80,8 @@ export const REF_T = {
     make: "Создать код",
     yourCode: "Твой код",
     send: "Отправить в Instagram",
+    openIg: "Открыть чат в Instagram",
+    ready: "Сообщение скопировано. Открой чат и вставь его (долгое нажатие → Вставить).",
     copy: "Скопировать код",
     copied: "Сообщение скопировано. Вставь его в чат Instagram.",
     codeCopied: "Код скопирован.",
@@ -127,6 +131,8 @@ export const REF_T = {
     make: "Make my code",
     yourCode: "Your code",
     send: "Send on Instagram",
+    openIg: "Open Instagram chat",
+    ready: "Message copied. Open the chat and paste it (long-press → Paste).",
     copy: "Copy code",
     copied: "Message copied. Paste it into the Instagram chat.",
     codeCopied: "Code copied.",
@@ -187,7 +193,7 @@ export function referralBody(ui) {
     </div>
   </section>
   <section class="lsec tight">
-    <div class="lsec-in refforms" data-copied="${esc(t.copied)}" data-code-copied="${esc(t.codeCopied)}">
+    <div class="lsec-in refforms" data-copied="${esc(t.ready)}" data-code-copied="${esc(t.codeCopied)}">
       <form class="panel refform rv" id="refcode" novalidate data-msg="${esc(t.msgRef)}" data-need="${esc(t.needName)}">
         <h2>${t.formH}</h2>
         <p class="hint">${t.formLede}</p>
@@ -196,7 +202,7 @@ export function referralBody(ui) {
         <div class="refout" hidden>
           <p class="eyebrow">${t.yourCode}</p>
           <p class="refcode-big" id="refcodeval" aria-live="polite"></p>
-          <div class="hero-cta"><button class="btn big" type="button" data-ref-send>${t.send}</button><button class="btn big ghost" type="button" data-ref-copy>${t.copy}</button></div>
+          <div class="hero-cta"><a class="btn big" href="https://ig.me/m/verba.school_" target="_blank" rel="noopener" data-ref-send>${t.send}</a><button class="btn big ghost" type="button" data-ref-copy>${t.copy}</button></div>
         </div>
         <p class="pmsg" role="status"></p>
       </form>
@@ -207,6 +213,10 @@ export function referralBody(ui) {
         <div class="field"><label for="invphone">${t.phoneL}</label><input class="input" id="invphone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="${esc(t.phonePh)}" maxlength="20"></div>
         <div class="field"><label for="invcode">${t.codeL}</label><input class="input" id="invcode" name="code" autocapitalize="characters" placeholder="${esc(t.codePh)}" maxlength="12"></div>
         <button class="btn big" type="submit">${t.signup}</button>
+        <div class="refgo" hidden>
+          <p class="refmsg"></p>
+          <a class="btn big" href="https://ig.me/m/verba.school_" target="_blank" rel="noopener">${t.openIg}</a>
+        </div>
         <p class="pmsg" role="status"></p>
       </form>
     </div>
