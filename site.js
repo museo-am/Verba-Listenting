@@ -132,11 +132,16 @@
     "а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"e","ж":"zh","з":"z","и":"i","й":"y","к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f","х":"kh","ц":"ts","ч":"ch","ш":"sh","щ":"sh","ы":"y","э":"e","ю":"yu","я":"ya"};
   function latin(s){ s = s.toLowerCase().replace(/ու/g, "u"); var o = ""; for(var i = 0; i < s.length; i++){ var c = s[i]; o += MAP[c] != null ? MAP[c] : (/[a-z]/.test(c) ? c : ""); } return o.toUpperCase(); }
   function makeCode(name){ var base = latin(name.trim().split(/\s+/)[0] || "").slice(0, 6) || "VERBA"; return base + "-" + (10 + Math.floor(Math.random() * 90)); }
-  function copy(text){ try { if(navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text); } catch(e){}
-    var t = document.createElement("textarea"); t.value = text; t.style.position = "fixed"; t.style.opacity = "0"; document.body.appendChild(t); t.select();
-    try { document.execCommand("copy"); } catch(e){} document.body.removeChild(t); return Promise.resolve(); }
-  function sendMsg(form, text){ var msg = form.querySelector(".pmsg"); var w = window.open("about:blank", "_blank");
-    copy(text).then(function(){ msg.textContent = box.dataset.copied; if(w) w.location = IG; else location.href = IG; }, function(){ msg.textContent = text; if(w) w.location = IG; }); }
+  /* copy inside the tap itself (old-style copy first, it is synchronous; the clipboard API as a backup) */
+  function copy(text){ var ok = false, t = document.createElement("textarea"); t.value = text; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.top = "0"; t.style.opacity = "0";
+    document.body.appendChild(t); t.focus(); t.select(); try { t.setSelectionRange(0, text.length); ok = document.execCommand("copy"); } catch(e){} document.body.removeChild(t);
+    try { if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(text).catch(function(){}); ok = true; } } catch(e){}
+    return ok; }
+  /* open the Instagram chat in the same tap (opening a blank tab first and redirecting it later fails in phone in-app browsers) */
+  function sendMsg(form, text){ var msg = form.querySelector(".pmsg");
+    msg.textContent = copy(text) ? box.dataset.copied : text;
+    var w = null; try { w = window.open(IG, "_blank"); } catch(e){}
+    if(w){ try { w.opener = null; } catch(e){} } else { location.href = IG; } }
 
   var f1 = document.getElementById("refcode"), out = f1.querySelector(".refout"), val = document.getElementById("refcodeval"), code = "";
   f1.addEventListener("submit", function(e){ e.preventDefault(); var n = f1.querySelector("input").value.trim(), msg = f1.querySelector(".pmsg");
@@ -146,7 +151,7 @@
     val.textContent = code; out.hidden = false; });
   f1.querySelector("[data-ref-send]").addEventListener("click", function(){ var n = f1.querySelector("input").value.trim();
     sendMsg(f1, f1.dataset.msg.replace("{n}", n).replace("{c}", code)); });
-  f1.querySelector("[data-ref-copy]").addEventListener("click", function(){ copy(code).then(function(){ f1.querySelector(".pmsg").textContent = box.dataset.codeCopied; }); });
+  f1.querySelector("[data-ref-copy]").addEventListener("click", function(){ copy(code); f1.querySelector(".pmsg").textContent = box.dataset.codeCopied; });
 
   var f2 = document.getElementById("refinv"), iName = document.getElementById("invname"), iPhone = document.getElementById("invphone"), iCode = document.getElementById("invcode");
   var q = (location.search.match(/[?&]ref=([A-Za-z0-9-]{3,12})/) || [])[1]; if(q){ iCode.value = q.toUpperCase(); }
