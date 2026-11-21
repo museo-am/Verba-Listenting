@@ -20,3 +20,4 @@ export const ARTICLE = {
   howlong: { hy: "blog/inchqan-zhamanak-e-petq/", ru: "ru/blog/skolko-vremeni-uchit-yazyk/", en: "en/blog/how-long-to-learn-a-language/" },
   esfr: { hy: "blog/ispaneren-te-franseren/", ru: "ru/blog/ispanskiy-ili-francuzskiy/", en: "en/blog/spanish-or-french/" },
 };
+export const REFERRAL = { hy: "ber-enkerojd/", ru: "ru/privedi-druga/", en: "en/refer-a-friend/" };

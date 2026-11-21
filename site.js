@@ -119,3 +119,34 @@
     document.getElementById("pbar").style.width = 0; qs[0].scrollIntoView({behavior:"smooth", block:"center"});
   });
 })();
+
+/* bring-a-friend page: make a referral code from the name, then copy a ready message and open the Instagram chat */
+(function(){
+  var box = document.querySelector(".refforms"); if(!box) return;
+  var IG = "https://ig.me/m/verba.school_";
+  var MAP = {"ա":"a","բ":"b","գ":"g","դ":"d","ե":"e","զ":"z","է":"e","ը":"y","թ":"t","ժ":"zh","ի":"i","լ":"l","խ":"kh","ծ":"ts","կ":"k","հ":"h","ձ":"dz","ղ":"gh","ճ":"ch","մ":"m","յ":"y","ն":"n","շ":"sh","ո":"o","չ":"ch","պ":"p","ջ":"j","ռ":"r","ս":"s","վ":"v","տ":"t","ր":"r","ց":"ts","ւ":"v","փ":"p","ք":"k","օ":"o","ֆ":"f","և":"ev",
+    "а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"e","ж":"zh","з":"z","и":"i","й":"y","к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f","х":"kh","ц":"ts","ч":"ch","ш":"sh","щ":"sh","ы":"y","э":"e","ю":"yu","я":"ya"};
+  function latin(s){ s = s.toLowerCase().replace(/ու/g, "u"); var o = ""; for(var i = 0; i < s.length; i++){ var c = s[i]; o += MAP[c] != null ? MAP[c] : (/[a-z]/.test(c) ? c : ""); } return o.toUpperCase(); }
+  function makeCode(name){ var base = latin(name.trim().split(/\s+/)[0] || "").slice(0, 6) || "VERBA"; return base + "-" + (10 + Math.floor(Math.random() * 90)); }
+  function copy(text){ try { if(navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text); } catch(e){}
+    var t = document.createElement("textarea"); t.value = text; t.style.position = "fixed"; t.style.opacity = "0"; document.body.appendChild(t); t.select();
+    try { document.execCommand("copy"); } catch(e){} document.body.removeChild(t); return Promise.resolve(); }
+  function sendMsg(form, text){ var msg = form.querySelector(".pmsg"); var w = window.open("about:blank", "_blank");
+    copy(text).then(function(){ msg.textContent = box.dataset.copied; if(w) w.location = IG; else location.href = IG; }, function(){ msg.textContent = text; if(w) w.location = IG; }); }
+
+  var f1 = document.getElementById("refcode"), out = f1.querySelector(".refout"), val = document.getElementById("refcodeval"), code = "";
+  f1.addEventListener("submit", function(e){ e.preventDefault(); var n = f1.querySelector("input").value.trim(), msg = f1.querySelector(".pmsg");
+    if(!n){ msg.textContent = f1.dataset.need; return; } msg.textContent = "";
+    var key = "vs-ref:" + n.toLowerCase(); try { code = localStorage.getItem(key) || ""; } catch(err){}
+    if(!code){ code = makeCode(n); try { localStorage.setItem(key, code); } catch(err){} }
+    val.textContent = code; out.hidden = false; });
+  f1.querySelector("[data-ref-send]").addEventListener("click", function(){ var n = f1.querySelector("input").value.trim();
+    sendMsg(f1, f1.dataset.msg.replace("{n}", n).replace("{c}", code)); });
+  f1.querySelector("[data-ref-copy]").addEventListener("click", function(){ copy(code).then(function(){ f1.querySelector(".pmsg").textContent = box.dataset.codeCopied; }); });
+
+  var f2 = document.getElementById("refinv"), ins = f2.querySelectorAll("input");
+  var q = (location.search.match(/[?&]ref=([A-Za-z0-9-]{3,12})/) || [])[1]; if(q){ ins[1].value = q.toUpperCase(); }
+  f2.addEventListener("submit", function(e){ e.preventDefault(); var n = ins[0].value.trim(), c = ins[1].value.trim().toUpperCase(), msg = f2.querySelector(".pmsg");
+    if(!n){ msg.textContent = f2.dataset.need; return; } if(!c){ msg.textContent = f2.dataset.needCode; return; }
+    sendMsg(f2, f2.dataset.msg.replace("{n}", n).replace("{c}", c)); });
+})();

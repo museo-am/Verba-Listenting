@@ -136,7 +136,7 @@ function write(file, text) {
 
 function extras(html, lang, jsVer) {
   const R = resourceLinks(lang);
-  const foot = R.items.map(([h, t]) => `<a href="${h}">${t}</a>`).join("\n        ");
+  const foot = [...R.items, [R.ref, R.refLabel]].map(([h, t]) => `<a href="${h}">${t}</a>`).join("\n        ");
   const RT = { hy: ["Անվճար", "Սկսեք հիմա՝ առանց գրանցվելու", "Անվճար թեստ՝ իմացեք ձեր մակարդակը", "20 հարց՝ A1-ից մինչև C1, մոտ 10 րոպե։", "Կարդացեք նաև"],
     ru: ["Бесплатно", "Начните прямо сейчас, без регистрации", "Бесплатный тест: узнайте свой уровень", "20 вопросов от A1 до C1, около 10 минут.", "Читайте также"],
     en: ["Free", "Start now, no sign-up needed", "Free test: find your level", "20 questions from A1 to C1, about 10 minutes.", "Read also"] }[R.ui];
@@ -152,7 +152,7 @@ function extras(html, lang, jsVer) {
   </section>`;
   const CL = { hy: "Դասընթացներ", ru: "Курсы", en: "Courses" }[R.ui];
   html = html.replaceAll("{{CL_T}}", lang === "es" ? "Cursos" : CL).replaceAll("{{CL_es}}", R.items[0][1]).replaceAll("{{CL_en}}", R.items[1][1]).replaceAll("{{CL_fr}}", R.items[2][1]);
-  return html.replaceAll("{{L_BLOG}}", R.blog).replaceAll("{{FOOTRES}}", foot).replace("{{RESOURCES}}", res).replaceAll("{{JSVER}}", jsVer)
+  return html.replaceAll("{{L_REF}}", R.ref).replaceAll("{{REF_LABEL}}", R.refLabel).replaceAll("{{L_BLOG}}", R.blog).replaceAll("{{FOOTRES}}", foot).replace("{{RESOURCES}}", res).replaceAll("{{JSVER}}", jsVer)
     .replaceAll(/\{\{C_(\w\w)\}\}/g, (m, x) => R.course(x));
 }
 

@@ -3,7 +3,8 @@
 // menu, theme switch, listening demo and the placement-test scoring.
 import fs from "node:fs";
 import path from "node:path";
-import { UI_LANGS, HOME, COURSE, TEST, BLOG, ARTICLE } from "./content/routes.mjs";
+import { UI_LANGS, HOME, COURSE, TEST, BLOG, ARTICLE, REFERRAL } from "./content/routes.mjs";
+import { REF_T, referralBody } from "./content/referral.mjs";
 import { coursePage, NAMES } from "./content/course.mjs";
 import { PLACEMENT, PT } from "./content/placement.mjs";
 import { ARTICLES, BLOG_T } from "./content/articles.mjs";
@@ -111,6 +112,11 @@ export function allPages() {
         jsonld: [{ "@type": "Article", headline: a.title, description: a.meta, inLanguage: ui, datePublished: date, dateModified: date,
           author: { "@id": SITE + "#school" }, publisher: { "@id": SITE + "#school" }, image: SITE + "img/og.png", mainEntityOfPage: SITE + ARTICLE[k][ui] }] });
     }
+    // bring-a-friend referral page
+    const R = REF_T[ui];
+    pages.push({ path: REFERRAL[ui], ui, group: "referral", title: R.title, metaDesc: R.meta, body: referralBody(ui),
+      crumbs: [[CRUMB_HOME[ui], HOME[ui]], [R.crumb, null]],
+      jsonld: [{ "@type": "WebPage", name: R.title, description: R.meta, inLanguage: ui, publisher: { "@id": SITE + "#school" } }] });
   }
   return pages;
 }
@@ -122,6 +128,7 @@ export function resourceLinks(lang) {
     ru: ["Курсы испанского", "Курсы английского", "Курсы французского", "Бесплатный тест", "Блог"],
     en: ["Spanish lessons", "English lessons", "French lessons", "Free level test", "Blog"] }[ui];
   return { ui, items: [["/" + COURSE.es[ui], L[0]], ["/" + COURSE.en[ui], L[1]], ["/" + COURSE.fr[ui], L[2]], ["/" + TEST.en[ui], L[3]], ["/" + BLOG[ui], L[4]]],
+    ref: "/" + REFERRAL[ui], refLabel: { hy: "Բեր ընկերոջդ՝ ստացիր 5 000 ֏", ru: "Приведи друга — получи 5 000 ֏", en: "Bring a friend, get 5,000 ֏" }[ui],
     course: (x) => "/" + COURSE[x][ui], test: (x) => "/" + TEST[x][ui], blog: "/" + BLOG[ui],
     articles: Object.keys(ARTICLE).map((k) => ["/" + ARTICLE[k][ui], ARTICLES[k][ui].title, ARTICLES[k][ui].lede]) };
 }
