@@ -115,7 +115,7 @@ function pageShell(S, l, body, cssVer, headHtml) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>if(location.protocol==="http:"&&!/^(localhost|127\\.)/.test(location.hostname))location.replace("https:"+location.href.slice(5));</script>
-<script>(function(){try{var m=localStorage.getItem("vs-theme");if(m==="light"||m==="dark")document.documentElement.dataset.theme=m}catch(e){}})()</script>
+<script>(function(){try{var m=localStorage.getItem("vs-theme");if(m==="light"||m==="dark")document.documentElement.dataset.theme=m;if(localStorage.getItem("vs-refbar")==="0")document.documentElement.classList.add("norefbar")}catch(e){}})()</script>
 ${headHtml || head(S, l)}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Armenian:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,500;1,600&family=JetBrains+Mono:wght@500;700&display=swap">
@@ -215,6 +215,7 @@ export function buildSite(ROOT, cssVer) {
     let html = extras(fill(ptpl, S, "/", pg.ui, hrefs), pg.ui, jsVer)
       .replaceAll("{{HOME}}", "/" + (LANGS.find((l) => l.code === pg.ui).dir))
       .replace("{{CRUMBS}}", crumbsHtml(pg.crumbs)).replace("{{BODY}}", pg.body);
+    if (pg.group === "referral") html = html.replace(/<!--refbar-->[\s\S]*?<!--\/refbar-->\n?/, "");
     const l = LANGS.find((x) => x.code === pg.ui);
     changed += write(P(pg.path, "index.html"), pageShell(S, l, html, cssVer, subHead(pg, alts, S)).replace('<body class="is-landing">', '<body class="is-landing is-sub">'));
     keepSub.add(pg.path);

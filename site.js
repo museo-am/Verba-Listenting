@@ -9,6 +9,10 @@
       try{ localStorage.setItem("vs-theme", next); }catch(e){}
     })(); });
     if(!nav) return;
+    /* bring-a-friend strip: can be closed, stays closed on this device */
+    var rb = document.getElementById("refbar");
+    if(rb){ try{ if(localStorage.getItem("vs-refbar") === "0") rb.classList.add("gone"); }catch(e){}
+      rb.querySelector("[data-refbar-close]").addEventListener("click", function(){ rb.classList.add("gone"); try{ localStorage.setItem("vs-refbar", "0"); }catch(e){} }); }
     var onScroll = function(){ nav.classList.toggle("scrolled", window.scrollY > 8); };
     onScroll(); window.addEventListener("scroll", onScroll, {passive:true});
     var setMenu = function(open){ mb.setAttribute("aria-expanded", open); menu.hidden = !open; nav.classList.toggle("menu-open", open); document.body.classList.toggle("noscroll", open); };
@@ -144,9 +148,11 @@
     sendMsg(f1, f1.dataset.msg.replace("{n}", n).replace("{c}", code)); });
   f1.querySelector("[data-ref-copy]").addEventListener("click", function(){ copy(code).then(function(){ f1.querySelector(".pmsg").textContent = box.dataset.codeCopied; }); });
 
-  var f2 = document.getElementById("refinv"), ins = f2.querySelectorAll("input");
-  var q = (location.search.match(/[?&]ref=([A-Za-z0-9-]{3,12})/) || [])[1]; if(q){ ins[1].value = q.toUpperCase(); }
-  f2.addEventListener("submit", function(e){ e.preventDefault(); var n = ins[0].value.trim(), c = ins[1].value.trim().toUpperCase(), msg = f2.querySelector(".pmsg");
-    if(!n){ msg.textContent = f2.dataset.need; return; } if(!c){ msg.textContent = f2.dataset.needCode; return; }
-    sendMsg(f2, f2.dataset.msg.replace("{n}", n).replace("{c}", c)); });
+  var f2 = document.getElementById("refinv"), iName = document.getElementById("invname"), iPhone = document.getElementById("invphone"), iCode = document.getElementById("invcode");
+  var q = (location.search.match(/[?&]ref=([A-Za-z0-9-]{3,12})/) || [])[1]; if(q){ iCode.value = q.toUpperCase(); }
+  f2.addEventListener("submit", function(e){ e.preventDefault(); var n = iName.value.trim(), p = iPhone.value.trim(), c = iCode.value.trim().toUpperCase(), msg = f2.querySelector(".pmsg");
+    if(!n){ msg.textContent = f2.dataset.need; iName.focus(); return; }
+    var digits = p.replace(/\D/g, ""); if(digits.length < 8 || digits.length > 15 || /[^\d\s()+-]/.test(p)){ msg.textContent = f2.dataset.needPhone; iPhone.focus(); return; }
+    if(!c){ msg.textContent = f2.dataset.needCode; iCode.focus(); return; }
+    sendMsg(f2, f2.dataset.msg.replace("{n}", n).replace("{p}", p).replace("{c}", c)); });
 })();

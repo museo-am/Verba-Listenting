@@ -1,5 +1,6 @@
 <div id="landing" class="landing">
   <header class="lnav" id="lnav">
+    <!--refbar--><div class="refbar" id="refbar"><a href="{{L_REF}}"><span class="pulse" aria-hidden="true"></span><span>{{REF_LABEL}}</span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><button type="button" class="refbar-x" aria-label="×" data-refbar-close>×</button></div><!--/refbar-->
     <div class="lnav-in">
       <a class="brand" href="#top" aria-label="Verba School"><img class="logo" src="{{ROOT}}img/logo.png" alt="" width="40" height="40"><b>Verba<span>.</span>School</b></a>
       <nav class="lnav-links" aria-label="Sections">
@@ -27,6 +28,7 @@
         <a href="{{L_BLOG}}" data-t="navBlog"></a>
         <a href="#contacto" data-t="navContact"></a>
       </nav>
+      <a class="mref" href="{{L_REF}}"><span class="pulse" aria-hidden="true"></span><b>{{REF_LABEL}}</b><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       <div class="mcourses-wrap"><p class="mlabel">{{CL_T}}</p>
       <div class="mcourses">
         <a href="{{C_es}}"><b lang="es">Español</b><span>{{CL_es}}</span></a>
@@ -48,7 +50,7 @@
           <a class="btn big" href="https://www.instagram.com/verba.school_/" target="_blank" rel="noopener"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg><span data-t="ctaIg"></span></a>
           <a class="btn big ghost" href="#precios"><span data-t="ctaPrices"></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
-        <a class="hero-free" href="#recursos"><span data-t="heroTest"></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <div class="hero-links"><a class="hero-free" href="#recursos"><span data-t="heroTest"></span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="hero-free" href="{{L_REF}}"><span>{{REF_LABEL}}</span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
         <dl class="stats">
           <div><dt>3</dt><dd data-t="stLangs"></dd></div>
           <div><dt>A1–C1</dt><dd data-t="stLevels"></dd></div>

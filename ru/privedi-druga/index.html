@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>if(location.protocol==="http:"&&!/^(localhost|127\.)/.test(location.hostname))location.replace("https:"+location.href.slice(5));</script>
-<script>(function(){try{var m=localStorage.getItem("vs-theme");if(m==="light"||m==="dark")document.documentElement.dataset.theme=m}catch(e){}})()</script>
+<script>(function(){try{var m=localStorage.getItem("vs-theme");if(m==="light"||m==="dark")document.documentElement.dataset.theme=m;if(localStorage.getItem("vs-refbar")==="0")document.documentElement.classList.add("norefbar")}catch(e){}})()</script>
 <title>Приведи друга и получи 5 000 ֏ | Verba School</title>
 <meta name="description" content="Приведи друга учиться в Verba School: за каждого нового ученика по твоему коду получи 5 000 ֏ наличными или скидкой на следующий месяц.">
 <link rel="canonical" href="https://verba-school.online/ru/privedi-druga/">
@@ -26,12 +26,12 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"EducationalOrganization","@id":"https://verba-school.online/#school","name":"Verba School","alternateName":["Verba","Verba School Armenia","Վերբա"],"url":"https://verba-school.online/","logo":"https://verba-school.online/img/logo.png","image":"https://verba-school.online/img/og.png","description":"Verba School — онлайн-школа иностранных языков. Испанский, английский и французский с уровня A1 до C1, объяснения на армянском. Групповые и индивидуальные занятия, сертификат по окончании курса.","telephone":"+37477308525","sameAs":["https://www.instagram.com/verba.school_/"],"areaServed":{"@type":"Country","name":"Armenia"},"knowsLanguage":["es","en","fr","hy"],"hasOfferCatalog":{"@type":"OfferCatalog","name":"Все занятия — онлайн","itemListElement":[{"@type":"Offer","name":"Групповые занятия","description":"Учитесь вместе с другими студентами.","price":25000,"priceCurrency":"AMD","priceSpecification":{"@type":"UnitPriceSpecification","price":25000,"priceCurrency":"AMD","unitText":"MONTH"}},{"@type":"Offer","name":"Индивидуальные занятия","description":"Один на один, в вашем темпе.","price":30000,"priceCurrency":"AMD","priceSpecification":{"@type":"UnitPriceSpecification","price":30000,"priceCurrency":"AMD","unitText":"MONTH"}}]}},{"@type":"WebPage","name":"Приведи друга и получи 5 000 ֏ | Verba School","description":"Приведи друга учиться в Verba School: за каждого нового ученика по твоему коду получи 5 000 ֏ наличными или скидкой на следующий месяц.","inLanguage":"ru","publisher":{"@id":"https://verba-school.online/#school"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://verba-school.online/ru/"},{"@type":"ListItem","position":2,"name":"Приведи друга","item":"https://verba-school.online/ru/privedi-druga/"}]}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Armenian:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,500;1,600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="/style.css?v=6da20b09">
+<link rel="stylesheet" href="/style.css?v=94390614">
 </head>
 <body class="is-landing is-sub">
 <div id="landing" class="landing sub">
   <header class="lnav" id="lnav">
-    <div class="lnav-in">
+        <div class="lnav-in">
       <a class="brand" href="/ru/" aria-label="Verba School"><img class="logo" src="/img/logo.png" alt="" width="40" height="40"><b>Verba<span>.</span>School</b></a>
       <nav class="lnav-links" aria-label="Sections">
         <a href="/ru/#idiomas" data-t="navLangs">Языки</a>
@@ -63,6 +63,7 @@
         <a href="/ru/blog/" data-t="navBlog">Блог</a>
         <a href="/ru/#contacto" data-t="navContact">Контакты</a>
       </nav>
+      <a class="mref" href="/ru/privedi-druga/"><span class="pulse" aria-hidden="true"></span><b>Приведи друга — получи 5 000 ֏</b><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       <div class="mcourses-wrap"><p class="mlabel">Курсы</p>
       <div class="mcourses">
         <a href="/ru/ispanskiy/"><b lang="es">Español</b><span>Курсы испанского</span></a>
@@ -81,14 +82,14 @@
     <div class="lsec-in">
       <p class="eyebrow chipline"><span class="pulse" aria-hidden="true"></span><span>Приведи друга учиться</span></p>
       <h1>Приведи друга и получи <em>5 000 ֏</em></h1>
-      <p class="lede">За каждого нового ученика, который запишется по твоему коду, ты получаешь 5 000 ֏ — наличными или скидкой на следующий месяц. Без ограничений.</p>
+      <p class="lede">За каждого нового ученика, который запишется по твоему коду, ты получаешь 5 000 ֏ — наличными или скидкой на следующий месяц, а друг получает скидку 10% на первый месяц. Без ограничений.</p>
       <div class="hero-cta"><a class="btn big" href="#refcode">Получить мой код</a><a class="btn big ghost" href="#refinv">Меня пригласили</a></div>
     </div>
   </section>
   <section class="lsec tight">
     <div class="lsec-in">
       <div class="shead rv"><h2>Как это работает</h2></div>
-      <ul class="howlist rv"><li><b>Получи код</b><span>Введи имя ниже — сайт создаст твой личный код. Отправь его нам в Instagram, чтобы мы его зарегистрировали.</span></li><li><b>Поделись с друзьями</b><span>Друг называет твой код при записи.</span></li><li><b>Получи награду</b><span>Когда друг оплатит и закончит первый месяц, ты получаешь 5 000 ֏.</span></li></ul>
+      <ul class="howlist rv"><li><b>Получи код</b><span>Введи имя ниже — сайт создаст твой личный код. Отправь его нам в Instagram, чтобы мы его зарегистрировали.</span></li><li><b>Поделись с друзьями</b><span>Друг записывается по твоему коду и получает скидку 10% на первый месяц.</span></li><li><b>Получи награду</b><span>Когда друг оплатит и закончит первый месяц, ты получаешь 5 000 ֏.</span></li></ul>
     </div>
   </section>
   <section class="lsec tight">
@@ -122,10 +123,11 @@
         </div>
         <p class="pmsg" role="status"></p>
       </form>
-      <form class="panel refform rv" id="refinv" novalidate data-msg="Здравствуйте! Хочу записаться на занятия. Меня зовут {n}. Меня пригласил друг с кодом {c}." data-need="Введи имя." data-need-code="Введи код друга.">
-        <h2>Тебя пригласили?</h2>
-        <p class="hint">Введи имя и код друга, чтобы он получил награду.</p>
+      <form class="panel refform rv" id="refinv" novalidate data-msg="Здравствуйте! Хочу записаться на занятия со скидкой 10%. Меня зовут {n}. Мой телефон: {p}. Меня пригласил друг, код: {c}." data-need="Введи имя." data-need-code="Введи код друга." data-need-phone="Введи правильный номер телефона.">
+        <h2>Тебя пригласили? Получи скидку 10%</h2>
+        <p class="hint">Введи имя, номер телефона и код друга. Ты получишь скидку 10% на первый месяц, а друг — свою награду.</p>
         <div class="field"><label for="invname">Имя</label><input class="input" id="invname" name="name" autocomplete="given-name" placeholder="Например, Анна" maxlength="40"></div>
+        <div class="field"><label for="invphone">Номер телефона</label><input class="input" id="invphone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+374 77 123 456" maxlength="20"></div>
         <div class="field"><label for="invcode">Код друга</label><input class="input" id="invcode" name="code" autocapitalize="characters" placeholder="Например, ANNA-47" maxlength="12"></div>
         <button class="btn big" type="submit">Записаться с кодом</button>
         <p class="pmsg" role="status"></p>
@@ -135,7 +137,7 @@
   <section class="lsec tight">
     <div class="lsec-in">
       <div class="shead rv"><h2>Правила</h2></div>
-      <div class="faq rv"><details><summary>Когда я получу награду?</summary><p>Когда друг оплатит и закончит первый месяц. Наличные выплачиваем в течение недели, скидка вычитается из оплаты следующего месяца.</p></details><details><summary>Кто может участвовать?</summary><p>Все. Скидка — только для наших учеников, остальные получают наличные.</p></details><details><summary>Сколько друзей можно привести?</summary><p>Сколько угодно. За каждого нового ученика — 5 000 ֏, и в группе, и на индивидуальных занятиях.</p></details><details><summary>Кто засчитывается?</summary><p>Только новые ученики, которые записываются впервые и называют код при записи. Пригласить самого себя нельзя.</p></details></div>
+      <div class="faq rv"><details><summary>Когда я получу награду?</summary><p>Когда друг оплатит и закончит первый месяц. Наличные выплачиваем в течение недели, скидка вычитается из оплаты следующего месяца.</p></details><details><summary>Кто может участвовать?</summary><p>Все. Скидка — только для наших учеников, остальные получают наличные.</p></details><details><summary>Сколько друзей можно привести?</summary><p>Сколько угодно. За каждого нового ученика — 5 000 ֏, и в группе, и на индивидуальных занятиях.</p></details><details><summary>Что получает мой друг?</summary><p>Скидку 10% на оплату первого месяца — и в группе, и на индивидуальных занятиях. При записи нужно указать код и номер телефона.</p></details><details><summary>Кто засчитывается?</summary><p>Только новые ученики, которые записываются впервые и называют код при записи. Пригласить самого себя нельзя.</p></details></div>
     </div>
   </section>
   </main>
@@ -191,7 +193,7 @@
     <div class="lsec-in foot-base"><span>© 2026 Verba School</span><span data-t="stOnlineLong">Все занятия онлайн</span></div>
   </footer>
 
-  <script src="/site.js?v=f6d3eaa4" defer></script>
+  <script src="/site.js?v=7264e556" defer></script>
 </div>
 </body>
 </html>

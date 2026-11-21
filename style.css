@@ -793,3 +793,19 @@ html{scroll-behavior:smooth}
 .refline{margin:28px 0 0;text-align:center}
 .refline a{display:inline-flex;align-items:center;gap:10px;padding:12px 20px;border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);text-decoration:none;transition:border-color .2s,color .2s}
 .refline a:hover{border-color:var(--sun);color:var(--sun)}
+
+/* bring-a-friend strip on top of every page, menu card and hero link */
+.refbar{display:flex;align-items:center;justify-content:center;gap:4px;background:color-mix(in srgb,var(--accent) 14%,var(--bg));border-bottom:1px solid color-mix(in srgb,var(--accent) 30%,transparent);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+.refbar a{display:inline-flex;align-items:center;gap:10px;min-width:0;padding-block:8px;color:var(--ink);font-weight:700;font-size:.86rem;text-decoration:none}
+.refbar a span:not(.pulse){white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.refbar a .ic{width:16px;height:16px;flex:none;color:var(--accent);transition:transform .2s}
+.refbar a:hover .ic{transform:translateX(3px)}
+.refbar .pulse{flex:none}
+.refbar-x{flex:none;background:none;border:0;color:var(--muted);font-size:1.2rem;line-height:1;padding:6px 10px;cursor:pointer;border-radius:8px}
+.refbar-x:hover{color:var(--ink)}
+.refbar.gone{display:none}
+.mref{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line));border-radius:16px;background:color-mix(in srgb,var(--accent) 10%,transparent);color:var(--ink);text-decoration:none}
+.mref b{flex:1;font-weight:800}
+.mref .ic{width:18px;height:18px;color:var(--accent)}
+.hero-links{display:flex;flex-wrap:wrap;gap:12px 24px}
+.norefbar .refbar{display:none}
