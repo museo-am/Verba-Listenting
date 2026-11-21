@@ -811,3 +811,8 @@ html{scroll-behavior:smooth}
 .norefbar .refbar{display:none}
 .refgo{display:grid;gap:12px;border-top:1px dashed var(--line);padding-top:16px}
 .refmsg{margin:0;padding:12px 14px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);font-size:.92rem;line-height:1.5;user-select:all;-webkit-user-select:all;white-space:pre-wrap}
+.refforms .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.refdone{display:grid;gap:6px;padding:16px;border-radius:14px;background:color-mix(in srgb,var(--accent) 10%,transparent);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line))}
+.refdone p{margin:0}
+.refdone-h{font-weight:800;font-size:1.2rem}
+.refform .field[hidden],.refform button[hidden]{display:none}

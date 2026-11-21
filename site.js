@@ -124,39 +124,50 @@
   });
 })();
 
-/* bring-a-friend page: make a referral code from the name, then copy a ready message and open the Instagram chat */
+/* bring-a-friend page: the forms post to the school's Google Apps Script (codes + sign-ups go to a Google Sheet,
+   the school gets a Telegram alert), so nobody has to send a message anywhere */
 (function(){
   var box = document.querySelector(".refforms"); if(!box) return;
-  var IG = "https://ig.me/m/verba.school_";
-  var MAP = {"ա":"a","բ":"b","գ":"g","դ":"d","ե":"e","զ":"z","է":"e","ը":"y","թ":"t","ժ":"zh","ի":"i","լ":"l","խ":"kh","ծ":"ts","կ":"k","հ":"h","ձ":"dz","ղ":"gh","ճ":"ch","մ":"m","յ":"y","ն":"n","շ":"sh","ո":"o","չ":"ch","պ":"p","ջ":"j","ռ":"r","ս":"s","վ":"v","տ":"t","ր":"r","ց":"ts","ւ":"v","փ":"p","ք":"k","օ":"o","ֆ":"f","և":"ev",
-    "а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"e","ж":"zh","з":"z","и":"i","й":"y","к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f","х":"kh","ц":"ts","ч":"ch","ш":"sh","щ":"sh","ы":"y","э":"e","ю":"yu","я":"ya"};
-  function latin(s){ s = s.toLowerCase().replace(/ու/g, "u"); var o = ""; for(var i = 0; i < s.length; i++){ var c = s[i]; o += MAP[c] != null ? MAP[c] : (/[a-z]/.test(c) ? c : ""); } return o.toUpperCase(); }
-  function makeCode(name){ var base = latin(name.trim().split(/\s+/)[0] || "").slice(0, 6) || "VERBA"; return base + "-" + (10 + Math.floor(Math.random() * 90)); }
-  /* copy inside the tap itself (old-style copy first, it is synchronous; the clipboard API as a backup) */
+  var D = box.dataset, code = "";
   function copy(text){ var ok = false, t = document.createElement("textarea"); t.value = text; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.top = "0"; t.style.opacity = "0";
     document.body.appendChild(t); t.focus(); t.select(); try { t.setSelectionRange(0, text.length); ok = document.execCommand("copy"); } catch(e){} document.body.removeChild(t);
     try { if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(text).catch(function(){}); ok = true; } } catch(e){}
     return ok; }
-  /* the Instagram buttons are real links the visitor taps: phones hand those to the Instagram app,
-     while a tab opened by script often gets stuck on about:blank in in-app browsers */
-  function ready(form, text){ form.querySelector(".pmsg").textContent = copy(text) ? box.dataset.copied : ""; }
+  function okPhone(p){ var n = p.replace(/\D/g, "").length; return n >= 8 && n <= 15 && !/[^\d\s()+-]/.test(p); }
+  function send(form, body, done){
+    var btn = form.querySelector("button[type=submit]"), msg = form.querySelector(".pmsg"), label = btn.textContent;
+    body.lang = D.lang; body.website = form.querySelector(".hp").value;
+    btn.disabled = true; btn.textContent = D.busy; msg.textContent = "";
+    fetch(D.api, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(body) })
+      .then(function(r){ return r.json(); })
+      .then(function(r){ btn.disabled = false; btn.textContent = label; if(r && r.ok) done(r); else msg.textContent = D[{ name: "need", phone: "needPhone", code: "needCode" }[r && r.error] || (r && r.error)] || D.fail; })
+      .catch(function(){ btn.disabled = false; btn.textContent = label; msg.textContent = D.fail; });
+  }
+  function check(form, ins){ var msg = form.querySelector(".pmsg");
+    for(var i = 0; i < ins.length; i++){ var el = ins[i][0], v = el.value.trim(), bad = ins[i][1] === "phone" ? !okPhone(v) : !v;
+      if(bad){ msg.textContent = D[ins[i][2]]; el.focus(); return false; } }
+    return true; }
 
-  var f1 = document.getElementById("refcode"), out = f1.querySelector(".refout"), val = document.getElementById("refcodeval"), code = "";
-  f1.addEventListener("submit", function(e){ e.preventDefault(); var n = f1.querySelector("input").value.trim(), msg = f1.querySelector(".pmsg");
-    if(!n){ msg.textContent = f1.dataset.need; return; } msg.textContent = "";
-    var key = "vs-ref:" + n.toLowerCase(); try { code = localStorage.getItem(key) || ""; } catch(err){}
-    if(!code){ code = makeCode(n); try { localStorage.setItem(key, code); } catch(err){} }
-    val.textContent = code; out.hidden = false; });
-  f1.querySelector("[data-ref-send]").addEventListener("click", function(){ var n = f1.querySelector("input").value.trim();
-    ready(f1, f1.dataset.msg.replace("{n}", n).replace("{c}", code)); });
-  f1.querySelector("[data-ref-copy]").addEventListener("click", function(){ copy(code); f1.querySelector(".pmsg").textContent = box.dataset.codeCopied; });
+  var f1 = document.getElementById("refcode"), n1 = document.getElementById("refname"), p1 = document.getElementById("refphone"), val = document.getElementById("refcodeval");
+  f1.addEventListener("submit", function(e){ e.preventDefault();
+    if(!check(f1, [[n1, "text", "need"], [p1, "phone", "needPhone"]])) return;
+    send(f1, { action: "code", name: n1.value.trim(), phone: p1.value.trim() }, function(r){
+      code = r.code; val.textContent = code; f1.querySelector(".refout").hidden = false;
+      f1.querySelector(".pmsg").textContent = r.existing ? D.existing : "";
+      try { localStorage.setItem("vs-ref-code", code); } catch(err){} });
+  });
+  function link(){ return location.origin + location.pathname + "?ref=" + encodeURIComponent(code); }
+  f1.querySelector("[data-ref-share]").addEventListener("click", function(){ var url = link(), text = D.shareText + " " + code;
+    if(navigator.share){ navigator.share({ title: "Verba School", text: text, url: url }).catch(function(){}); }
+    else { copy(text + "\n" + url); f1.querySelector(".pmsg").textContent = D.linkCopied; } });
+  f1.querySelector("[data-ref-copy]").addEventListener("click", function(){ copy(code); f1.querySelector(".pmsg").textContent = D.codeCopied; });
 
-  var f2 = document.getElementById("refinv"), iName = document.getElementById("invname"), iPhone = document.getElementById("invphone"), iCode = document.getElementById("invcode");
-  var q = (location.search.match(/[?&]ref=([A-Za-z0-9-]{3,12})/) || [])[1]; if(q){ iCode.value = q.toUpperCase(); }
-  f2.addEventListener("submit", function(e){ e.preventDefault(); var n = iName.value.trim(), p = iPhone.value.trim(), c = iCode.value.trim().toUpperCase(), msg = f2.querySelector(".pmsg");
-    if(!n){ msg.textContent = f2.dataset.need; iName.focus(); return; }
-    var digits = p.replace(/\D/g, ""); if(digits.length < 8 || digits.length > 15 || /[^\d\s()+-]/.test(p)){ msg.textContent = f2.dataset.needPhone; iPhone.focus(); return; }
-    if(!c){ msg.textContent = f2.dataset.needCode; iCode.focus(); return; }
-    var text = f2.dataset.msg.replace("{n}", n).replace("{p}", p).replace("{c}", c), go = f2.querySelector(".refgo");
-    ready(f2, text); go.querySelector(".refmsg").textContent = text; go.hidden = false; go.querySelector("a").focus({preventScroll:true}); go.scrollIntoView({behavior:"smooth", block:"nearest"}); });
+  var f2 = document.getElementById("refinv"), n2 = document.getElementById("invname"), p2 = document.getElementById("invphone"), c2 = document.getElementById("invcode");
+  var q = (location.search.match(/[?&]ref=([A-Za-z0-9-]{3,12})/) || [])[1]; if(q){ c2.value = q.toUpperCase(); }
+  f2.addEventListener("submit", function(e){ e.preventDefault();
+    if(!check(f2, [[n2, "text", "need"], [p2, "phone", "needPhone"], [c2, "text", "needCode"]])) return;
+    send(f2, { action: "invite", name: n2.value.trim(), phone: p2.value.trim(), code: c2.value.trim().toUpperCase() }, function(){
+      [].forEach.call(f2.querySelectorAll(".field, button[type=submit]"), function(el){ el.hidden = true; });
+      var d = f2.querySelector(".refdone"); d.hidden = false; d.scrollIntoView({ behavior: "smooth", block: "nearest" }); });
+  });
 })();

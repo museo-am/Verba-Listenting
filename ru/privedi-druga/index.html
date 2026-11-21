@@ -26,7 +26,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"EducationalOrganization","@id":"https://verba-school.online/#school","name":"Verba School","alternateName":["Verba","Verba School Armenia","Վերբա"],"url":"https://verba-school.online/","logo":"https://verba-school.online/img/logo.png","image":"https://verba-school.online/img/og.png","description":"Verba School — онлайн-школа иностранных языков. Испанский, английский и французский с уровня A1 до C1, объяснения на армянском. Групповые и индивидуальные занятия, сертификат по окончании курса.","telephone":"+37477308525","sameAs":["https://www.instagram.com/verba.school_/"],"areaServed":{"@type":"Country","name":"Armenia"},"knowsLanguage":["es","en","fr","hy"],"hasOfferCatalog":{"@type":"OfferCatalog","name":"Все занятия — онлайн","itemListElement":[{"@type":"Offer","name":"Групповые занятия","description":"Учитесь вместе с другими студентами.","price":25000,"priceCurrency":"AMD","priceSpecification":{"@type":"UnitPriceSpecification","price":25000,"priceCurrency":"AMD","unitText":"MONTH"}},{"@type":"Offer","name":"Индивидуальные занятия","description":"Один на один, в вашем темпе.","price":30000,"priceCurrency":"AMD","priceSpecification":{"@type":"UnitPriceSpecification","price":30000,"priceCurrency":"AMD","unitText":"MONTH"}}]}},{"@type":"WebPage","name":"Приведи друга и получи 5 000 ֏ | Verba School","description":"Приведи друга учиться в Verba School: за каждого нового ученика по твоему коду получи 5 000 ֏ наличными или скидкой на следующий месяц.","inLanguage":"ru","publisher":{"@id":"https://verba-school.online/#school"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://verba-school.online/ru/"},{"@type":"ListItem","position":2,"name":"Приведи друга","item":"https://verba-school.online/ru/privedi-druga/"}]}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Armenian:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,500;1,600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="/style.css?v=72683875">
+<link rel="stylesheet" href="/style.css?v=f36e5dd0">
 </head>
 <body class="is-landing is-sub">
 <div id="landing" class="landing sub">
@@ -89,7 +89,7 @@
   <section class="lsec tight">
     <div class="lsec-in">
       <div class="shead rv"><h2>Как это работает</h2></div>
-      <ul class="howlist rv"><li><b>Получи код</b><span>Введи имя ниже — сайт создаст твой личный код. Отправь его нам в Instagram, чтобы мы его зарегистрировали.</span></li><li><b>Поделись с друзьями</b><span>Друг записывается по твоему коду и получает скидку 10% на первый месяц.</span></li><li><b>Получи награду</b><span>Когда друг оплатит и закончит первый месяц, ты получаешь 5 000 ֏.</span></li></ul>
+      <ul class="howlist rv"><li><b>Получи код</b><span>Введи имя и номер телефона ниже — получишь личный код. Ничего отправлять не нужно.</span></li><li><b>Поделись с друзьями</b><span>Друг записывается по твоему коду и получает скидку 10% на первый месяц.</span></li><li><b>Получи награду</b><span>Когда друг оплатит и закончит первый месяц, ты получаешь 5 000 ֏.</span></li></ul>
     </div>
   </section>
   <section class="lsec tight">
@@ -110,30 +110,31 @@
     </div>
   </section>
   <section class="lsec tight">
-    <div class="lsec-in refforms" data-copied="Сообщение скопировано. Открой чат и вставь его (долгое нажатие → Вставить)." data-code-copied="Код скопирован.">
-      <form class="panel refform rv" id="refcode" novalidate data-msg="Здравствуйте! Хочу участвовать в программе «Приведи друга». Меня зовут {n}. Мой код: {c}." data-need="Введи имя.">
+    <div class="lsec-in refforms" data-api="https://script.google.com/macros/s/AKfycbw1_FV40T2npq0BhPqRGRKzJ-sHfBpU6ct-yqryaqwF0hYz-U5TSkRdo_khxojca2-y/exec" data-lang="ru" data-busy="Подожди…" data-fail="Не удалось отправить. Попробуй ещё раз или напиши нам в Instagram: @verba.school_" data-code-copied="Код скопирован." data-link-copied="Ссылка скопирована. Отправь её друзьям." data-share-text="Записывайся в Verba School по моему коду и получи скидку 10% на первый месяц:"
+      data-need="Введи имя." data-need-phone="Введи правильный номер телефона." data-need-code="Введи код друга." data-existing="На этот номер уже есть код — вот он." data-nocode="Такого кода нет. Проверь код друга." data-self="Нельзя записаться по собственному коду." data-dup="На этот номер уже есть запись. Мы скоро позвоним.">
+      <form class="panel refform rv" id="refcode" novalidate>
         <h2>Получи свой код</h2>
-        <p class="hint">Введи имя, и сайт создаст код. Затем отправь его нам в Instagram, чтобы мы его активировали.</p>
-        <div class="field"><label for="refname">Имя</label><input class="input" id="refname" name="name" autocomplete="given-name" placeholder="Например, Анна" maxlength="40"></div>
+        <p class="hint">Введи имя и номер телефона. Код регистрируется сразу, а по поводу награды мы позвоним на этот номер.</p>
+        <div class="field"><label for="refname">Имя</label><input class="input" id="refname" name="name" autocomplete="name" placeholder="Например, Анна" maxlength="40" required></div>
+        <div class="field"><label for="refphone">Номер телефона</label><input class="input" id="refphone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+374 77 123 456" maxlength="20" required></div>
+        <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
         <button class="btn big" type="submit">Создать код</button>
         <div class="refout" hidden>
           <p class="eyebrow">Твой код</p>
           <p class="refcode-big" id="refcodeval" aria-live="polite"></p>
-          <div class="hero-cta"><a class="btn big" href="https://ig.me/m/verba.school_" target="_blank" rel="noopener" data-ref-send>Отправить в Instagram</a><button class="btn big ghost" type="button" data-ref-copy>Скопировать код</button></div>
+          <div class="hero-cta"><button class="btn big" type="button" data-ref-share>Поделиться ссылкой</button><button class="btn big ghost" type="button" data-ref-copy>Скопировать код</button></div>
         </div>
         <p class="pmsg" role="status"></p>
       </form>
-      <form class="panel refform rv" id="refinv" novalidate data-msg="Здравствуйте! Хочу записаться на занятия со скидкой 10%. Меня зовут {n}. Мой телефон: {p}. Меня пригласил друг, код: {c}." data-need="Введи имя." data-need-code="Введи код друга." data-need-phone="Введи правильный номер телефона.">
+      <form class="panel refform rv" id="refinv" novalidate>
         <h2>Тебя пригласили? Получи скидку 10%</h2>
         <p class="hint">Введи имя, номер телефона и код друга. Ты получишь скидку 10% на первый месяц, а друг — свою награду.</p>
-        <div class="field"><label for="invname">Имя</label><input class="input" id="invname" name="name" autocomplete="given-name" placeholder="Например, Анна" maxlength="40"></div>
-        <div class="field"><label for="invphone">Номер телефона</label><input class="input" id="invphone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+374 77 123 456" maxlength="20"></div>
-        <div class="field"><label for="invcode">Код друга</label><input class="input" id="invcode" name="code" autocapitalize="characters" placeholder="Например, ANNA-47" maxlength="12"></div>
+        <div class="field"><label for="invname">Имя</label><input class="input" id="invname" name="name" autocomplete="name" placeholder="Например, Анна" maxlength="40" required></div>
+        <div class="field"><label for="invphone">Номер телефона</label><input class="input" id="invphone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+374 77 123 456" maxlength="20" required></div>
+        <div class="field"><label for="invcode">Код друга</label><input class="input" id="invcode" name="code" autocapitalize="characters" autocomplete="off" placeholder="Например, ANNA-47" maxlength="12" required></div>
+        <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
         <button class="btn big" type="submit">Записаться с кодом</button>
-        <div class="refgo" hidden>
-          <p class="refmsg"></p>
-          <a class="btn big" href="https://ig.me/m/verba.school_" target="_blank" rel="noopener">Открыть чат в Instagram</a>
-        </div>
+        <div class="refdone" hidden><p class="refdone-h">Готово ✓</p><p>Мы позвоним тебе в течение 24 часов, чтобы подобрать занятия. Скидка 10% применится к оплате первого месяца.</p></div>
         <p class="pmsg" role="status"></p>
       </form>
     </div>
@@ -197,7 +198,7 @@
     <div class="lsec-in foot-base"><span>© 2026 Verba School</span><span data-t="stOnlineLong">Все занятия онлайн</span></div>
   </footer>
 
-  <script src="/site.js?v=c02c0f79" defer></script>
+  <script src="/site.js?v=e1c2fd41" defer></script>
 </div>
 </body>
 </html>
