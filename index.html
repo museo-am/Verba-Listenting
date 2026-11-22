@@ -913,6 +913,9 @@ function renderLive(l, msg){
       configOverwrite: {prejoinConfig:{enabled:true}, disableDeepLinking:true, channelLastN:-1, disableScreensharingVirtualParticipant:false, tileView:{disabled:true}, defaultLanguage: l.lang==="fr"?"fr":l.lang==="es"?"es":"en"},
     });
 
+    // stronger AI noise suppression (Jitsi's own, on top of the browser's); people can still switch it off in the call menu
+    jitsiApi.addListener("videoConferenceJoined", () => { try{ jitsiApi.executeCommand("setNoiseSuppressionEnabled", {enabled: true}); }catch(e){} });
+
     // when someone shares a screen, show it big (phones otherwise keep it as a small tile or skip it)
     // On a phone, a shared screen fills the call: no tiles, filmstrip hidden while it lasts.
     let stripOn = true, hidStrip = false;

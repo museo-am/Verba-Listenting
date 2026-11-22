@@ -551,6 +551,8 @@ async function startCall(){
   });
   // students wait in the lobby until the tutor lets them in
   jitsiApi.addListener("videoConferenceJoined", () => { try{ jitsiApi.executeCommand("toggleLobby", true); }catch(e){} });
+  // stronger AI noise suppression (Jitsi's own, on top of the browser's); people can still switch it off in the call menu
+  jitsiApi.addListener("videoConferenceJoined", () => { try{ jitsiApi.executeCommand("setNoiseSuppressionEnabled", {enabled: true}); }catch(e){} });
 
     // when someone shares a screen, show it big (phones otherwise keep it as a small tile or skip it)
     jitsiApi.addListener("contentSharingParticipantsChanged", e => {
