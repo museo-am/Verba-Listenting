@@ -7,7 +7,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { allPages, resourceLinks } from "./pages.mjs";
+import { FAQ, FAQ_T } from "./content/faq.mjs";
+import { UI_LANGS, HOME, COURSE, TEST, BLOG, ARTICLE, REFERRAL } from "./content/routes.mjs";
+import { ARTICLES } from "./content/articles.mjs";
 
 const SITE = "https://verba-school.online/";
 const LANGS = [
@@ -33,6 +37,20 @@ function fill(tpl, S, root, current, hrefs = {}) {
   const links = `<nav class="langlinks" aria-label="Language">` + LANGS.map((l) =>
     `<a href="${hrefs[l.code] || "/" + l.dir}" hreflang="${l.code}" lang="${l.code}"${l.code === current ? ' class="on" aria-current="page"' : ""}>${l.label}</a>`).join("") + `</nav>`;
   return html.replace("{{LANGNAV}}", nav).replaceAll("{{LANGLINKS}}", links).replaceAll("{{ROOT}}", root);
+}
+
+// home-page FAQ: links point to the page language's test and bring-a-friend pages (Spanish → English pages)
+function faqItems(lang, abs = false) {
+  const ui = UI_LANGS.includes(lang) ? lang : "en", pre = abs ? SITE : "/";
+  return FAQ[lang].map(([q, a]) => [q, a.replaceAll("{{TEST}}", pre + TEST.en[ui]).replaceAll("{{REF}}", pre + REFERRAL[ui])]);
+}
+function faqSection(lang) {
+  return `<section class="lsec" id="faq">
+    <div class="lsec-in">
+      <div class="shead rv"><h2>${FAQ_T[lang]}</h2></div>
+      <div class="faq rv">${faqItems(lang).map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join("")}</div>
+    </div>
+  </section>`;
 }
 
 function jsonLd(S, lang) {
@@ -80,6 +98,8 @@ function jsonLd(S, lang) {
       },
       { "@type": "WebSite", "@id": SITE + "#website", name: "Verba School", alternateName: "Verba", url: SITE, inLanguage: lang, publisher: { "@id": school } },
       course("es", plain(S.lEs)), course("en", plain(S.lEn)), course("fr", plain(S.lFr)),
+      { "@type": "FAQPage", "@id": SITE + (LANGS.find((l) => l.code === lang) || LANGS[0]).dir + "#faq", inLanguage: lang,
+        mainEntity: faqItems(lang, true).map(([q, a]) => ({ "@type": "Question", name: plain(q), acceptedAnswer: { "@type": "Answer", text: plain(a) } })) },
     ],
   };
 }
@@ -185,6 +205,43 @@ function subHead(pg, alts, S) {
   ].filter(Boolean).join("\n");
 }
 
+// /llms.txt: a plain-markdown summary for AI assistants (llmstxt.org), in English with the Armenian and Russian pages linked
+function llmsTxt() {
+  const u = (p) => SITE + p, name = { es: "Spanish", en: "English", fr: "French" };
+  const qa = faqItems("en", true).map(([q, a]) => `### ${q}\n${plain(a.replace(/<a href="([^"]+)">([^<]+)<\/a>/g, "[$2]($1)"))}`).join("\n\n");
+  return `# Verba School
+
+> Online language school in Armenia (verba-school.online). Spanish, English and French lessons from A1 to C1 (CEFR), taught with explanations in Armenian. Lessons are online, in a group or one-on-one. Group lessons 25,000 AMD/month, private lessons 30,000 AMD/month. Certificate at the end of the course. Contact: Instagram @verba.school_, phone +374 77 30 85 25.
+
+Verba School (Armenian: Վերբա) explains grammar in Armenian and builds listening and speaking with real texts. Lessons follow the European language levels (CEFR); at the end of each level a test shows whether the student is ready for the next one.
+All lessons are online, in a group or one-on-one. Students get personal links to listening tasks, level tests and online lessons.
+The website is in Armenian (main), Russian and English, with a Spanish home page.
+
+## Courses
+${["es", "en", "fr"].map((x) => `- [${name[x]} lessons online](${u(COURSE[x].en)}): ${name[x]} from beginner to advanced. Armenian: ${u(COURSE[x].hy)} · Russian: ${u(COURSE[x].ru)}`).join("\n")}
+
+## Free level tests
+${["es", "en", "fr"].map((x) => `- [Free ${name[x]} level test](${u(TEST[x].en)}): 20 questions, about 10 minutes, result from A1 to C1.`).join("\n")}
+
+## Prices and offers
+- Group lessons: 25,000 AMD per month.
+- Private (one-to-one) lessons: 30,000 AMD per month.
+- [Bring a friend](${u(REFERRAL.en)}): the friend gets 10% off their first month, the student who invited them gets 5,000 AMD.
+
+## Frequently asked questions
+${qa}
+
+## Articles
+${Object.keys(ARTICLE).map((k) => `- [${plain(ARTICLES[k].en.title)}](${u(ARTICLE[k].en)}): ${plain(ARTICLES[k].en.lede)}`).join("\n")}
+- [Blog](${u(BLOG.en)})
+
+## Contact
+- Instagram: https://www.instagram.com/verba.school_/ (@verba.school_)
+- Phone: +374 77 30 85 25
+- Website: ${SITE} (Armenian), ${SITE}ru/ (Russian), ${SITE}en/ (English), ${SITE}es/ (Spanish)
+`;
+}
+
 export function buildSite(ROOT, cssVer) {
   const P = (...a) => path.join(ROOT, ...a);
   const strings = JSON.parse(fs.readFileSync(P("tools/site-strings.json"), "utf8"));
@@ -193,7 +250,7 @@ export function buildSite(ROOT, cssVer) {
   let changed = 0;
   for (const l of LANGS) {
     const S = strings[l.code];
-    const landing = extras(fill(tpl, S, "/", l.code), l.code, jsVer);
+    const landing = extras(fill(tpl, S, "/", l.code), l.code, jsVer).replace("{{FAQ}}", faqSection(l.code));
     if (l.code === "hy") {
       let html = fs.readFileSync(P("index.html"), "utf8");
       html = html.replace(/<!--landing:start-->[\s\S]*?<!--landing:end-->/, `<!--landing:start-->\n${landing}<!--landing:end-->`)
@@ -221,11 +278,50 @@ export function buildSite(ROOT, cssVer) {
     keepSub.add(pg.path);
   }
 
+  // 404 page (GitHub Pages serves /404.html for any missing path): Armenian shell, short note in all three
+  // languages and links back to the main pages; noindex and no canonical so it never competes with real pages
+  {
+    const S = strings.hy, l = LANGS[0], ui = ["hy", "ru", "en"];
+    const T = { hy: ["Էջը չի գտնվել", "Հնարավոր է՝ հղումը սխալ է կամ էջը տեղափոխվել է։", "Գլխավոր էջ", "Անվճար թեստ"],
+      ru: ["Страница не найдена", "Возможно, ссылка неверна или страница переехала.", "Главная", "Бесплатный тест"],
+      en: ["Page not found", "The link may be wrong, or the page has moved.", "Home", "Free level test"] };
+    const blocks = ui.map((x) => `<div class="nf-l" lang="${x}"><h${x === "hy" ? 1 : 2}>${T[x][0]}</h${x === "hy" ? 1 : 2}><p class="lede">${T[x][1]}</p>
+        <p class="hero-cta"><a class="btn big" href="${HOME[x] || "/"}">${T[x][2]}</a><a class="btn big ghost" href="/${TEST.en[x]}">${T[x][3]}</a></p></div>`).join("\n      ");
+    const body = `<section class="sub-hero small nf"><div class="lsec-in">
+      <p class="eyebrow">404</p>
+      ${blocks}
+      <p class="hint">${["es", "en", "fr"].map((x) => `<a href="/${COURSE[x].hy}">${plain(S["l" + x[0].toUpperCase() + x[1]])}</a>`).join(" · ")} · <a href="/${BLOG.hy}">Բլոգ</a></p>
+    </div></section>`;
+    let html = extras(fill(ptpl, S, "/", "hy"), "hy", jsVer).replaceAll("{{HOME}}", "/").replace("{{CRUMBS}}", "").replace("{{BODY}}", body)
+      .replace(/<!--refbar-->[\s\S]*?<!--\/refbar-->\n?/, "");
+    const head404 = [`<title>404 · Verba School</title>`, `<meta name="robots" content="noindex">`,
+      `<link rel="icon" type="image/png" sizes="32x32" href="/img/icon-32.png">`, `<meta name="theme-color" content="#141110">`].join("\n");
+    changed += write(P("404.html"), pageShell(S, l, html, cssVer, head404).replace('<body class="is-landing">', '<body class="is-landing is-sub">'));
+  }
+
+  // lastmod per page: a fingerprint of the page's visible text (scripts, styles, tags and cache-busting
+  // versions ignored) is kept in tools/lastmod.json; the date moves only when that page's content changes.
+  // A page seen for the first time takes the date of its last git commit (today if it has uncommitted changes).
   const today = new Date().toISOString().slice(0, 10);
+  const lmFile = P("tools/lastmod.json");
+  const lm = fs.existsSync(lmFile) ? JSON.parse(fs.readFileSync(lmFile, "utf8")) : {};
+  const git = (...a) => execFileSync("git", a, { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 26 }).trim();
+  const fingerprint = (html) => {
+    html = html.replace(/<!--landing:end-->[\s\S]*$/, "").replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, " ");
+    const text = (html.match(/<!--landing:start-->([\s\S]*)/) || [, html])[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    return crypto.createHash("sha256").update(text).digest("hex").slice(0, 16);
+  };
+  // first sighting: same text as the last commit → that commit's date, otherwise today
+  const firstDate = (f, h) => { try { return fingerprint(git("show", "HEAD:" + f)) === h ? (git("log", "-1", "--format=%cs", "--", f) || today) : today; } catch (e) { return today; } };
+  const lastmod = (loc) => {
+    const f = path.join(loc, "index.html"), h = fingerprint(fs.readFileSync(P(f), "utf8"));
+    if (!lm[loc] || lm[loc].hash !== h) lm[loc] = { hash: h, date: lm[loc] ? today : firstDate(f, h) };
+    return lm[loc].date;
+  };
   const urlEntry = (loc, alts) => `  <url>
     <loc>${SITE + loc}</loc>
 ${Object.entries(alts).map(([l, p]) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${SITE + p}"/>`).join("\n")}
-    <lastmod>${today}</lastmod>
+    <lastmod>${lastmod(loc)}</lastmod>
   </url>`;
   const homeAlts = Object.fromEntries(LANGS.map((l) => [l.code, l.dir]));
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -234,18 +330,37 @@ ${LANGS.map((l) => urlEntry(l.dir, homeAlts)).join("\n")}
 ${pages.map((pg) => urlEntry(pg.path, groups[pg.group])).join("\n")}
 </urlset>
 `;
-  // keep lastmod stable unless the pages changed
-  const old = fs.existsSync(P("sitemap.xml")) ? fs.readFileSync(P("sitemap.xml"), "utf8") : "";
-  if (changed || !old) changed += write(P("sitemap.xml"), sitemap);
-  changed += write(P("robots.txt"), `User-agent: *
-Allow: /
+  changed += write(P("sitemap.xml"), sitemap);
+  changed += write(lmFile, JSON.stringify(Object.fromEntries(Object.entries(lm).sort()), null, 1) + "\n");
+  changed += write(P("llms.txt"), llmsTxt());
+  // Search and AI-answer crawlers are named explicitly; model-training crawlers (GPTBot, ClaudeBot, Google-Extended, CCBot…)
+  // are deliberately not named, so they only get the general rules: whether to block them is the school's decision.
+  const rules = `Allow: /
 Disallow: /admin.html
 Disallow: /tutors/
 Disallow: /c/
 Disallow: /a/
 Disallow: /content/
 Disallow: /audio/
-Disallow: /tools/
+Disallow: /tools/`;
+  changed += write(P("robots.txt"), `# Verba School. Public pages are open to search engines and AI search/answer crawlers.
+# Private lesson data (encrypted lessons, audio, tutor files) and the tutor panel are not for crawling.
+# A plain-text summary of the school: ${SITE}llms.txt
+
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Applebot
+User-agent: YandexBot
+${rules}
+
+User-agent: *
+${rules}
 
 Sitemap: ${SITE}sitemap.xml
 `);

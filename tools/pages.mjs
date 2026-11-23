@@ -56,7 +56,7 @@ function placementBody(target, ui) {
           <a class="btn big ghost" href="/${COURSE[target][ui]}">${t.course(n)}</a>
           <button class="btn big ghost" type="button" id="pagain">${t.again}</button></div>
       </section>
-      <nav class="more"><h3>${t.other}</h3><ul>${TARGETS.filter((x) => x !== target).map((x) => `<li><a href="/${TEST[x][ui]}">${PT[ui].h1(NAMES[ui][x])}</a></li>`).join("")}</ul></nav>
+      <nav class="more"><h2>${t.other}</h2><ul>${TARGETS.filter((x) => x !== target).map((x) => `<li><a href="/${TEST[x][ui]}">${PT[ui].h1(NAMES[ui][x])}</a></li>`).join("")}</ul></nav>
     </div>
   </section>`;
 }
@@ -116,7 +116,8 @@ export function allPages() {
     const R = REF_T[ui];
     pages.push({ path: REFERRAL[ui], ui, group: "referral", title: R.title, metaDesc: R.meta, body: referralBody(ui),
       crumbs: [[CRUMB_HOME[ui], HOME[ui]], [R.crumb, null]],
-      jsonld: [{ "@type": "WebPage", name: R.title, description: R.meta, inLanguage: ui, publisher: { "@id": SITE + "#school" } }] });
+      jsonld: [{ "@type": "WebPage", name: R.title, description: R.meta, inLanguage: ui, publisher: { "@id": SITE + "#school" } },
+        { "@type": "FAQPage", inLanguage: ui, mainEntity: R.rules.map(([q, a]) => ({ "@type": "Question", name: plain(q), acceptedAnswer: { "@type": "Answer", text: plain(a) } })) }] });
   }
   return pages;
 }

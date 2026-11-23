@@ -699,7 +699,7 @@ html{scroll-behavior:smooth}
 .faq details[open] summary::after{transform:rotate(45deg)}
 .faq details p{margin:0 0 16px;color:var(--muted)}
 .more{display:grid;gap:10px}
-.more h3{margin:0;font-size:1.05rem}
+.more h3,.more h2{margin:0;font-size:1.05rem}
 .more ul{margin:0;padding-left:1.1em;display:grid;gap:6px}
 
 /* free placement test */
@@ -830,3 +830,7 @@ html{scroll-behavior:smooth}
 .livesound{margin-top:18px}
 .livesound summary{cursor:pointer;font-weight:700}
 .livesound p{margin:10px 0 0}
+.nf .nf-l{display:grid;gap:10px;padding-block:14px;border-bottom:1px solid var(--line)}
+.nf .nf-l h2{font-size:clamp(1.4rem,3vw,1.9rem);margin:0}
+.nf .nf-l .lede{margin:0}
+.nf .hint{margin-top:18px}
