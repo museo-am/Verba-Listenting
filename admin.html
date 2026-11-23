@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="img/icon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Armenian:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,500;1,600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=c4475722">
+<link rel="stylesheet" href="style.css?v=b8f3e9d4">
 </head>
 <body>
 
@@ -45,7 +45,7 @@ const OWNER = REPO.split("/")[0];
 const STR = {
  en: {
   brand:"Tutor panel", logout:"Log out",
-  loginTitle:"Tutor panel", loginText:"Enter your username and password.", username:"Username", langNames:{es:"Spanish",en:"English",fr:"French"},
+  teachLang:"Teaching language", loginTitle:"Tutor panel", loginText:"Enter your username and password.", username:"Username", langNames:{es:"Spanish",en:"English",fr:"French"},
   password:"Password", login:"Log in", checking:"Checking…",
   wrongPw:"Wrong username or password. Try again.", noFile:"Panel settings not found.",
   recStart:"Record", recStop:"Stop", recSaving:"Saving…", recSaved:"Recording saved to Downloads.", recNoAudio:"No tab sound: students' voices won't be in the recording. Stop, press Record again and keep \"Also share tab audio\" on.", recNoAudioSafari:"Safari can't record the call's sound, so only your voice and the picture are being recorded. For students' voices too, use Chrome or Edge.", recFail:"Recording didn't start.", recNoSupport:"Recording works in Chrome or Edge on a computer.", recNotice:"🔴 This lesson is being recorded · Դասը ձայնագրվում է", recEnd:"⏹ Recording stopped · Ձայնագրությունն ավարտվեց", recPick:"In the window that opens, choose <b>this tab</b> and keep <b>Also share tab audio</b> on.",
@@ -77,7 +77,7 @@ const STR = {
  },
  hy: {
   brand:"Ուսուցչի վահանակ", logout:"Դուրս գալ",
-  loginTitle:"Ուսուցչի վահանակ", loginText:"Մուտքագրեք ձեր օգտանունը և գաղտնաբառը։", username:"Օգտանուն", langNames:{es:"Իսպաներեն",en:"Անգլերեն",fr:"Ֆրանսերեն"},
+  teachLang:"Դասավանդման լեզու", loginTitle:"Ուսուցչի վահանակ", loginText:"Մուտքագրեք ձեր օգտանունը և գաղտնաբառը։", username:"Օգտանուն", langNames:{es:"Իսպաներեն",en:"Անգլերեն",fr:"Ֆրանսերեն"},
   password:"Գաղտնաբառ", login:"Մուտք", checking:"Ստուգվում է…",
   wrongPw:"Սխալ օգտանուն կամ գաղտնաբառ։ Փորձեք կրկին։", noFile:"Վահանակի կարգավորումները չեն գտնվել։",
   recStart:"Ձայնագրել", recStop:"Կանգնեցնել", recSaving:"Պահպանվում է…", recSaved:"Ձայնագրությունը պահվեց Downloads պանակում։", recNoAudio:"Ներդիրի ձայն չկա․ աշակերտների ձայնը չի ձայնագրվի։ Կանգնեցրեք, նորից սեղմեք Ձայնագրել և թողեք «Also share tab audio»-ն միացված։", recNoAudioSafari:"Safari-ն չի կարող ձայնագրել զանգի ձայնը, ուստի ձայնագրվում են միայն ձեր ձայնը և պատկերը։ Աշակերտների ձայնի համար օգտագործեք Chrome կամ Edge։", recFail:"Ձայնագրությունը չսկսվեց։", recNoSupport:"Ձայնագրումն աշխատում է համակարգչի Chrome-ում կամ Edge-ում։", recNotice:"🔴 Դասը ձայնագրվում է · This lesson is being recorded", recEnd:"⏹ Ձայնագրությունն ավարտվեց · Recording stopped", recPick:"Բացվող պատուհանում ընտրեք <b>այս ներդիրը</b> և թողեք <b>Also share tab audio</b>-ն միացված։",
@@ -109,7 +109,7 @@ const STR = {
  },
  es: {
   brand:"Panel del profesor", logout:"Cerrar sesión",
-  loginTitle:"Panel del profesor", loginText:"Introduce tu usuario y contraseña.", username:"Usuario", langNames:{es:"Español",en:"Inglés",fr:"Francés"},
+  teachLang:"Idioma que enseñas", loginTitle:"Panel del profesor", loginText:"Introduce tu usuario y contraseña.", username:"Usuario", langNames:{es:"Español",en:"Inglés",fr:"Francés"},
   password:"Contraseña", login:"Entrar", checking:"Comprobando…",
   wrongPw:"Usuario o contraseña incorrectos. Inténtalo de nuevo.", noFile:"No se encontró la configuración del panel.",
   recStart:"Grabar", recStop:"Detener", recSaving:"Guardando…", recSaved:"Grabación guardada en Descargas.", recNoAudio:"Sin sonido de la pestaña: las voces de los alumnos no quedarán grabadas. Detén, pulsa Grabar otra vez y deja activado \"Compartir también el audio de la pestaña\".", recNoAudioSafari:"Safari no puede grabar el sonido de la llamada: solo se graban tu voz y la imagen. Para grabar también a los alumnos, usa Chrome o Edge.", recFail:"La grabación no empezó.", recNoSupport:"La grabación funciona en Chrome o Edge en un ordenador.", recNotice:"🔴 Esta clase se está grabando · Դասը ձայնագրվում է", recEnd:"⏹ Grabación terminada · Ձայնագրությունն ավարտվեց", recPick:"En la ventana que se abre, elige <b>esta pestaña</b> y deja activado <b>Compartir también el audio</b>.",
@@ -157,7 +157,7 @@ function applyChrome(){
   document.getElementById("lock").textContent = t("logout");
   const who = document.getElementById("who");
   who.hidden = !session;
-  if(session) who.textContent = session.username + (session.language && t("langNames")[session.language] ? " · " + t("langNames")[session.language] : "");
+  if(session){ const tl = teachLangs().length > 1 ? teachLang() : session.language; who.textContent = session.username + (tl && t("langNames")[tl] ? " · " + t("langNames")[tl] : ""); }
   document.querySelectorAll("#langs [data-lang]").forEach(b=>{ const on = b.dataset.lang===lang; b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); });
 }
 document.querySelectorAll("#langs [data-lang]").forEach(b=>b.onclick=()=>{
@@ -425,20 +425,31 @@ function levelTabs(items, key){
   return {html, groups, wire(box, redraw){ box.querySelectorAll("[data-lv]").forEach(b => b.onclick = () => { store.set(key, b.dataset.lv); redraw(); }); }};
 }
 const SECTIONS = ["listenings","tests","live"];
-const listenings = () => session.lessons.filter(l=>l.kind!=="test");
-const tests = () => session.lessons.filter(l=>l.kind==="test");
+/* tutors who teach more than one language (e.g. English + Spanish) pick which one the panel shows */
+const ORDER = ["es","en","fr"];
+const teachLangs = () => { const set = new Set(session.lessons.map(l => l.lang || session.language || "es")); if(session.language) set.add(session.language);
+  return [...set].sort((a,b) => (a===session.language?-1:b===session.language?1:ORDER.indexOf(a)-ORDER.indexOf(b))); };
+const tlKey = () => "vs-admin-tlang-" + slugify(session.username);
+const teachLang = () => { const ls = teachLangs(), v = store.get(tlKey(), ls[0]); return ls.includes(v) ? v : ls[0]; };
+const inLang = l => (l.lang || session.language || "es") === teachLang();
+const SELF = {es:"Español", en:"English", fr:"Français"};
+const listenings = () => session.lessons.filter(l=>l.kind!=="test" && inLang(l));
+const tests = () => session.lessons.filter(l=>l.kind==="test" && inLang(l));
 function renderPanel(){
   currentView = renderPanel;
   applyChrome();
   document.getElementById("lock").hidden = false;
   if(!SECTIONS.includes(section) || (section==="live" && !session.live)) section = "listenings";
+  const tls = teachLangs();
   $app.innerHTML = `
+  ${tls.length > 1 ? `<nav class="tlangs" role="tablist" aria-label="${esc(t("teachLang"))}">${tls.map(x=>`<button type="button" role="tab" data-tl="${x}" lang="${x}" aria-selected="${x===teachLang()}">${SELF[x]||x}<span class="n">${session.lessons.filter(l=>(l.lang||session.language||"es")===x).length}</span></button>`).join("")}</nav>` : ""}
   <nav class="sections" role="tablist" aria-label="Sections">
     <button type="button" role="tab" data-sec="listenings" aria-selected="${section==="listenings"}">${t("secListen")}<span class="count">${listenings().length}</span></button>
     <button type="button" role="tab" data-sec="tests" aria-selected="${section==="tests"}">${t("secTests")}${tests().length?`<span class="count">${tests().length}</span>`:`<span class="count soon">${t("testsSoon")}</span>`}</button>
     ${session.live?`<button type="button" role="tab" data-sec="live" aria-selected="${section==="live"}"><span class="livedot" aria-hidden="true"></span>${t("secLive")}</button>`:""}
   </nav>
   <div id="sec" role="tabpanel"></div>`;
+  $app.querySelectorAll("[data-tl]").forEach(b=>b.onclick=()=>{ store.set(tlKey(), b.dataset.tl); renderPanel(); });
   $app.querySelectorAll("[data-sec]").forEach(b=>b.onclick=()=>{ section=b.dataset.sec; store.set("vs-admin-section",section); renderPanel(); });
   const box = document.getElementById("sec");
   if(section==="tests") renderTests(box); else if(section==="live") renderLive(box); else renderListenings(box);

@@ -141,6 +141,10 @@ footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);color:v
 /* admin header + sections */
 .hdr-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .langtabs button{font-family:var(--f-mono);font-size:.78rem;padding:5px 10px}
+.tlangs{display:inline-flex;gap:4px;margin-top:18px;padding:4px;border:1px solid var(--line);border-radius:999px;background:var(--bg2)}
+.tlangs button{display:flex;align-items:center;gap:8px;font:700 .95rem var(--f-display);border:0;border-radius:999px;background:none;color:var(--muted);padding:8px 16px;cursor:pointer}
+.tlangs button[aria-selected="true"]{background:var(--accent);color:#fff}
+.tlangs .n{font:600 .72rem var(--f-mono);opacity:.8}
 .sections{display:flex;gap:4px;margin-top:20px;border-bottom:1px solid var(--line);overflow-x:auto}
 .sections button{display:flex;align-items:center;gap:8px;font:700 1rem var(--f-display);letter-spacing:-.01em;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);padding:10px 14px 9px;cursor:pointer;white-space:nowrap;margin-bottom:-1px}
 .sections button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
