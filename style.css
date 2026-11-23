@@ -295,7 +295,7 @@ body.noscroll{overflow:hidden}
 .menu-btn i:first-of-type{top:17px}.menu-btn i:last-of-type{top:25px}
 .menu-btn[aria-expanded="true"] i:first-of-type{top:21px;transform:rotate(45deg)}
 .menu-btn[aria-expanded="true"] i:last-of-type{top:21px;transform:rotate(-45deg)}
-.mmenu{display:grid;gap:22px;padding-block:8px 28px;height:calc(100dvh - 72px);align-content:start;overflow:auto}
+.mmenu{display:grid;gap:22px;padding-block:8px calc(28px + env(safe-area-inset-bottom,0px));height:calc(100dvh - 120px);align-content:start;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .mmenu nav{display:grid}
 .mmenu nav a{font:800 clamp(1.7rem,7vw,2.2rem)/1.2 var(--f-display);letter-spacing:-.03em;color:var(--ink);text-decoration:none;padding:12px 0;border-bottom:1px solid var(--line)}
 .mmenu .langlinks{display:flex;gap:6px}

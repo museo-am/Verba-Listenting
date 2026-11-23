@@ -15,7 +15,11 @@
       rb.querySelector("[data-refbar-close]").addEventListener("click", function(){ rb.classList.add("gone"); try{ localStorage.setItem("vs-refbar", "0"); }catch(e){} }); }
     var onScroll = function(){ nav.classList.toggle("scrolled", window.scrollY > 8); };
     onScroll(); window.addEventListener("scroll", onScroll, {passive:true});
-    var setMenu = function(open){ mb.setAttribute("aria-expanded", open); menu.hidden = !open; nav.classList.toggle("menu-open", open); document.body.classList.toggle("noscroll", open); };
+    /* the menu fills the screen below the header; the header's height changes (bring-a-friend strip, notch), so measure it */
+    var fit = function(){ if(menu.hidden) return; menu.style.height = Math.max(200, window.innerHeight - menu.getBoundingClientRect().top) + "px"; };
+    var setMenu = function(open){ mb.setAttribute("aria-expanded", open); menu.hidden = !open; nav.classList.toggle("menu-open", open); document.body.classList.toggle("noscroll", open); if(open){ menu.scrollTop = 0; fit(); } };
+    window.addEventListener("resize", fit);
+    if(rb) rb.querySelector("[data-refbar-close]").addEventListener("click", fit);
     mb.addEventListener("click", function(){ setMenu(mb.getAttribute("aria-expanded") !== "true"); });
     menu.addEventListener("click", function(e){
       var a = e.target.closest("a"); if(!a) return;
