@@ -827,3 +827,6 @@ html{scroll-behavior:smooth}
 #callbox .clogo b{color:#F06A5F}
 #callbox.has-rec .clogo{bottom:calc(150px + env(safe-area-inset-bottom,0px))}
 @media (max-width:759px){#callbox .clogo{padding:5px 10px 5px 6px}#callbox .clogo img{width:20px;height:20px}#callbox .clogo span{font-size:.78rem}#callbox.sharing .clogo{display:none}}
+.livesound{margin-top:18px}
+.livesound summary{cursor:pointer;font-weight:700}
+.livesound p{margin:10px 0 0}
