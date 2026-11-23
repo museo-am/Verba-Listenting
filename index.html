@@ -914,7 +914,7 @@ function renderLive(l, msg){
     jitsiApi = new JitsiMeetExternalAPI("8x8.vc", {
       roomName: `${l.appId}/${l.room}`, jwt: l.jwt, parentNode: stage, width: "100%", height: "100%",
       userInfo: {displayName: nm},
-      configOverwrite: {prejoinConfig:{enabled:true}, disableDeepLinking:true, channelLastN:-1, disableScreensharingVirtualParticipant:false, tileView:{disabled:true}, defaultLanguage: l.lang==="fr"?"fr":l.lang==="es"?"es":"en"},
+      configOverwrite: {prejoinConfig:{enabled:true}, disableDeepLinking:true, disableInviteFunctions:true, channelLastN:-1, disableScreensharingVirtualParticipant:false, tileView:{disabled:true}, defaultLanguage: l.lang==="fr"?"fr":l.lang==="es"?"es":"en"},
     });
 
     // stronger AI noise suppression (Jitsi's own, on top of the browser's); people can still switch it off in the call menu

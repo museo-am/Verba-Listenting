@@ -558,7 +558,7 @@ async function startCall(){
   jitsiApi = new JitsiMeetExternalAPI("8x8.vc", {
     roomName: `${L.appId}/${L.room}`, jwt, parentNode: box, width: "100%", height: "100%",
     userInfo: {displayName: session.username},
-    configOverwrite: {prejoinConfig:{enabled:true}, disableDeepLinking:true, channelLastN:-1, disableScreensharingVirtualParticipant:false, defaultLanguage: lang==="hy"?"hy":lang==="es"?"es":"en"},
+    configOverwrite: {prejoinConfig:{enabled:true}, disableDeepLinking:true, disableInviteFunctions:true, channelLastN:-1, disableScreensharingVirtualParticipant:false, defaultLanguage: lang==="hy"?"hy":lang==="es"?"es":"en"},
   });
   // students wait in the lobby until the tutor lets them in
   jitsiApi.addListener("videoConferenceJoined", () => { try{ jitsiApi.executeCommand("toggleLobby", true); }catch(e){} });
