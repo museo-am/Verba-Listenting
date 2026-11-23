@@ -820,3 +820,10 @@ html{scroll-behavior:smooth}
 .refdone p{margin:0}
 .refdone-h{font-weight:800;font-size:1.2rem}
 .refform .field[hidden],.refform button[hidden]{display:none}
+/* Verba logo on online lessons (bottom-left; above the tutor's Record button) */
+#callbox .clogo{position:absolute;z-index:3;left:calc(12px + env(safe-area-inset-left,0px));bottom:calc(96px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:7px;padding:6px 12px 6px 7px;border-radius:999px;background:rgba(20,17,16,.55);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);pointer-events:none;user-select:none;opacity:.88}
+#callbox .clogo img{width:24px;height:24px;object-fit:contain;display:block}
+#callbox .clogo span{font:800 .88rem/1 var(--f-display);letter-spacing:-.02em;color:#fff}
+#callbox .clogo b{color:#F06A5F}
+#callbox.has-rec .clogo{bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+@media (max-width:759px){#callbox .clogo{padding:5px 10px 5px 6px}#callbox .clogo img{width:20px;height:20px}#callbox .clogo span{font-size:.78rem}#callbox.sharing .clogo{display:none}}

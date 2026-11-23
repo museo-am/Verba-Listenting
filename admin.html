@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="img/icon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Armenian:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,500;1,600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=b8f3e9d4">
+<link rel="stylesheet" href="style.css?v=b9996ab4">
 </head>
 <body>
 
@@ -567,13 +567,18 @@ async function startCall(){
 
     // when someone shares a screen, show it big (phones otherwise keep it as a small tile or skip it)
     jitsiApi.addListener("contentSharingParticipantsChanged", e => {
-      const ids = (e && e.data) || [];
+      const ids = (e && e.data) || []; box.classList.toggle("sharing", ids.length > 0);
       try{
         if(ids.length){ jitsiApi.executeCommand("setTileView", false); jitsiApi.executeCommand("pinParticipant", ids[ids.length-1], "desktop"); }
         else jitsiApi.executeCommand("pinParticipant", null);
       }catch(x){}
     });
   recButton(box);
+
+  // our logo on the call (drawn by the page, so it is also in recordings); hidden on phones while a screen is shared
+  const clogo = document.createElement("div"); clogo.className = "clogo"; clogo.setAttribute("aria-hidden", "true");
+  clogo.innerHTML = '<img src="/img/logo.png" alt=""><span>Verba<b>.</b>School</span>'; box.appendChild(clogo);
+  box.classList.add("has-rec");
   jitsiApi.addListener("readyToClose", () => { endCall(); if(section==="live") renderLive(document.getElementById("sec"), t("liveLeft")); });
 }
 

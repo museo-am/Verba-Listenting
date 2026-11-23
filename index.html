@@ -30,7 +30,7 @@
 <script>if(/^#([a-z0-9-]+~[A-Za-z0-9_-]{43}|[a-z0-9-]+-[a-z2-9]{4}-[a-z2-9]{4}-[a-z2-9]{4})$/i.test(decodeURIComponent(location.hash)))document.documentElement.classList.add("is-link");</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Armenian:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,500;1,600&family=JetBrains+Mono:wght@500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=b8f3e9d4">
+<link rel="stylesheet" href="style.css?v=b9996ab4">
 </head>
 <body>
 
@@ -907,6 +907,10 @@ function renderLive(l, msg){
     const box = document.createElement("div"); box.id = "callbox";
     document.body.appendChild(box); document.body.classList.add("in-call"); lockZoom(true);
     const stage = callZoom(box);
+
+    // our logo on the call (drawn by the page, so it is also in recordings); hidden on phones while a screen is shared
+    const clogo = document.createElement("div"); clogo.className = "clogo"; clogo.setAttribute("aria-hidden", "true");
+    clogo.innerHTML = '<img src="/img/logo.png" alt=""><span>Verba<b>.</b>School</span>'; box.appendChild(clogo);
     jitsiApi = new JitsiMeetExternalAPI("8x8.vc", {
       roomName: `${l.appId}/${l.room}`, jwt: l.jwt, parentNode: stage, width: "100%", height: "100%",
       userInfo: {displayName: nm},
@@ -922,6 +926,7 @@ function renderLive(l, msg){
     jitsiApi.addListener("filmstripDisplayChanged", e => { stripOn = !!(e && e.visible); });
     jitsiApi.addListener("contentSharingParticipantsChanged", e => {
       const ids = (e && e.data) || [], phone = window.innerWidth < 760;
+      box.classList.toggle("sharing", ids.length > 0);
       try{
         if(ids.length){
           jitsiApi.executeCommand("setTileView", false);
