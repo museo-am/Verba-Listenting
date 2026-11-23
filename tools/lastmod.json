@@ -1,10 +1,10 @@
 {
  "": {
-  "hash": "6471cabd4209370e",
+  "hash": "76273fea2ad22c72",
   "date": "2026-11-23"
  },
  "angleren/": {
-  "hash": "dd28b99513ca1e12",
+  "hash": "395f79b16f1fede5",
   "date": "2026-11-23"
  },
  "ber-enkerojd/": {
@@ -12,55 +12,103 @@
   "date": "2026-11-23"
  },
  "blog/": {
-  "hash": "7ccc19fca5400f9a",
+  "hash": "dddf4cea746991dd",
   "date": "2026-11-23"
  },
  "blog/a1-c2-makardakner/": {
-  "hash": "de39cd5fd0058111",
+  "hash": "0e957faa5999ed85",
+  "date": "2026-11-23"
+ },
+ "blog/arcanc-lezvi-daser/": {
+  "hash": "d0683e9865d1149e",
+  "date": "2026-11-23"
+ },
+ "blog/fransereni-artasanutyun/": {
+  "hash": "1a733959508eed83",
   "date": "2026-11-23"
  },
  "blog/inchpes-darnal-poliglot/": {
-  "hash": "3812c02775007254",
+  "hash": "e01cf81f9c057e00",
+  "date": "2026-11-23"
+ },
+ "blog/inchpes-yntrel-lezvi-dasyntac/": {
+  "hash": "197c3871cde11ab4",
   "date": "2026-11-23"
  },
  "blog/inchqan-zhamanak-e-petq/": {
-  "hash": "31c7f6e5571f8cc2",
+  "hash": "add3631ae5362908",
+  "date": "2026-11-23"
+ },
+ "blog/ispaneren-skznaknerin-30-artahaytutyun/": {
+  "hash": "069f6009bd1b354b",
   "date": "2026-11-23"
  },
  "blog/ispaneren-te-franseren/": {
-  "hash": "b9adeff44736002c",
+  "hash": "b6e6bfb8f2f4b3ad",
+  "date": "2026-11-23"
+ },
+ "blog/khmbayin-te-anhatakan-daser/": {
+  "hash": "027fcfc22789815e",
+  "date": "2026-11-23"
+ },
+ "blog/present-simple-present-continuous/": {
+  "hash": "5f1827845fe4b1fb",
   "date": "2026-11-23"
  },
  "en/": {
-  "hash": "226974a58ef70c57",
+  "hash": "2c384db56b4fd786",
   "date": "2026-11-23"
  },
  "en/blog/": {
-  "hash": "81f09805651e49f5",
+  "hash": "c6ea1639909af76c",
   "date": "2026-11-23"
  },
  "en/blog/cefr-levels-a1-c2/": {
-  "hash": "500ba3078f49c1da",
+  "hash": "57d42f43e1096501",
+  "date": "2026-11-23"
+ },
+ "en/blog/french-pronunciation-for-beginners/": {
+  "hash": "fe4354edb0fac7a7",
+  "date": "2026-11-23"
+ },
+ "en/blog/group-or-private-lessons/": {
+  "hash": "21df73262f254cff",
   "date": "2026-11-23"
  },
  "en/blog/how-long-to-learn-a-language/": {
-  "hash": "7d1c35db9a511935",
+  "hash": "662782b2cdfa7180",
   "date": "2026-11-23"
  },
  "en/blog/how-to-become-a-polyglot/": {
-  "hash": "1e703692ee5f4bd7",
+  "hash": "7e4b03bb2738fbda",
+  "date": "2026-11-23"
+ },
+ "en/blog/how-to-choose-a-language-course/": {
+  "hash": "91a756fc1050a975",
+  "date": "2026-11-23"
+ },
+ "en/blog/online-language-lessons/": {
+  "hash": "da63dba4df136479",
+  "date": "2026-11-23"
+ },
+ "en/blog/present-simple-vs-present-continuous/": {
+  "hash": "2147877afd55c0b6",
   "date": "2026-11-23"
  },
  "en/blog/spanish-or-french/": {
-  "hash": "dc9cc13a0a4714e3",
+  "hash": "f78c5bfade230a66",
+  "date": "2026-11-23"
+ },
+ "en/blog/spanish-phrases-for-beginners/": {
+  "hash": "c8fc604da65db2f8",
   "date": "2026-11-23"
  },
  "en/english/": {
-  "hash": "8f56355bcb42eb1d",
+  "hash": "f14dbe7b82618a92",
   "date": "2026-11-23"
  },
  "en/french/": {
-  "hash": "618cb4f30a9cbbee",
+  "hash": "38c413e6c189deb4",
   "date": "2026-11-23"
  },
  "en/refer-a-friend/": {
@@ -68,7 +116,7 @@
   "date": "2026-11-23"
  },
  "en/spanish/": {
-  "hash": "584d123682968bb1",
+  "hash": "e5758281ec896fb9",
   "date": "2026-11-23"
  },
  "en/test/english/": {
@@ -84,51 +132,75 @@
   "date": "2026-11-23"
  },
  "es/": {
-  "hash": "cab73aabbe7cde07",
+  "hash": "6ca94e77cad3f4cf",
   "date": "2026-11-23"
  },
  "franseren/": {
-  "hash": "490ca60ac3bee87e",
+  "hash": "3c33049dd9f3ea5d",
   "date": "2026-11-23"
  },
  "ispaneren/": {
-  "hash": "7927bae42608a9d7",
+  "hash": "d3a91e0bdf050bf1",
   "date": "2026-11-23"
  },
  "ru/": {
-  "hash": "c6800d4259110278",
+  "hash": "f2807c169411d83a",
   "date": "2026-11-23"
  },
  "ru/angliyskiy/": {
-  "hash": "17a4aaa6753de5cf",
+  "hash": "8dce43e7d70e1a00",
   "date": "2026-11-23"
  },
  "ru/blog/": {
-  "hash": "c5c35fd16020e992",
+  "hash": "abf2b4af611fd079",
+  "date": "2026-11-23"
+ },
+ "ru/blog/francuzskoe-proiznoshenie/": {
+  "hash": "727a6121994de18b",
+  "date": "2026-11-23"
+ },
+ "ru/blog/gruppovye-ili-individualnye-zanyatiya/": {
+  "hash": "5be1cfc8fca1c514",
+  "date": "2026-11-23"
+ },
+ "ru/blog/ispanskiy-dlya-nachinayushchih-30-fraz/": {
+  "hash": "a3ab1be58d8dfb4f",
   "date": "2026-11-23"
  },
  "ru/blog/ispanskiy-ili-francuzskiy/": {
-  "hash": "f777e178ef103b5c",
+  "hash": "2856ba2da9587dc7",
   "date": "2026-11-23"
  },
  "ru/blog/kak-stat-poliglotom/": {
-  "hash": "3b6dfb7487433ecd",
+  "hash": "3b76ab046a51c763",
+  "date": "2026-11-23"
+ },
+ "ru/blog/kak-vybrat-yazykovye-kursy/": {
+  "hash": "fa577cc015a4e9f9",
+  "date": "2026-11-23"
+ },
+ "ru/blog/onlayn-zanyatiya-yazykom/": {
+  "hash": "02d480a5d191fbc3",
+  "date": "2026-11-23"
+ },
+ "ru/blog/present-simple-i-present-continuous/": {
+  "hash": "29c09c73d9ab00be",
   "date": "2026-11-23"
  },
  "ru/blog/skolko-vremeni-uchit-yazyk/": {
-  "hash": "f5f35399efc9602c",
+  "hash": "ffbedad4c6833d98",
   "date": "2026-11-23"
  },
  "ru/blog/urovni-a1-c2/": {
-  "hash": "436d99f270b9896e",
+  "hash": "68ea56ed99097895",
   "date": "2026-11-23"
  },
  "ru/francuzskiy/": {
-  "hash": "9bf7d2707ad2cbc1",
+  "hash": "6a57ce4f6f10ca67",
   "date": "2026-11-23"
  },
  "ru/ispanskiy/": {
-  "hash": "d0b8318d2522ea4d",
+  "hash": "6082e968d6c02db2",
   "date": "2026-11-23"
  },
  "ru/privedi-druga/": {

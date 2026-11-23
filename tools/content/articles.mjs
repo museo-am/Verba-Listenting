@@ -337,6 +337,11 @@ export const ARTICLES = {
   },
 };
 
+// six more articles live in their own file
+import { MORE } from "./articles-more.mjs";
+Object.assign(ARTICLES, MORE);
+export { ARTICLE_TAGS } from "./articles-more.mjs";
+
 export const BLOG_T = {
   hy: { title: "Բլոգ — լեզուներ սովորելու մասին | Verba School", h1: "Բլոգ", meta: "Հոդվածներ օտար լեզուներ սովորելու մասին՝ իսպաներեն, անգլերեն, ֆրանսերեն, CEFR մակարդակներ, պոլիգլոտ դառնալու խորհուրդներ։", lede: "Խորհուրդներ և բացատրություններ նրանց համար, ովքեր սովորում են իսպաներեն, անգլերեն կամ ֆրանսերեն։", read: "Կարդալ", crumb: "Բլոգ" },
   ru: { title: "Блог — об изучении языков | Verba School", h1: "Блог", meta: "Статьи об изучении иностранных языков: испанский, английский, французский, уровни CEFR, советы полиглотов.", lede: "Советы и объяснения для тех, кто учит испанский, английский или французский.", read: "Читать", crumb: "Блог" },

@@ -7,7 +7,7 @@ import { UI_LANGS, HOME, COURSE, TEST, BLOG, ARTICLE, REFERRAL } from "./content
 import { REF_T, referralBody } from "./content/referral.mjs";
 import { coursePage, NAMES } from "./content/course.mjs";
 import { PLACEMENT, PT } from "./content/placement.mjs";
-import { ARTICLES, BLOG_T } from "./content/articles.mjs";
+import { ARTICLES, BLOG_T, ARTICLE_TAGS } from "./content/articles.mjs";
 
 export const SITE = "https://verba-school.online/";
 const TARGETS = ["es", "en", "fr"];
@@ -66,16 +66,26 @@ function fillLinks(html, ui) {
     .replaceAll("{{PLATFORM}}", `${HOME[ui]}#plataforma`)
     .replaceAll("{{LEVELS}}", "/" + ARTICLE.levels[ui]).replaceAll("{{HOWLONG}}", "/" + ARTICLE.howlong[ui])
     .replaceAll("{{ESFR}}", "/" + ARTICLE.esfr[ui]).replaceAll("{{POLYGLOT}}", "/" + ARTICLE.polyglot[ui])
+    .replace(/\{\{ART_(\w+)\}\}/g, (m, k) => "/" + ARTICLE[k][ui])
     .replace(/\{\{TEST_(\w\w)\}\}/g, (m, x) => "/" + TEST[x][ui]).replace(/\{\{COURSE_(\w\w)\}\}/g, (m, x) => "/" + COURSE[x][ui]);
+}
+
+// related articles: ones tagged for the same language(s) first, then the general ones, newest first
+const byDate = (ks) => [...ks].sort((a, b) => ARTICLES[b].date.localeCompare(ARTICLES[a].date));
+function related(langs, exclude, n) {
+  const ks = byDate(Object.keys(ARTICLE).filter((k) => k !== exclude));
+  const specific = ks.filter((k) => ARTICLE_TAGS[k].some((t) => t !== "all" && langs.includes(t)));
+  const general = ks.filter((k) => !specific.includes(k) && (ARTICLE_TAGS[k].includes("all") || !langs.length));
+  return [...specific, ...general].slice(0, n);
 }
 
 // every page we generate: {path, ui, group, title, metaDesc, body, crumbs:[[label, href|null]], jsonld[]}
 export function allPages() {
   const pages = [];
   for (const ui of UI_LANGS) {
-    const artLinks = Object.keys(ARTICLE).map((k) => ["/" + ARTICLE[k][ui], ARTICLES[k][ui].title]);
+    const artLink = (k) => ["/" + ARTICLE[k][ui], ARTICLES[k][ui].title];
     for (const x of TARGETS) {
-      const c = coursePage(x, ui, artLinks.filter((_, i) => i !== 3 || x !== "en"));
+      const c = coursePage(x, ui, related([x], null, 5).map(artLink));
       pages.push({ path: COURSE[x][ui], ui, group: `course-${x}`, ...c,
         crumbs: [[CRUMB_HOME[ui], HOME[ui]], [plain(c.title.split(" — ")[0]), null]] });
       const t = PT[ui], n = NAMES[ui][x];
@@ -85,7 +95,7 @@ export function allPages() {
     }
     // blog hub
     const B = BLOG_T[ui];
-    const cards = Object.keys(ARTICLE).map((k) => {
+    const cards = byDate(Object.keys(ARTICLE)).map((k) => {
       const a = ARTICLES[k][ui];
       return `<article class="bcard rv"><a href="/${ARTICLE[k][ui]}"><h2>${a.title}</h2><p>${a.lede}</p><span class="bread">${B.read} →</span></a></article>`;
     }).join("\n      ");
@@ -98,7 +108,8 @@ export function allPages() {
       jsonld: [{ "@type": "Blog", name: B.title, inLanguage: ui, publisher: { "@id": SITE + "#school" } }] });
     for (const k of Object.keys(ARTICLE)) {
       const a = ARTICLES[k][ui], date = ARTICLES[k].date;
-      const others = Object.keys(ARTICLE).filter((x) => x !== k).map((x) => `<li><a href="/${ARTICLE[x][ui]}">${ARTICLES[x][ui].title}</a></li>`).join("");
+      const tags = ARTICLE_TAGS[k].filter((t) => t !== "all");
+      const others = related(tags, k, 5).map((x) => `<li><a href="/${ARTICLE[x][ui]}">${ARTICLES[x][ui].title}</a></li>`).join("");
       const tests = TARGETS.map((x) => `<a class="btn ghost" href="/${TEST[x][ui]}">${PT[ui].h1(NAMES[ui][x])}</a>`).join("");
       pages.push({ path: ARTICLE[k][ui], ui, group: `art-${k}`, title: `${a.title} | Verba School`, metaDesc: a.meta,
         body: `<article class="post">
